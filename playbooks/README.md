@@ -197,15 +197,17 @@ den beiden oder gar mehreren Clustern erfolgen muss. Dies ermöglicht eine noch 
 der Services, Netzwerke und Modularisierung der Anlagen. Wenn die Modularisierung und Installation noch manuell
 erfolgen muss, ist das kein Fortschritt. Xilinx baut auch Multi-Compiler-Ketten. Apropos Kompilerketten: Wenn wir
 das Reiterprinzip verwenden, dann können wir über große Strecken Systemwartungen durchführen und Messdaten direkt
-an uns weiterleiten lassen. Wir können gleichzeitig Beschleunigersoftware schnell deployen und ohne Abstriche bei
-der Ausführung schnelle binaries verwenden. Hier wird nicht in zeitkritischen Applikationen geskriptet!
+an uns weiterleiten lassen. Wir können gleichzeitig Beschleunigersoftware wie FPGAs oder andere Beschleuniger
+mit innerem Zustand schnell deployen und ohne Abstriche shared bei der Ausführung schnelle binaries verwenden. 
+Hier wird nicht in zeitkritischen Applikationen geskriptet!
 
 Weiterhin gibt es in Kubernetes eine Steuerung für das Deployment, welche wir selbst auch redundant anbieten müssen,
 um die Edge-Services am Laufen zu halten. Wir brauchen auch einen Masterservice dafür, bei dem wir konfigurieren können,
 wie oft redundant er ist und wo wer sich aufhalten soll. Dieser Service muss als Active/Active wie eine
 active directory Domäne aufgebaut sein. ich möchte an dieser Stelle auch anmerken, dass wir für die Zugriffskontrolle
 von Benutzern und Administratoren Rollen und Benutzer definieren müssen. Ich schlage vor einmal eine eigene Lösung
-dafür zu entwickeln oder direkt eine Samba oder microsoft Active Directory zu verwenden.
+dafür zu entwickeln oder direkt eine Samba oder microsoft Active Directory zu verwenden. (Ich denke dieser Absatz
+war schon mal in einer Form oben)
 
 Nach den Beschriebenen Phasen erstellen wir in playbooks auch die 3 Ordner VIA-M3-Compiler, VIA-M2-SDK und VIA-M1-System-Deploy
 
@@ -218,3 +220,5 @@ generieren, die ich dann mit einem VIA-System automatisch abfangen kann, indem d
 über ein KI Modell umsetzt und den Projektprozess umsetzt, bis das gewünschte laufende Debugergebnis auf meiner
 Konsole auftaucht. Das Ergebnis ist: Der Kunde beschreibt sein System der KI und die KI definiert die Anforderungen
 der Compilerbeschreibung und die Compilerbeschreibung definiert das System und sein vollautomatisches Verhalten.
+
+Bitte durchsuche 
