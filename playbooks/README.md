@@ -114,7 +114,48 @@ noch die Ströme des deployments mit Metadaten und Messdaten der Computer, die v
 werden sollen, um eine Kapselung zu ermöglichen, und es gibt die Prozesskommunikation, die sich nur zwischen den
 Applikationen und Services der Systemgeräte abspielt, um jedem Service vorzugaukeln, bei dem Ansprechpartner handelte
 es sich um einen Prozess wie auf demselben Gerät. An der Stelle der Prozesskommunikation können automatisch
-Prozessketten von Mikroservices aufgebaut werden. Gibt es nur einen Weiterleitungspartner, der nur Dieses liegt direkt auf der Netzwerkebene. Es verhält sich
+Prozessketten von Mikroservices aufgebaut werden. Gibt es nur einen Weiterleitungspartner, der aufgrund der
+Kompilation der Verarbeitungskomponenten sonst als ineffizienter separater Container existieren würde, dann
+können wir die Prozesskommunikation entweder thread-basiert oder prozess-basiert oder socket-basiert oder
+datei-basiert zusammenlegen. Auf Windows Betriebssystemen sind die Möglichkeiten begrenzter. Die Auswahl des
+Verbindungsverfahrens der Prozesskommunikation zwischen zwei Services oder Prozessen hängt von den verwendeten Objekt-
+Modellen aus M3 und deren Kombination zueinander ab. Andererseits können wir über die Anforderungen des Kunden mit
+dessen Systembeschreibung und dem M2-SDK-Compiler auch automatisch eine Cluster-Verteilte Prozesskommunikaiton
+aufsetzen, welche die virtuelle Weiterverarbeitung oder Gliederung in Unteraufgaben eines Unterprozesses auf anderen
+Containern und Maschinen im Netzwerk erlaubt. Die Abschätzung des Schedulings und Rankings der dynamischen Anwendung
+dieser Einrichtung wird im M2-SDK-Compiler für die M1-Kompilation mit einem statischen Ranking der anzuwendenden 
+Methode und einer dynamischen Laufzeitentscheidung über die Auswahl der Methode zur Laufzeit gehandelt.
+Letztendlich implementieren wir also das OPC UA mit einer Erweiterung von 2 Subprotokollen, weil wir über diese
+das System der Verarbeitung alias "Hirn/Hardware des Systems" und Ausführung und Verarbeitung der reinen Datenprozesse
+im Innen von der Welt hinter den Edgegeräten mit Spezialprotokollen trennen und weiterhin auch über Gruppierungen
+weiter unterteilen und in virtuelle Netzwerkströme teilen können. Wir erstellen also unter dem OPC UA eine Subebene
+mit Edge-Group-Protocol Deploy-Protocol Process-Group-Protocol. Wir erhalten so die Außenwelt, die sich virtuell noch weiter
+in Gruppen untergliedern lässt, um Ziele nicht alles einzeln koordinieren zu müssen, dann gibt es die Ebene der
+Verwaltung, Versionierung und Messdaten des ausführenden Gerätes und zuletzt trennen wir noch die Prozesskommunikation
+in Gruppen auf, um die Steuerung/das Programm wie üblich von den Daten zu trennen. Kubernetes macht es ganz ähnlich.
+nur dass wir Kubernetes verwenden, um dieses System zu bauen und vermutlich deployment und microservices über
+Kubernetes auf niedere Hardware zugreifen müssen, wofür der Benutzer auch Kubernetes-Treiber bereitstellen muss.
+Statt dem Was und Wo ein Microservices mit welchen Eigenschaften und Ressourcen ausgeführt wird, interessiert uns
+hier nur das was kein Gerät ist: das Netzwerk. VIA ist daher eine Systemkonstruktions-Suite mit automatischem 
+Netzwerk-Orchestrator und Scheduling-Compiler, der in der Lage ist, ein komplexes System zu bauen, zu deployen und zu
+verwalten. VIA ist auch nicht vollständig statisch, denn ich plane das Deployment aufzubauen wie ein Pferd, das einen
+Reiter trägt. Daher kann das Deployment, welches auf einem microservice in einem Kubernetes Container läuft, das
+Zielprogramm huckepack als Prozess ausführen, während es selbst nur das Protokoll verwaltet. Zum Thema digital
+Twin soll auf jedem Edge Gerät mindestens zwei parallele dieser Mikroservices laufen, um bei einem Ausfall weiterhin
+die Messdaten zu erhalten oder die Maschinen zu steuern. Dies beinhaltet eine ergiebige Fehleranalyse über Netzwerk-logs
+über das deployment sub-Protokoll. Der Systembetreiber kann auf den Fehler zurückgreifen und die Fehleranalyse
+über das deployment sub-Protokoll führen. Bei Korrektur des Fehlers kann das System im laufenden Betrieb per
+Canary Deployment auf den neuen Code umgestellt und über das Vorhalten der alten Version in Sekundenbruchteilen
+zurückgerollt werden, weil C++ unter stabilen ABIs ab C++23 Module als shared library direkt aus dem Arbeitsspeicher
+oder per Definition von der Festplatte oder Remotesystem laden und ersetzen kann. Die Systemmodule für die Edgegeräte
+werden zur Kompilation der M2-SDK zuerst dem Kunden bereitgestellt und dieser definiert über seine Projektdefinition
+sein fertiges System, wonach wir mit dem M1 Compiler kompilieren und diese Edge-Module erzeugen. Es ist unsere Aufgabe
+diese Module in ihrer Konsistenz der Schnittstellen ABI, der Versionierung, der Lokalität, der Fehleranalyse, Performance
+und Anzeige der Kompatibilität zu anderen Einsatzorten zu mappen und die Möglichkeiten im System festzuhalten und dem
+Kunden zu präsentieren.
+Die Entscheidungen über die Implementierung und Vernetzung
+der einzelnen Komponenten, um ein statisches M1 Projekt bilden sollen, werden in M2 über C++ Metaprogrammierung und
+CMake-Konfigurationen beschlossen.
 Mit dem Gesamtprojekt geht es jetzt weiter.
 
 Zur Systemarchitektur: Die gemeinsame Sprache des Systems ist das OPC UA Protokoll mit 
@@ -135,4 +176,5 @@ die Rest-Fehler in einem Projekt gegen die Kundenspezifizierung anzeigt und imme
 funktioniert. Ich möchte das in diesem Aufbau zeigen, indem ich manuell Testservices aufsetze, die zufällige Daten
 generieren, die ich dann mit einem VIA-System automatisch abfangen kann, indem das System meine Anforderungen
 über ein KI Modell umsetzt und den Projektprozess umsetzt, bis das gewünschte laufende Debugergebnis auf meiner
-Konsole auftaucht. Das Ergebnis ist: Der Kunde beschreibt sein System
+Konsole auftaucht. Das Ergebnis ist: Der Kunde beschreibt sein System der KI und die KI definiert die Anforderungen
+der Compilerbeschreibung und die Compilerbeschreibung definiert das System und sein vollautomatisches Verhalten.
