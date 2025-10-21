@@ -203,6 +203,17 @@ das Reiterprinzip verwenden, dann können wir über große Strecken Systemwartun
 an uns weiterleiten lassen. Wir können gleichzeitig Beschleunigersoftware wie FPGAs oder andere Beschleuniger
 mit innerem Zustand schnell deployen und ohne Abstriche shared bei der Ausführung schnelle binaries verwenden. 
 Hier wird nicht in zeitkritischen Applikationen geskriptet!
+In der Systemarchitektur müssen wir auch beachten, dass Industriesysteme unglaublich heterogen in der CPU Architektur
+und den Speichermodellen sind. Wir sind darauf angewiesen alle exotischen Architekturen zu unterstützen
+(MIPS, RISC-V, POWER9+, x86, ARM1+, Sparc; Linux, Windows, Mac),
+weil wir die Industrie nicht nur für die Industrie der Zukunft, sondern auch für die Industrie der Vergangenheit unterstützen
+müssen. Die Edge Geräte sind meist billigste Minicomputer und die Server ausgefeilte Verarbeitungs-monster.
+Daher müssen brauchen wir einen workflow, der bereits in M2 das Zielsystem, wohin zu deployen ist, berücksichtigt.
+Der deployment Service muss auch in der Lage sein githubrunner zu instanziieren und von den Builds der einzelnen Module
+die Kompilationsergebnisse zurückzugeben. Durch die verteilte Kompilation können wir auch alle Module parallel kompilieren
+und die Ergebnisse an die entsprechenden githubrunner zurückgeben. Dies ermöglicht eine effiziente und schnelle Deployment
+Prozess. Module, die skalieren, also doppelt deployed, aber nur einmal implementiert werden, müssen nur einmal kompiliert
+werden, wenn die Umgebungen der Container und der Host-Betriebssystem gleich sind.
 
 Weiterhin gibt es in Kubernetes eine Steuerung für das Deployment, welche wir selbst auch redundant anbieten müssen,
 um die Edge-Services am Laufen zu halten. Wir brauchen auch einen Masterservice dafür, bei dem wir konfigurieren können,
