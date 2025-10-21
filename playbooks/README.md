@@ -228,3 +228,19 @@ Bitte durchsuche den Ordner "C:\Users\benja\OneDrive\Dokumente\Uni Dresden\21_15
 und lese alle Word-Dokumente, weil ich darin den Projektkontext beschreibe und den Research abgelegt habe.
 Durchsuche den derzeitigen Stand der Technik nach Korrelationen, biete open source codeprojekte zum Verständnis
 an und suche nach möglichen Lösungen für die Probleme, die ich in diesem Projekt beheben möchte.
+Recherchiere durch alle Webseiten, die ich dir gegeben habe und prüfe alle Informationen meiner strukturierten Idee,
+bzw. strukturiere meine Idee in ein erstes Playbook und dann erstelle Ordner für die einzelnen Phasen.
+Zu jeder Phase gehört nochmal als Unterkategorie das Playbook der Implementierung und das Playbook des Testsystems.
+Da das Hauptsystem den erstem M3 Compiler baut, packst du die Ordner Implementierung und Testsystem für dieses
+einfach in den playbook Ordner, ohne nochmal einen Unterorder zu erstellen. Das Hauptsystem orchestriert schließlich
+den Verlauf der 3 Phasen als eigenes Programm, welches einen Teil der Anwenderaufgaben übernimmt. Heutzutage werden
+ja auch immer noch KI Modelle per Hand aufgebaut, trainiert und zusammengesteckt. In unserem Fall beginnen wir den
+Kreis zu schließen und definieren über einen Automatismus M3 mit sich selbst. Das ist ein Meilenstein in der Forschung.
+Trotzdem wünscht sich Dr. Olaya, dass ich vergleichbare Arbeiten mit Quellen Akkumuliere und noch so 15 Quellen und
+ähliche Arbeiten mit einfließen lasse, wenn sinnvoll. Bitte gebe diese an.
+
+Ausgabedokumente sind außerdem ein Expose des Forschungsprojektes für die Laufzeit, die in dem Dokument für
+"Analyse eines Forschungsthemas - Prozesskommunikation" beschrieben wird. Ich habe noch ein zweites Forschungsprojekt
+geplant, das du dir für die Strukturierung der Ausgabedatei "Expose - Analyse eines Forschungsthemas - 
+Prozesskommunikation - self modeling and building systems.docx"
+ansehen kannst.
