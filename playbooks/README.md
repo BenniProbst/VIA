@@ -171,16 +171,34 @@ dass alle Protokolle in ihrer Konstellation alle Befehle senden und empfangen k�
 korrekt verhalten. Es ist unsere Aufgabe zu ergründen, ob sich Einzelapplikationen nach den Spezifikationen des Kunden
 im Testsystem korrekt verhalten und wir verpflichten den Kunden jede public Funktion zu testen, die ein
 öffentliches Interface hat. Es ist unsere Aufgabe die Prozessketten der Module und Netzwerk-Services zu
-erkennen und zu testen, ob sie korrekt funktionieren. Die tests werden stets 
+erkennen und zu testen, ob sie korrekt funktionieren. Die tests werden stets über das deployment sub-protokoll
+orchestriert, um zum Beispiel die Gegenstelle auf einen Testlauf vorzubereiten, weil die sicherste Variante der Tests
+unter echten Betriebsbedingungen abläuft. Dazu muss es möglich sein, dass für den Testlauf auch in normale microservices
+Container ein Deploymentservice mit einkompiliert wird, um den gewöhlichen Microservice über eine Erweiterte
+Prozesskommunikation zu testen und im echten System zu debuggen. Fehlt der deployment service, wird der microservice
+als Startservice im paketierten Betriebssystem registriert und gestartet. Ist der deployment service vorhanden, so
+wird der deployment service mit dem Grundmodul für einen Server Start gestartet und dann startet dieser den Reiter-Service,
+nachdem er ihn von der Master Active Management, wie ich die redundante und zu Kubernetes analoge deployment 
+Orchestration von VIA nenne, erhalten hat.
 
-Zur Systemarchitektur: Die gemeinsame Sprache des Systems ist das OPC UA Protokoll mit 
+Zur Systemarchitektur: Die gemeinsame Sprache des Systems ist das ganz grundlegend das OPC UA Protokoll mit 
 https://de.wikipedia.org/wiki/OPC_Unified_Architecture. Wir wollen hier in einem Unterprojekt auch Modelle und
-dann generierte Implementierungen erstellen, welche  dieses Protokoll implementieren. Das OPC UA Protokoll ist ein
+dann generierte Implementierungen erstellen, welche dieses Protokoll implementieren. Das OPC UA Protokoll ist ein
 Standard für die Kommunikation zwischen Industrieanlagen und ist in vielen Industriebranchen verbreitet. Wir wollen
 diese Implementierungen auch in diesem Unterprojekt erstellen, um die Kommunikation zwischen verschiedenen Anlagen
 und Systemen zu vereinfachen und zu standardisieren. Wir verwenden am besten die offizielle Quelle des öffentlichen
 git repository, um für das OPCUA die Spezifikationen zu erhalten und Änderungen zu überwachen und dieses Git Repository
-halten wir als third party des OPCUA Projekts.
+halten wir als third party des OPCUA Projekts. Obwohl wir subprotokolle für unser virtuelles Netzwerk Edge-Deployment
+definiert haben, plane ich das OPCUA Protokoll auch außerhalb des Kubernetes Clusters und der Netzwerk und Edge
+Gruppen, normal zwischen zwei Clustern zu verwenden und zu implementieren. Angenommen es handelt sich um ein
+gemeinsames Netzwerk, aber auf der Betriebssystemebene sind im selben physischen Netzwerk zwei Cluster vorhanden, die
+getrennt arbeiten, dann ist es dennoch wahrscheinlich, dass eine Synchronisation, etwa per VPN zwischen Standorten und
+den beiden oder gar mehreren Clustern erfolgen muss. Dies ermöglicht eine noch weitere komponentenbasierte Aufgliederung
+der Services, Netzwerke und Modularisierung der Anlagen. Wenn die Modularisierung und Installation noch manuell
+erfolgen muss, ist das kein Fortschritt. Xilinx baut auch Multi-Compiler-Ketten. Apropos Kompilerketten: Wenn wir
+das Reiterprinzip verwenden, dann können wir über große Strecken Systemwartungen durchführen und Messdaten direkt
+an uns weiterleiten lassen. Wir können gleichzeitig Beschleunigersoftware schnell deployen und ohne Abstriche bei
+der Ausführung schnelle binaries verwenden. Hier wird nicht in zeitkritischen Applikationen geskriptet!
 
 Weiterhin gibt es in Kubernetes eine Steuerung für das Deployment, welche wir selbst auch redundant anbieten müssen,
 um die Edge-Services am Laufen zu halten. Wir brauchen auch einen Masterservice dafür, bei dem wir konfigurieren können,
