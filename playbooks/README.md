@@ -163,7 +163,15 @@ und per Kubernetes deployed werden. Kubernetes deployed also Einfachservices und
 Edge Geräte und externe Messdatenaggregationen und übersetzung von Protokollen oder ganz spezielle Speicher-
 und Netzwerk-Services.
 
-Mit dem Gesamtprojekt geht es jetzt weiter.
+Mit dem Gesamtprojekt geht es jetzt weiter. Wir haben jetzt also einen M2-SDK-Compiler in C++, der uns mit den
+Kundendaten ein M1 Projekt gebaut haben. An dieser Stelle benötigen wir in M1 den VIA-M1-System-Deployer, um das
+M1 Projekt auf einem Kubernetes Cluster und die Module auf die "horses" zu bringen. Dies beinhaltet auch generierte
+Systemtests, die der Kunde in seinem Projekt grob vordefiniert hat. Unsere Aufgabe ist es, dieses System darauf zu testen,
+dass alle Protokolle in ihrer Konstellation alle Befehle senden und empfangen können und sich zustandsbasiert
+korrekt verhalten. Es ist unsere Aufgabe zu ergründen, ob sich Einzelapplikationen nach den Spezifikationen des Kunden
+im Testsystem korrekt verhalten und wir verpflichten den Kunden jede public Funktion zu testen, die ein
+öffentliches Interface hat. Es ist unsere Aufgabe die Prozessketten der Module und Netzwerk-Services zu
+erkennen und zu testen, ob sie korrekt funktionieren. Die tests werden stets 
 
 Zur Systemarchitektur: Die gemeinsame Sprache des Systems ist das OPC UA Protokoll mit 
 https://de.wikipedia.org/wiki/OPC_Unified_Architecture. Wir wollen hier in einem Unterprojekt auch Modelle und
@@ -173,6 +181,13 @@ diese Implementierungen auch in diesem Unterprojekt erstellen, um die Kommunikat
 und Systemen zu vereinfachen und zu standardisieren. Wir verwenden am besten die offizielle Quelle des öffentlichen
 git repository, um für das OPCUA die Spezifikationen zu erhalten und Änderungen zu überwachen und dieses Git Repository
 halten wir als third party des OPCUA Projekts.
+
+Weiterhin gibt es in Kubernetes eine Steuerung für das Deployment, welche wir selbst auch redundant anbieten müssen,
+um die Edge-Services am Laufen zu halten. Wir brauchen auch einen Masterservice dafür, bei dem wir konfigurieren können,
+wie oft redundant er ist und wo wer sich aufhalten soll. Dieser Service muss als Active/Active wie eine
+active directory Domäne aufgebaut sein. ich möchte an dieser Stelle auch anmerken, dass wir für die Zugriffskontrolle
+von Benutzern und Administratoren Rollen und Benutzer definieren müssen. Ich schlage vor einmal eine eigene Lösung
+dafür zu entwickeln oder direkt eine Samba oder microsoft Active Directory zu verwenden.
 
 Nach den Beschriebenen Phasen erstellen wir in playbooks auch die 3 Ordner VIA-M3-Compiler, VIA-M2-SDK und VIA-M1-System-Deploy
 
