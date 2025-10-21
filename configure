@@ -1,0 +1,23 @@
+#!/bin/bash
+# VIA Configuration Script for Linux/macOS
+# Copyright (c) 2025 BEP Venture UG
+
+BUILD_TYPE="Release"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --build-type=*)
+            BUILD_TYPE="${1#*=}"
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+echo "Configuring VIA with build type: $BUILD_TYPE"
+mkdir -p "cmake-build-${BUILD_TYPE,,}"
+cd "cmake-build-${BUILD_TYPE,,}"
+cmake -DCMAKE_BUILD_TYPE="$BUILD_TYPE" ..
