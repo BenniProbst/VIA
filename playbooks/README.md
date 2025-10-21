@@ -153,9 +153,16 @@ sein fertiges System, wonach wir mit dem M1 Compiler kompilieren und diese Edge-
 diese Module in ihrer Konsistenz der Schnittstellen ABI, der Versionierung, der Lokalität, der Fehleranalyse, Performance
 und Anzeige der Kompatibilität zu anderen Einsatzorten zu mappen und die Möglichkeiten im System festzuhalten und dem
 Kunden zu präsentieren.
-Die Entscheidungen über die Implementierung und Vernetzung
-der einzelnen Komponenten, um ein statisches M1 Projekt bilden sollen, werden in M2 über C++ Metaprogrammierung und
-CMake-Konfigurationen beschlossen.
+Die Entscheidungen über die Implementierung und Vernetzung aller einzelnen Komponenten, um ein statisches M1 Projekt 
+bilden zu können, werden in M2 über C++ Metaprogrammierung und CMake-Konfigurationen beschlossen, wenn in der Projekt-
+Definitionsphase des Kunden weiterhin ein Installationsplaybook über die Kubernetes Services Installation
+für das System-Deployment erfolgt, sodass die neu eingerichteten Edge Geräte-Container im Folgenden
+Services werden grundlegend so kompiliert, dass nur wichtige Komponenten nach dem modularen Pferd und Reiter-Modell
+aufgebaut werden. Andere Services können vereinfacht in einen Kubernetes Container oder Docker Container Kompiliert
+und per Kubernetes deployed werden. Kubernetes deployed also Einfachservices und VIA deployed C++23 Module für
+Edge Geräte und externe Messdatenaggregationen und übersetzung von Protokollen oder ganz spezielle Speicher-
+und Netzwerk-Services.
+
 Mit dem Gesamtprojekt geht es jetzt weiter.
 
 Zur Systemarchitektur: Die gemeinsame Sprache des Systems ist das OPC UA Protokoll mit 
