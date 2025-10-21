@@ -1,0 +1,68 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+
+# Compiled Object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.vcxproj.user
+
+# Testing
+Testing/
+*.log
+
+# Third-party dependencies (if managed externally)
+# Uncomment if using package managers
+# third_party/
+
+# Output files
+*_output.xlsx
+*.pdf
+
+# Temporary files
+*.tmp
+*.temp
+~$*.xlsx
+
+# License keys (if applicable)
+*.lic
+*.key
+license_*.txt
