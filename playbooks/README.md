@@ -1,4 +1,4 @@
-Ich beschreibe in diesem Ordner meine Playbooks.
+Ich beschreibe in diesem Ordner meine Playbooks. Am Ende sind die Anweisungen.
 
 Nach ausführlicher Recherche bin ich zu folgendem Ergebnis gekommen:
 Nachdem mir Dr. Santiago Olaye das AAS Repository geschickt hat, war ich etwas schockert und gleichzeitig begeistert
