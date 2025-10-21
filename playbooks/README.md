@@ -183,7 +183,10 @@ Orchestration von VIA nenne, erhalten hat.
 
 Zur Systemarchitektur: Die gemeinsame Sprache des Systems ist das ganz grundlegend das OPC UA Protokoll mit 
 https://de.wikipedia.org/wiki/OPC_Unified_Architecture. Wir wollen hier in einem Unterprojekt auch Modelle und
-dann generierte Implementierungen erstellen, welche dieses Protokoll implementieren. Das OPC UA Protokoll ist ein
+dann generierte Implementierungen erstellen, welche dieses Protokoll implementieren. Ich möchte auch festhalten,
+dass es möglich sein soll die Subprotokolle, wie auch das Masterprotokoll nach Dr. Olayas MMB zu betreiben, sodass
+nach einer definierten Sicherheitsstufe und Paket- Ankunftssicherheit die allgemeine, wie auch die speziellen sub-Protokolle
+im Netzwerk als Many to Many Broadcast effektiv im Netzwerk im OPC UA ausgeführt werden können. Das OPC UA Protokoll ist ein
 Standard für die Kommunikation zwischen Industrieanlagen und ist in vielen Industriebranchen verbreitet. Wir wollen
 diese Implementierungen auch in diesem Unterprojekt erstellen, um die Kommunikation zwischen verschiedenen Anlagen
 und Systemen zu vereinfachen und zu standardisieren. Wir verwenden am besten die offizielle Quelle des öffentlichen
@@ -221,4 +224,7 @@ generieren, die ich dann mit einem VIA-System automatisch abfangen kann, indem d
 Konsole auftaucht. Das Ergebnis ist: Der Kunde beschreibt sein System der KI und die KI definiert die Anforderungen
 der Compilerbeschreibung und die Compilerbeschreibung definiert das System und sein vollautomatisches Verhalten.
 
-Bitte durchsuche 
+Bitte durchsuche den Ordner "C:\Users\benja\OneDrive\Dokumente\Uni Dresden\21_15. Semester INFO 17\Analyse eines Forschungsthemas - Prozesskommunikation"
+und lese alle Word-Dokumente, weil ich darin den Projektkontext beschreibe und den Research abgelegt habe.
+Durchsuche den derzeitigen Stand der Technik nach Korrelationen, biete open source codeprojekte zum Verständnis
+an und suche nach möglichen Lösungen für die Probleme, die ich in diesem Projekt beheben möchte.
