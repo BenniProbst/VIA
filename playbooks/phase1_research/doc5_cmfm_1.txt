@@ -1,0 +1,563 @@
+Page 1
+Comprehensive Management Function Model:
+Generality and Workflow
+Santiago Soler Perez Olaya
+Chair of Industrial Communications
+Technische Universit ¨at Dresden
+Dresden, Germany
+santiago.soler perez olaya@tu-dresden.deMartin Wollschlaeger
+Chair of Industrial Communications
+Technische Universit ¨at Dresden
+Dresden, Germany
+martin.wollschlaeger@tu-dresden.de
+Abstract —In the context of Industry 4.0, the industrial pro-
+duction systems present an increasing complexity that mirrors
+the complexity of industrial communications. This paper presents
+the further development of a novel approach to deal with this
+growing complexity and heterogeneity and introduces the work-
+flow to bring the advantages of open source and standardization
+together. With the Comprehensive Management Function Model
+and its manager-centric paradigm, the management of complex
+industrial communications systems can be implemented as part
+of Administration Shell 4.0. This approach boosts the automation
+and knowledge transfer regarding network management dealing
+with industrial production systems in a holistic manner.
+Index Terms —Industry 4.0, holistic management, HetIndNet,
+CMFM, industrial communications, manager-centered paradigm
+I. I NTRODUCTION
+The evolution of the industrial production systems, from
+isolated value chains towards a fully connected value net-
+work, comes with an unavoidable increase of complexity. This
+growth of complexity can be observed in several initiatives
+and has a significant impact in the industrial communication.
+Factories of the Future focuses on the collaboration human-
+machine to optimize production, i.e. the machine holds the
+knowledge and the human uses that knowledge in a flexible
+manner, e.g. pick by light. Smart Factories look for a more
+flexible inter-chaining of the production processes, e.g. use
+logistic robots and combined processes instead of hardwired
+series of single process and conveyor. The specialization
+combined with collaboration between different stakeholders
+opens the door to further optimizations in the production,
+e.g. future value chains do no longer need to belong to one
+single stakeholder. Individualized products, aka batch-size-
+one, drive the need for flexible production enabling special
+customer wishes. Optimization aiding technologies like arti-
+ficial intelligence require the acquisition of monitoring data
+that usually does not get out of the industrial buses. Wrapping
+all this trends and focusing on the holistic management of
+heterogeneous systems is the Industry 4.0 approach [1].
+These initiatives drive following steady trends:
+•Increase of complexity: systems, logistics, production and
+interactions are getting further complex
+This work is partly funded by the German ministry of education and
+research (BMBF) within the research project KITOS (16KIS1163)•Increase of automation degree: human intervention is
+error prone, thus less human intervention means less
+errors
+•Increase of interconnection (asset connected its whole
+life, connected world in RAMI 4.0)
+Another important factor in this evolution is the longevity
+of current industrial systems that need to be integrated with
+novel technologies. Thus, increasing the heterogeneity of the
+resultant systems. The concept of heterogeneous industrial
+network (HetIndNet) defines industrial networks which are so
+complex that they have an unavoidable relevant heterogeneity.
+This complexity comes from the use of different network
+technologies in the same industrial application. This means
+that the industrial application cannot properly work without
+these different network technologies running appropriately
+and the configuration of the one technology depends on the
+configuration of the other ones, making the comprehensive
+management mandatory [2].
+A Comprehensive Management Function (CMF) is a man-
+agement task in a manager-centric paradigm, i.e. from the
+point of view of the manager. The manager performs this task
+to achieve a goal using the implemented management tools,
+e.g. typical management functions in system-centric paradigm
+are get and set of some value in some equipment that the
+manager combine to achieve something. That something is
+the goal in a manager-centric paradigm. Besides the goal, a
+CMF has also an Output and possibly an Input, one or more
+Representations, and Constraints. Further details on the meta-
+model of the CMF can be found in the following section. From
+a computer science point of view, each Representation fol-
+lows the Facade-pattern and the Comprehensive Management
+Function Model (CMFM) itself follows the Bridge-pattern [3].
+To be able to take advantage of the extra work of creating
+and using CMFs, the target system should be a heterogeneous
+system, e.g. HetIndNet. Otherwise, it probably will be easier
+to directly use the system-centric management system of the
+equipment [4].
+Novelty presented in this paper is the update of the UML
+definition (see Figure 1) extended with the concepts of domain
+and generality to deal with the problem of scope and validity
+of the CMF. The workflow for the creation and development
+of CMF is also presented for the first time in this paper, as
+594 978-1-7281-7568-3/22/$31.00 ©2022 IEEE2022 IEEE 20th International Conference on Industrial Informatics (INDIN) | 978-1-7281-7568-3/22/$31.00 ©2022 IEEE | DOI: 10.1109/INDIN51773.2022.9976129
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:32:26 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 2
+Fig. 1. Extended UML diagram of the Comprehensive Management Function. The yellow box highlights the extension upon [4].
+well as the evaluation of the approach related to open source
+and standardization approaches.
+The remainder of the paper is organized as follows: Sec-
+tion II gives an overview of the state of the art, Section
+III introduces the novel changes in the CMFM, Section IV
+explains the workflow for the creation of CMF and the
+involved stakeholders, Section V presents the evaluation of
+the comprehensive management function model approach and
+its workflow, and Section VI wraps-up the results presented.
+II. S TATE OF THE ART
+The are many system-centric network management
+paradigms, identified and classified in [5], that mirror the
+managed system in some way. This mirroring leads to a
+direct relation between the complexity of the network and
+the complexity of its management. In distributed systems
+[6]–[8], this effect is even bigger, as the heterogeneity also
+grows. Changes in one part of the system have repercussion
+in other parts of the system. Thus, there is the need for a
+holistic management that can encapsulate this complexity in a
+manager-centric paradigm [4].
+There are already approaches, like in [9], [10], that aim
+to give a holistic solution for network management. They
+have also the drawback of not encapsulating the complexity,
+but interrelating business rules in policies that make the use
+of such management approaches even more complex. The
+network management needs to upgrade from ”policies telling
+if something needs to be done” to a management system that
+also knows how, where, when, and why some management
+task needs to be done.
+Converged networks will allow pushing data from shop
+floor to the cloud, like explained in [1]. They also bring an
+increase of heterogeneity due to the different requirements
+to communication at different levels. Just at field device
+level there are many different communication requirements
+that differ from the ones at manufacturing execution level or
+business level. In addition, “the cloud” is heterogeneous itself,
+due to different providers, reference architectures etc.
+Industry 4.0 with its Asset Administration Shell [11] aims to
+a holistic management of industrial production systems. While
+it is still under development, there is already active researchon how to improve industrial production systems with the use
+of Industry 4.0 approaches. The use of Industry 4.0 represents
+also challenges [12] in its implementation.
+There is also the challenge of heterogeneous semantics.
+Different stakeholders give different meanings to the same
+term and/or use different terms for a similar meaning. Thus,
+blocking interoperability. Only experience can build the bridge
+between different semantics. This deep understanding of com-
+plex systems is often implicit knowledge accumulated over the
+years, e.g. giving a user gold service implies some resource
+reservation where the checkup of other services (silver, plat-
+inum, etc.) is implicitly needed to not disturb the services of
+other users. The CMFM, introduced in [2], allows to make
+this implicit knowledge explicit and available for future use
+in the automation of management. Further details on CMFM
+and the definition of expression, input, output, constraints, and
+goal can be found in [4]. Due to design and implementation
+efforts, time-consuming definitions, and inconvenient balance
+of interests there is the need for a smooth transition path to
+successfully change systems. The workflow presented in this
+paper deals with the transition problem.
+III. E XTENSION OF THE CMFM
+The main element of the CMFM, see UML diagram rep-
+resented in figure 1, is the CMF itself. There are two levels
+of relation to CMF. To the first one, direct level, belong the
+components of a CMF: goal, input, output, representation and
+constraints. The components can be grouped in mandatory
+and optional, being mandatory goal and output. The second
+level, indirect, related components are the expressions that
+are composed of vocabulary terms. V ocabulary terms have
+a generality, explained below, that will play a decisive role
+in the comprehensive management. In addition, a vocabulary
+term can point to standardized URI belonging to semantic
+repositories like e-Class [13], CDD [14], I4.0 SemanticID [15],
+etc. in order to improve the semantic interoperability.
+A. Vocabulary
+A common vocabulary, i.e. common semantic, will enable
+the interoperability in heterogeneous systems. This is both a
+weakness and fundamental for any comprehensive approach.
+595
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:32:26 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 3
+Fig. 2. Example of relation between management systems and CMFs through their representations.
+The weakness appears, when the defined vocabulary falls too
+short or too extensive or too specific or too vague:
+•If it falls too short, new terms will need to be created
+to cover the missing ones. The process of creation can
+slow down the development of the management systems,
+thus not being feasible in terms of time-cost to use that
+comprehensive system.
+•If it falls too extensive, it may be too expensive in
+terms of time to search for the right term for something,
+deriving sometimes in the use of more general terms that,
+in the end, generate lack of semantic interoperability.
+•If it falls too specific, it will be too complicated to find
+abstractions that allow the promotion of CMF towards
+core, see section IV-B for more details.
+•If it falls too vague, the sharpness required for some CMF
+definitions will be missing.
+As already mentioned, there are some dictionaries and
+repositories of terms and definitions with unique identification.
+They are possible sources of vocabulary and should be used,
+at least from standardization stake holders when promoting
+vocabulary terms and CMF in generality and core. The other
+source of vocabulary is the user of the comprehensive man-
+agement. Users can create new needed vocabulary without the
+burden of regulation and standardization processes.
+B. Generality
+The concept of generality is used to deal with the weak-
+nesses of the vocabulary explained above. The generality
+reflects in which domain, for which user, or for which imple-
+mentation the vocabulary terms are meaningful, i.e. valid. This
+allows to mix different domains, users and implementation
+in the same knowledge management system, while keeping
+a healthy vocabulary. There are three degrees of generality:
+implementation, user and domain. All the terms belonging to
+a domain/user/implementation form a generality group.
+Additionally, an implementation belongs to a user and a
+user belongs to a domain. A domain belongs also to a parent
+domain. This builds a semantical hierarchy that helps in the
+process of promotion explained in IV.
+1) Domain Generality: this concept of domain points to
+knowledge domains. Examples of domains are heterogeneous
+industrial networks, autonomous driving systems, private 5Gnetworks, and Internet of Things. Usually, different domains
+share some vocabulary terms. This points to the need of a
+suitable parent domain to hold the shared terms.
+2) User Generality: When a user applies the same vocab-
+ulary to many implementations of systems in its management
+responsibility (generality group), these terms promote to user
+generality, as they are valid for the user and not only for
+one implementation. The example of GitHub can be used to
+clarify this concept of user generality. A user can have many
+repositories. Some of them will be isolated and implementation
+specific while others can be reused by the user in many
+implementations. These last ones are of user generality.
+C. Examples of CMF
+As already explained in the introduction, CMFs are related
+to HetIndNet and not to simple networks. This is important to
+keep in mind as, for example, network addresses in different
+networks can present different formats and different ways to
+ask for them. To the date, some generally usable CMFs have
+been identified:
+•live-list: returns a list of alive nodes with their network
+addresses.
+•topology: returns the available connections in the net-
+work.
+•post-fw-update: configures the node properly after a
+firmware update.
+D. Implementation
+The implementation of CMFs in Industry 4.0 can be easily
+solved using operations [16]. The operation in Asset Ad-
+ministration Shell meta-model has already input and output
+as attributes. Nevertheless, this attributes are not necessar-
+ily expressions, following the CMFM with their relation to
+vocabulary terms and in second line with a generality. The
+goal of the CMF and the constraints are also expressions.
+Thus, implementing the expressions as submodel will allow
+to use references in the operation to point to the related
+expressions. The interrelation between CMFs can also be
+implemented as references creating a taxonomy, see figure 2.
+Further references can point to the existing representations of
+the CMF that implement the CMFs for different management
+systems. To evaluate the generality of a CMF, the function
+596
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:32:26 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 4
+Fig. 3. Catalog creation and core promotion diagram.
+getGenerality can iterate all expressions returning the more
+specific generality found in their terms, i.e. the “lowest”
+generality. This value could be annotated as a qualifier in the
+CMF.
+IV. W ORKFLOW
+This workflow is related to the creation, promotion, and de-
+velopment of CMF. On the one side, the standardization bodies
+aim to homologize the functioning of the system management.
+As the try to cover many possibilities and variations, they use
+such an abstraction level that the end user of that management
+systems can barely recognize the pieces of the puzzle. On
+the other side, the managers use to write scripts automatizing
+recurrent tasks to achieve clear goals. These scripts are indeed
+representations of CMFs. But maybe they lack of the semantics
+and validation required to assume that this CMF is usable for
+other systems than the one it was written for. Combining these
+two strategies for the creation of CMF offers the flexibility
+to retain the advantages and compensate the disadvantages
+of this two opposite approaches. This workflow uses that
+combination.
+The goal of a CMF can vary from ”very often needed and
+common to all systems” to ”rare and specific for some use
+cases with some specific equipment”. The first ones belong to
+the core of the management in a given domain. The second
+ones are barely part of the catalog of management in that given
+domain, as they are system and use case specific. Attempting
+to build every single management task on CMFM basis can
+result non-affordable. To build the core of the management
+tasks plus some often used tasks of the catalog into CMF
+should be affordable and interesting from an optimization
+perspective. The presence of CMF does not replace the current
+management systems, it enchance them regarding usability,
+interoperability, and knowledge transfer. For those rare and
+specific tasks, there will always remain the original way
+through the system centered management system. Finding the
+right granularity will be necessary and is one of the aims of
+the workflow.
+The creation of CMFM can be also explained as the
+identification and recording of CMF. This process is done by
+managers. Through the possibility to create ist own vocabulary
+and CMFs, the manager can immediately begin using CMFM
+as management concept. From the beginning, it brings theadvantages in knowledge transfer and interoperability in the
+user domain.
+A. Stake Holders
+From the previous explanation derive the identification of
+two principal stake holders, i.e. users and standardization
+bodies. This workflow does not differentiate between end
+users of equipment (managers) and providers of equipment
+(implementors of management systems). From the point of
+view of the CMFM approach they are all users. Nevertheless,
+in this workflow there are four different roles and/or groups:
+1) Users that create CMFs and vocabulary terms either
+from scratch or based on already existing CMFs and
+vocabulary
+2) Standardization bodies that work on the promotion of
+vocabulary for different domains and CMF to core
+3) Standardization bodies that work on the identification
+and solving of conflicts, double defined CMF, equiva-
+lences and false friends
+4) Users that rely on the standardization bodies and just
+use existing CMFs, but do not create new ones
+The last group is very important regarding the adoption of the
+CMFM approach. Regarding the creation and promotion of
+CMFs, they are not relevant and therefore no longer considered
+in this workflow. The standardization bodies could also use
+AI algorithms for the search of conflicts and reasoners for
+the control of equivalences between CMFs. They can also
+build upon the work of the users to broaden the generality
+of the vocabulary and also of the CMFs, bringing in this way
+the advantages of standardization like validation and expert
+consensus to the definition of core CMF that can again be used
+from the users to further develop their management systems.
+B. Catalog and Core
+The promotion of CMFs from catalog (list of all CMFs)
+to core (generally applicable CMFs), see figure 3, requires
+the deeply study and to check for possible equivalences and
+conflicts. Thus, this process cannot be effectively performed by
+a single user. The stake holder responsible for the promotion
+is the standardization body. There will be a core of CMF for
+every domain and possibly a core common to all domains. The
+process of promotion to core is orthogonal to the classification
+in domains that is explained in the following section.
+This value could be used to evaluate the growth of the core
+in a domain, enabling to compare the interest set on a domain.
+C. Generality promotion
+The generality of new terms in the vocabulary will be
+always at the first ”user” or ”implementation”. There will
+be two mechanisms to update the generality of a term in
+vocabulary, see figure 4:
+1) explicitly by standardization bodies, promoting existing
+vocabulary terms to ”generally meaningful” for a do-
+main of concern of that standardization body
+2) tacitly by the use of the same terms or synonyms in
+vocabulary by many different users in the same domain
+597
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:32:26 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 5
+Fig. 4. Generality promotion diagram.
+D. Further development of existent CMF
+One key point to get the advantage of open source kind
+of collaboration is the public visibility and accessibility of
+the existing CMFM and vocabulary. Only in that way will
+be possible to have some tacitly standard, as users can use
+the work of other users, adapt it to different systems and
+domains etc. In order to achieve this, the vocabulary should
+live in a public accessible and publicly editable repository,
+like GitHub for source code. The vocabulary repository would
+be the Wikipedia for management and semantic compatibility.
+And the CMFM repository could be something like the Docker
+Hub or Rust-lang crates.io repositories. The vocabulary should
+come ideally from already existing, semantic annotated dictio-
+naries like eClass, CDD, etc.
+1) Interrelation: CMFs can interrelate in two different
+ways. Two CMFs are equivalent when they share the same
+Goal and have equivalent input and output information. These
+are candidates to be merged by the responsible standardization
+body. Not only standardization bodies can report equivalent
+CMFs. Users could also report this in the public repositories,
+increasing the dynamic of the process.
+Another possible interrelation between CMFs is the com-
+position. Upwards composition means that a group, chain or
+network, of CMFs compose a higher CMF when they are com-
+monly used together and/or related to each other. Downwards
+composition occurs when a CMFM is identified as a composite
+as it can be divided in smaller tasks that can be defined with
+a clear goal, input and output and they can act independently
+of the group of tasks. Both users and standardization bodies
+can discover and report composition. Whenever, composition,
+both upwards and downwards, is more likely to be discovered
+by the users that by the standardization bodies.
+2) Synonymes: There are many possible sources for vo-
+cabulary, e.g. users, eClass, CDD. This makes possible for
+synonyms from different sources to get in the vocabulary
+independently from each other. Two vocabulary terms are
+equivalent/synonym if they define the same concept and be-
+long to the same generality group, i.e. to the same user, to the
+same domain, etc. Synonyms can be identified and reported
+from users and standardization bodies. If the synonyms belong
+to different generality groups, i.e. if only the first condition
+applies, the vocabulary term should be introduced at a higher
+generality group and replace the used synonyms.V. E VALUATION
+This evaluation encompasses three approaches for the cre-
+ation of new widely used functionality and/or standards, i.e.
+open source approach, standardization approach, and CMFM
+approach. It is based on the use of different open source
+solutions and normative standards within the research and
+development framed into several projects like WICON, JUMP,
+FIND and KITOS at TU Dresden. It differs from the evaluation
+presented in [4] as it evaluates the workflow approach instead
+of comparing the CMFM with other management systems.
+A. Criteria
+The evaluation uses following criteria to elaborate advan-
+tage, disadvantage, resemblance and difference of the three
+approaches:
+TABLE I
+EVALUATION RESULTS
+CriteriaApproach
+CMFM Open Source Standardization
+use readiness ++ +++ +
+flexibility +++ ++ +
+reliability ++ + +++
+coverage +++ + +++
+time to use ++ +++ +
+Fig. 5. Evaluation of the different approaches
+1) Use readiness: reflects the effort needed for the ap-
+plication of the new functionality after it has been cre-
+ated/developed. The open source approach presents the best
+result for this criterion whereas standardization always requires
+a complete implementation after the publication of a new
+598
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:32:26 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 6
+standard and therefore the worst result. CMFM lies somewhere
+in between as it allows users to implement its own solutions
+but requires some additional effort to complete the CMF itself.
+2) Flexibility: evaluates the competence of the approach
+to adapt to changes during and after the development of
+new functionalities. In this case, the CMFM get the best
+result, as it can react to both changes at implementation level
+and also at standardization level due to the involvement of
+different stake holders in the process. Open source remains
+more flexible than standardization due to the long term scope
+of the standardization processes.
+3) Reliability: criterion evaluates the risk of depending on
+the validity of some new functionality. Standardization with
+its broaden approach is the most reliable approach. Open
+source usually come with the disclaimer ”as it is” claiming
+no reliability aims and the CMFM remains better than that
+due to de review processes.
+4) Coverage: gathers the likeliness to have a broad validity
+of the new created functionalities. The standardization ap-
+proach inherently gives the best result in this criteria whereas
+the open source approach tends to get used due to readiness
+but not due to its good coverage. CMFM remains in the middle
+in this criterion.
+5) time to use: measures the reaction time from a change
+in the technology to a usable solution. In this criterion, open
+source shows again the best performance, with the standard-
+ization approach being the slowest.
+Table I summarizes the results of the evaluation. There are
+three possible values: +, ++, and +++ representing ++ a better
+result than + and +++ the best result. In figure 5, open source
+and standardization present a clearly disjoint footprint with
+complementary advantages and limitations. CMFM represents
+a compromise solution that combines the advantages of the
+other approaches and relax the limitations.
+VI. C ONCLUSION AND OUTLOOK
+The Comprehensive Management Function Model approach
+introduces the manager centric paradigm of network man-
+agement for industrial productive systems and its networks.
+The UML definitions was extended with the concept of
+generality to deal with the scope issue and to enable the
+proposed workflow. This workflow is a compromise solution
+evaluated against open source and standardization approaches.
+A GraphQL API for CMFM is currently being developed over
+serverless functions. The idea of Comprehensive Management
+Function can be easily implemented as operation of the Asset
+Administration Shell meta-model.
+CMF can aid in the development of holistic management
+within Industry 4.0. Future AI solutions for network man-
+agement in industrial context are being investigated. Due
+to its semantic expressions, the core and catalog of CMF
+represents a first step to the AI-based automation of the
+network management in the industrial sector, e.g. AI can learn
+CMFs from system-centered management systems used by
+human managers.Open questions that an AI-based solution could deal with
+are: coordination of management in system of systems, config-
+uration of resources, selection of the best node to execute a ser-
+vice, dynamic resource allocation in distributed applications,
+transparency and up-to-date documentation (network docu-
+mentation, current status, obligation to produce supporting
+documentation in pharma industry), and handling of joining
+or leaving fog nodes.
+Discovery of new nodes, security, accountability of commu-
+nication services, and monetization communication are also
+topics of future research of CMFM.
+REFERENCES
+[1] J. Jasperneite, T. Sauter, and M. Wollschlaeger, “Why We Need Au-
+tomation Models: Handling Complexity in Industry 4.0 and the Internet
+of Things,” IEEE Industrial Electronics Magazine, vol. 14, no. 1, pp.
+29–40, 2020, doi: 10.1109/MIE.2019.2947119.
+[2] S. Soler Perez Olaya, M. Wollschlaeger, “The role of compre-
+hensive function models in the management of heterogeneous in-
+dustrial networks,” 2019 15th IEEE International Workshop on
+Factory Communication Systems (WFCS), 2019, pp. 1-4, doi:
+10.1109/WFCS.2019.8758047.
+[3] E. Freeman and E. Robson, ““Head first design patterns.” Beijing,
+Boston, Famham, Sebastopol, Tokyo: O’Reilly, 2014.
+[4] S. Soler Perez Olaya, R. Lehmann and M. Wollschlaeger, “Compre-
+hensive management function models applied to heterogeneous in-
+dustrial networks,” 2019 IEEE 17th International Conference on In-
+dustrial Informatics (INDIN), 2019, pp. 965-970, doi: 10.1109/IN-
+DIN41052.2019.8972315.
+[5] J.-P. Martin-Flatin, “Web-Based Management of IP Networks and Sys-
+tems”, Chinchester: John Wiley & Sons, Ltd, 2003.
+[6] M. Sloman, Policy driven management for distributed systems: Pol-
+icy driven management for distributed systems. [Online]. Avail-
+able: https://link.springer.com/article/10.1007/BF02283186 [Accessed:
+07-Feb-2020].
+[7] J. Strassner, “Policy-Based Network Management”, San Francisco: Mor-
+gan Kaufmann, 2003.
+[8] K. P. Twidle, “Domain Services for Distributed
+Systems Management,” 1993. [Online]. Available:
+https://pdfs.semanticscholar.org/5936/c0c467d41c142e00bb8c8aa2c8578
+f73f18d.pdf [Accessed: 07-Feb-2020]
+[9] K. Chan, et al., “COPS Usage for Policy,” RFC 3084, 2001. [Online].
+Available: https://tools.ietf.org/html/rfc3084 [Accessed: 19-Feb-2022].
+[10] M.-J. Choi, H.-T. Ju, J. W. K. Hong, and D.-S. Yun, “Towards Realiza-
+tion of Web Services-Based TSA from NGOSS TNA,” in Autonomic
+principles of IP operations and management: 6th IEEE International
+Workshop on IP Operations and Management, IPOM 2006, Dublin,
+Ireland, October 23 - 25, 2006 ; proceedings, Berlin, Heidelberg, 2006,
+pp. 222–227.
+[11] Platform Industrie 4.0, ”Details of the Asset Administration
+Shell - Part 1,” 2020. [Online]. Available: https://www.plattform-
+i40.de/IP/Redaktion/EN/Downloads/Publikation/Details oftheAsset
+Administration Shell Part1 V3.html. [Accessed: 19-Feb-2022].
+[12] A. Stocker, M. Rosenberger, M. Schmeja, and G. Schneider, “Key
+Success Factors for the Implementation of Digital Technologies in the
+Context of Industry 4.0,” in 2021 IFIP/IEEE International Symposium
+on Integrated Network Management (IM), 2021, pp. 920–925.
+[13] ECLASS: Internationaler Standard f ¨ur Master Data und Semantik
+f¨ur IoT. [Online]. Available: https://www.eclass.eu/ [Accessed: 20-Feb-
+2022].
+[14] IEC 61360 - IEC/SC 3D - Common Data Dictionary. [Online]. Available:
+https://cdd.iec.ch/ [Accessed: 20-Feb-2022).
+[15] S. Bader et. al, GitHub - admin-shell-io/id. [Online]. Available:
+https://github.com/admin-shell-io/id [Accessed: 20-Feb-2022).
+[16] S. Gilli, “Operation,” AAS-Core-Meta Documentation, 2022.
+[Online]. Available: https://gillistephan.github.io/aas-core-meta-
+docs/docs/v3rc02/content/operation-v3rc02 [Accessed: 19-Feb-2022].
+599
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:32:26 UTC from IEEE Xplore.  Restrictions apply. 

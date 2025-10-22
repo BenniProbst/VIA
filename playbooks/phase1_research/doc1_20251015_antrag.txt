@@ -1,0 +1,27 @@
+Aufgabenstellung Analyse eines Forschungsthemas
+Bearbeiter:
+Name, Vorname:	Probst, Benjamin-Elias
+Matrikel-Nr.: 	4510512
+Studiengang:	Diplomstudiengang Informatik PO 2010 
+Bearbeitungszeitraum	02.12.2025 – 17.03.2026
+Thema:	Entwicklung eines Interfacekommunizierenden prozesskommunikationsgestützten Messagesystems
+einheitliches Interface, um Prozesse miteinander zu verbinden.
+Ähnlich universeller z.B. IBM-Anpassung an Kubernetes – Services bekanntgeben und orchestrieren.
+Aufgabenverwaltung, Scheduling, io_uring, zero copy
+lehnt an LoadBalncer, Traffic-Router-Messaging System
+Datencluster, Services, Prozesse mappen
+Lehnt an „Traefik - Ingress“ cluster ingest applikation – AussenTraffic/InnenTraffic ummappen, Session-Basiert, fokus auf den Innenbereich von netzwerkbasierten Clustern
+Teilaufgaben:
+ Anforderungen und Systemabgrenzung über Use-Cases, SLO, Semantikrahmen, Nicht-Ziele
+Einheitliches C++ Kommunikations-Interface für die Segmente Pipe, Unix Domain socket, TCP, File-Queue, Thread-Messaging über round robin memory streams; Dokumentation, Demo, 90% Projektcoverage mit Unit-Tests und Chaos tests
+Service-Registry+Orchestrierung für Kubernetes
+Aufgabenverwaltung + Scheduling der registrierten Services über einen redundanten Service; Session Management Traffic router
+Telemetrie und einfaches Telemetrie-Interface mit Wittness/Arbiter; Benchmarks über Telemetrie über Latenz, Jitter, Payload, Response time, Job complexity hops
+Vergleich der Workload Ausrichtung: Small-Messages, Burst, Crash-Recovery Orchestration und Tracing
+Die Ergebnisse der Arbeit sind umfassend wissenschaftlich zu dokumentieren und innerhalb eines Kolloquiums zu präsentieren. 
+Betreuer:		zu benennen
+1. Gutachter:	Prof. Dr.-Ing. habil. Martin Wollschlaeger
+2. Gutachter:	Dr.-Ing. Frank Hilbert	
+xx.xx.2025	_________________________________________
+Datum		Unterschrift des verantwortlichen Hochschullehrers
+Verteiler: 2x HSL, 1x Betreuer, 1x Student
