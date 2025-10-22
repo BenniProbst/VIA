@@ -91,7 +91,9 @@ Das VIA-Hauptprogramm orchestriert den gesamten Bootstrap-Zyklus durch sequenzie
 
 **Selbstreferenz-Mechanismus**: Bei Neukompilations-Request kompiliert das Hauptprogramm sich selbst neu (M3→M2→M1→M0), startet neue VIA-Instanz über Prozesskommunikation und beendet sich selbst nach erfolgreichem Handover.
 
-**Problem**: Zustandsverwaltung über 3 Phasen, Fehlerbehandlung bei jeder Stufe, Transaktionalität bei Selbst-Neukompilation
+**Multi-Level-Debugging und Fehlerrückverfolgung**: Wenn in einer Prozesskette des M0-kompilierten Systems ein Fehler auftritt, verwaltet das Hauptprogramm ein durchgängiges Tracing-Modell über alle Kompilationsstufen hinweg. Dieses ermöglicht die lückenlose Rückverfolgung eines Fehlers vom deployed Binary (M0) über das Systemprojekt (M1), die generierte SDK (M2) bis zur ursprünglichen M3-Modelldefinition und Kundenprojektdefinition. Da jede niedere Meta-Stufe eine Implementierung einer höheren Meta-Stufe ist, ergibt sich eine vollständige konzeptionelle Repräsentation über alle Schichten hinweg. Der VIA-Debugger kann rückwärts über mehrere Schichten durchdringen und verfügt über mehrere Programmzeiger gleichzeitig, die sich über verschiedene Modell-Dateien (`.aas`, `.via`) und generierte C++-Quelldateien erstrecken – analog zum gdb-Debugger, der ebenfalls über mehrere Schichten der g++-Compiler-Architektur hinweg debuggen kann (Frontend → Middle-End → Backend → Assembly → Binary). Diese Multi-Level-Debugging-Fähigkeit ist essentiell für die Wartbarkeit industrieller Systeme, da Fehler direkt auf ihre konzeptionelle Ursache in der Metamodell-Spezifikation zurückgeführt werden können, anstatt nur Symptome im generierten Code zu analysieren.
+
+**Problem**: Zustandsverwaltung über 3 Phasen, Fehlerbehandlung bei jeder Stufe, Transaktionalität bei Selbst-Neukompilation, Overhead des Multi-Level-Tracing in Produktivsystemen
 
 #### 2.3.1 M3-Ebene (Metamodell-Compiler)
 
