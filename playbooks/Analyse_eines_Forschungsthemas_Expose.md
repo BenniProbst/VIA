@@ -95,24 +95,15 @@ Das VIA-Hauptprogramm orchestriert den gesamten Bootstrap-Zyklus durch sequenzie
 
 #### 2.3.1 M3-Ebene (Metamodell-Compiler)
 
-**Projektlokation**: `playbooks/VIA-M3-Compiler/` (versioniert)
+Der M3-Compiler, lokalisiert in `playbooks/VIA-M3-Compiler/` als versionierter Bestandteil des Repositories, definiert die AAS-lang (Asset Administration Shell Language) als domänenspezifische Programmiersprache für industrielle Systeme. Diese Compiler-Komponente bildet die erste Stufe der VIA-Compiler-Kette und ist für die Transformation von abstrakten Metamodell-Definitionen (M3) in eine typ-sichere C++ SDK (M2) verantwortlich.
 
-Der M3-Compiler definiert die AAS-lang (Asset Administration Shell Language) als domänenspezifische Programmiersprache für industrielle Systeme. Er liest AAS-Metamodell-Definitionen (M3) und transformiert diese in eine typ-sichere C++ SDK (M2).
+Der M3-Compiler empfängt als Eingabe die AAS IEC 63278 Textspezifikation, die über das SITL-System (Software-in-the-Loop) automatisch in ausführbaren M3-Modellcode transformiert wird. Zusätzlich verarbeitet er OPC UA IEC 62541 als M3-Bibliothek, ebenfalls über SITL eingelesen falls noch nicht vorhanden, sowie VIA-Extensions für Prozesskommunikation als custom M3-Definitionen. Diese Eingaben bilden die formale Grundlage für die anschließende SDK-Generierung.
 
-**Input**:
-- AAS IEC 63278 Textspezifikation (via SITL in M3-Modellcode transformiert)
-- OPC UA IEC 62541 als M3-Bibliothek (via SITL, falls nicht vorhanden)
-- VIA-Extensions für Prozesskommunikation (custom M3-Definitionen)
+Die Verarbeitung erfolgt durch einen custom Template-Engine, der in AAS-lang selbst definiert ist und auf C++20/23 Metaprogramming aufsetzt. Als M3-Interpreter fungiert Protobuf aus dem `third_party/` Verzeichnis, das zum Einlesen von Modell und Kundendaten verwendet wird. Ein integriertes Constraint-System validiert Typensicherheit und verhindert die Entstehung von Spaghetti-Code durch rigorose Modularisierung der generierten SDK.
 
-**Output**:
-- `playbooks/VIA-M2-SDK/` (gitignored, generierter C++ Code)
-- OPC UA NodeSet XML für VIA Custom Companion Spec
-- Protobuf `.proto` Dateien für Microservice-Kommunikation
-- Dokumentation mit durchgereichten M3-Kommentaren
+Als Output generiert der M3-Compiler das Verzeichnis `playbooks/VIA-M2-SDK/` mit dem vollständigen C++ SDK-Code (gitignored, da generiert), OPC UA NodeSet XML-Dateien für die VIA Custom Companion Specification, Protobuf `.proto` Dateien für die Microservice-Kommunikation zwischen Services, sowie umfassende Dokumentation mit durchgereichten M3-Kommentaren, die bis in die Binary-Headers propagieren.
 
-**Technologie**: C++20/23 Template-Engine (custom, in AAS-lang definiert), Protobuf als M3-Interpreter (third_party)
-
-**Problem**: Vermeidung von Spaghetti-Code durch Constraint-System, Modularisierung generierter SDK
+Die zentrale Herausforderung dieser Komponente liegt in der Vermeidung von Spaghetti-Code bei der automatischen Code-Generierung. Dies wird durch ein mehrschichtiges Constraint-System adressiert, das Typensicherheit, Modularität und Wartbarkeit der generierten SDK garantiert.
 
 #### 2.3.2 M2-Ebene (SDK-Compiler)
 
