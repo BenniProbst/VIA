@@ -3,7 +3,7 @@
 **Titel**: VIA - Virtual Integration Architecture: Self-Modeling and Building Systems for Industry 4.0
 
 **Autor**: Benjamin Probst
-**Betreuer**: Prof. Dr.-Ing. habil. Martin Wollschlaeger, Dr.-Ing. Frank Hilbert
+**Betreuer**: Prof. Dr.-Ing. habil. Martin Wollschlaeger, Dr.-Ing. Frank Hilbert, Santiago Soler Perez Olaya
 **Institution**: Technische Universität Dresden, Fakultät Informatik
 **Datum**: Oktober 2025
 
@@ -12,7 +12,7 @@
 ## 1. Einleitung und Motivation
 
 ### 1.1 Ausgangssituation
-- AAS (Asset Administration Shell) Repository von Dr. Santiago Olaya offenbart vollständige Compiler-Architektur
+- AAS (Asset Administration Shell) Repository von Dr. Santiago Soler Perez Olaya offenbart vollständige Compiler-Architektur
 - M3/M2/M1 Metamodell-Struktur analog zu Prof. Castrillon (TU Dresden)
 - Derzeitige Implementierung: Python-Skripte simulieren Compiler-Funktionalität
 - Problem: Keine vollständige Compiler-Implementierung als externes Übersetzerprogramm
@@ -33,19 +33,44 @@
 
 ## 2. Problemstellung und Forschungsfrage
 
-### 2.1 Kernproblem
-**Wie kann ein mehrstufiges Compiler-System (M3→M2→M1) für heterogene Industriesysteme automatisch wartbare Software generieren, deployen und orchestrieren?**
+### 2.1 Kontext: VIA-Gesamtsystem
+**VIA (Virtual Integration Automation)** ist eine mehrstufige Compiler-Kette (M3→M2→M1) für heterogene Industriesysteme mit automatischer Orchestrierung von >50.000 Edge-Devices. Das Gesamtsystem umfasst:
+- **M3-Compiler**: AAS Metamodell → C++ SDK
+- **M2-SDK-Compiler**: Kundenprojekt → Systemprojekt mit Network Discovery
+- **M1-System-Deployer**: Cross-Compilation, Horse-Rider-Deployment, Kubernetes-Orchestrierung
 
-### 2.2 Teilprobleme
+### 2.2 Fokus dieser Forschungsarbeit: Prozesskommunikations-Protokoll
 
-#### 2.2.1 M3-Ebene (Metamodell-Compiler)
+**Forschungsfrage:**
+> **Können über Metamodelle (M3/M2) automatisch Prozessketten von Mikroservices erstellt werden, deren Positionierung im System und Kommunikationsmechanismus (IPC: Pipe, Socket, TCP, File-Queue, Thread) bei der Kompilation optimiert wird?**
+
+**Teilfragen:**
+1. Welche M3-Modellelemente sind notwendig, um Prozesskommunikation zu beschreiben?
+2. Wie kann der M2-SDK-Compiler aus Prozessabhängigkeiten optimale IPC-Mechanismen ableiten?
+3. Welche Metriken bestimmen die Positionierung (gleicher Container, gleicher Host, Remote)?
+4. Wie verhält sich das Process-Group-Protocol unter OPC UA bei >50.000 Geräten?
+
+**Abgrenzung:** Diese Arbeit konzentriert sich auf das **Process-Group-Protocol-Subsystem** als Teil des VIA-Gesamtsystems. Die M3/M2/M1-Architektur dient als Kontext und theoretischer Rahmen.
+
+### 2.3 Teilprobleme des Gesamtsystems (Kontext)
+
+#### 2.3.0 Hauptprogramm (Orchestrierung M3→M2→M1)
+- **Zentrale Koordination**: Hauptsystem orchestriert Verlauf der 3 Compiler-Phasen
+- **Pipeline-Management**: Ergebnisse jeder Phase in nächste Phase überführen
+- **Anwenderaufgaben**: Teil der Benutzerinteraktion übernehmen
+- Input: Benutzerbeschreibung (natürlichsprachlich oder strukturiert)
+- Output: Vollständig deployed System (Ende-zu-Ende)
+- **Selbstreferenz**: "M3 mit sich selbst definieren" - Meilenstein der Forschung
+- Problem: Zustandsverwaltung über 3 Phasen, Fehlerbehandlung bei jeder Stufe, Transaktionalität
+
+#### 2.3.1 M3-Ebene (Metamodell-Compiler)
 - Definition zweckgebundener Programmiersprache aus AAS-Elementen
 - Vollständiger Compiler als statisches C++ Programm
 - Input: AAS M3 Definitionen + Benutzerbeschreibung
 - Output: M2 SDK (C++, Python, Java etc.)
 - Problem: Spaghetti-Code bei aktueller Code-Generierung vermeiden
 
-#### 2.2.2 M2-Ebene (SDK-Compiler)
+#### 2.3.2 M2-Ebene (SDK-Compiler)
 - SDK als erneuter Compiler: Syntax-Prüfung, Tests, Projektvalidierung
 - Automatische Network Discovery (SNMP, OPC UA, Modbus, MQTT, RPC)
 - Vorschläge für Implementierung durch Netzwerkkartografie
@@ -53,18 +78,49 @@
 - Kubernetes-Beschreibungen, Netzwerkprotokollimplementierungen
 - Problem: Deterministische Testabdeckung für industrielle Kombinatorik
 
-#### 2.2.3 M1-Ebene (System-Deployment)
+#### 2.3.3 M1-Ebene (System-Deployment)
 - VIA-M1-System-Deployer: Kubernetes Cluster + Edge-Module ("Horses")
 - Generierte Systemtests aus grober Kundenvordefinition
 - Distributed Compilation via GitHub Runners
 - Output: Deployable System für >50.000 Geräte
 - Problem: Hot-Reload, Canary-Deployment, Versionskonsistenz bei C++23 Modules
 
-### 2.3 Sub-Protokolle unter OPC UA
-- Edge-Group-Protocol: Virtuelle Netzwerkgruppen
-- Deploy-Protocol: Horse-Rider-Modell (Deployment trägt Zielprogramm)
-- Process-Group-Protocol: Transparente Prozesskommunikation (Pipe, Socket, TCP, File-Queue, Thread)
-- Problem: Standardisierung, Performance, Sicherheit
+#### 2.3.4 Deployment-System (Horse-Rider-Architektur)
+- **Horse-Service**: Deployment-Service trägt Rider-Service (Fachlogik) als Prozess
+- **Hot-Reload**: C++23 Modules mit stabilen ABIs für Canary Deployment
+- **Redundanz**: Mindestens 2 parallele Mikroservices pro Edge-Gerät (Digital Twin)
+- **Rollback**: Sekundenbruchteile bei Fehler, alte Version vorgehalten
+- **Distributed Compilation**: GitHub Runners für parallele Module-Builds
+- Problem: ABI-Stabilität, Zustandssynchronisation bei Hot-Reload, Rollback-Transaktionalität
+
+#### 2.3.5 Sub-Protokolle unter OPC UA
+- **Edge-Group-Protocol**: Virtuelle Netzwerkgruppen für Edgegeräte
+- **Deploy-Protocol**: Versionierung, Logging, Systemupdates, Rejuvenation
+- **Process-Group-Protocol**: IPC zwischen Services (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) → **FORSCHUNGSFOKUS**
+- **MMB-Integration**: Many-to-Many Broadcast nach Dr. Soler Perez Olaya
+- Problem: Protokoll-Komposition, Effizienz bei >50k Geräten, Sicherheitsschichten
+
+#### 2.3.6 Network Discovery System
+- **Auto-Discovery**: SNMP, OPC UA, Modbus, MQTT, RPC Scanner
+- **Netzwerkkartografie**: Topologie-Erkennung, Geräte-Eigenschaften auslesen
+- **Asset-Mapping**: Vorschläge für M2-Projektkonfiguration
+- **Edge-Devices**: Messwertwandler, PLCs, SCADA-Systeme
+- Problem: Protokoll-Heterogenität, Zugriffskontrolle, Offline-Geräte
+
+#### 2.3.7 Master Active Management (Deployment-Orchestrierung)
+- **Active/Active Redundanz**: Analog zu Active Directory Domäne
+- **Zugriffskontrolle**: Rollen, Benutzer, Administratoren (Samba/AD-Integration)
+- **Deployment-Master**: Konfiguration von Redundanz-Levels, Service-Verteilung
+- **Koordination**: Kubernetes + VIA-eigene Edge-Service-Orchestrierung
+- Problem: Split-Brain-Szenarien, Konsistenz über Cluster, Failover-Zeiten
+
+#### 2.3.8 Multi-Architektur Cross-Compilation
+- **Target-Architekturen**: MIPS, RISC-V, POWER9+, x86, ARM1+, Sparc
+- **Betriebssysteme**: Linux, Windows, Mac
+- **Heterogenität**: Billigste Minicomputer (Edge) bis Verarbeitungs-Monster (Server)
+- **CMake-Konfiguration**: M2-Ebene definiert Zielarchitekturen
+- **Legacy-Support**: Industrie 4.0 + Industrie der Vergangenheit
+- Problem: Toolchain-Management, Treiber-Verfügbarkeit, Memory-Modelle
 
 ---
 
@@ -79,7 +135,7 @@
 - 76+ Companion Specifications (DI, I4AAS, PLCopen)
 - Limitation: Statische NodeSets, keine dynamische Orchestrierung
 
-### 3.3 Multi-Message Broker (Dr. Santiago Olaya)
+### 3.3 Multi-Message Broker (Dr. Santiago Soler Perez Olaya)
 - Northbound: I4.0 OPC UA, Southbound: Legacy Assets
 - AID/AIMC Submodels für Asset Mapping
 - Limitation: Kein vollautomatisches Deployment
@@ -154,6 +210,29 @@
 
 ## 6. Konzeptioneller Ansatz: VIA-Architektur
 
+### 6.0 VIA-Hauptprogramm (Orchestrierung M3→M2→M1)
+
+#### Input
+- Benutzerbeschreibung des gewünschten Systems (natürlichsprachlich oder strukturiert)
+- Konfiguration: Target-Architekturen, Deployment-Ziele, Netzwerk-Topologie
+
+#### Verarbeitung
+- **Phase-Coordination**: Sequenzieller Aufruf M3-Compiler → M2-SDK-Compiler → M1-Deployer
+- **Pipeline-Management**: Output jeder Phase wird Input der nächsten
+- **Zustandsverwaltung**: Persistierung Zwischenergebnisse (M2-SDK, M1-Systemprojekt)
+- **Fehlerbehandlung**: Rollback bei Fehler, Logging jeder Phase
+- **Anwenderinteraktion**: GUI/CLI für Fortschrittsanzeige, Zwischenentscheidungen
+
+#### Output
+- **Ende-zu-Ende**: Von Benutzerbeschreibung bis deployed System
+- **Traceability**: Kompletter Audit-Trail (Beschreibung → M3 → M2 → M1 → Produktion)
+- **Logs**: Jede Phase dokumentiert (für Debugging, Reproduzierbarkeit)
+
+#### Besonderheit
+- **Selbstreferenz**: Hauptprogramm nutzt VIA-M2-SDK (Bootstrap-Problem gelöst)
+- **Transaktionalität**: Atomare Phasen, Rollback bei Fehler
+- **Parallelisierung**: Mehrere Kundenprojekte gleichzeitig orchestrieren
+
 ### 6.1 VIA-M3-Compiler (Metamodell → SDK)
 - **Input**: AAS M3 + VIA-Extensions + Benutzerdefinierte Typen
 - **Verarbeitung**: C++20 Metaprogramming, Template-Engine, Constraint-Validation
@@ -224,12 +303,12 @@
 3. ISO/IEC 20922 (2016). MQTT Protocol
 4. ISA-95 (2010). Enterprise-Control System Integration
 
-### 9.2 Forschungsarbeiten (Dr. Santiago Olaya)
-5. Olaya, S. et al. (2024). Dynamic Multi-Message Broker for I4.0 AAS
-6. Olaya, S. et al. (2024). SOA for Digital Twins with gRPC and Protobuf
-7. Olaya, S. & Wollschlaeger, M. (2022). CMFM Generality Hierarchy
-8. Olaya, S. et al. (2019). CMFM for Heterogeneous Industrial Networks
-9. Olaya, S. (2019). Role of CMFM in Network Management. PhD Thesis, TU Dresden
+### 9.2 Forschungsarbeiten (Dr. Santiago Soler Perez Olaya)
+5. Soler Perez Olaya, S. et al. (2024). Dynamic Multi-Message Broker for I4.0 AAS
+6. Soler Perez Olaya, S. et al. (2024). SOA for Digital Twins with gRPC and Protobuf
+7. Soler Perez Olaya, S. & Wollschlaeger, M. (2022). CMFM Generality Hierarchy
+8. Soler Perez Olaya, S. et al. (2019). CMFM for Heterogeneous Industrial Networks
+9. Soler Perez Olaya, S. (2019). Role of CMFM in Network Management. PhD Thesis, TU Dresden
 
 ### 9.3 Open-Source Projekte
 10. aas-core-works (2024). AAS SDKs and Tools. https://github.com/aas-core-works
