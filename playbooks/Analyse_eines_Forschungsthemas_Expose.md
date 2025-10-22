@@ -270,22 +270,32 @@ Die Analyse des Stands der Forschung offenbart mehrere fundamentale Lücken, die
 ## 4. Zielsetzung und Forschungsmethodik
 
 ### 4.1 Hauptziel
-**Entwicklung einer vollautomatischen Compiler-Kette (VIA) für Industrie 4.0-Systeme**
+
+Das übergeordnete Ziel dieser Forschungsarbeit ist die Entwicklung und Evaluierung eines vollautomatischen Compiler-Systems für Industrie 4.0-Systeme mit Fokus auf das **Process-Group-Protocol-Subsystem**. Im Gegensatz zu bestehenden Ansätzen, die IPC-Mechanismen manuell oder zur Laufzeit wählen, soll VIA diese Entscheidung zur Compile-Zeit treffen und dabei Latenz, Durchsatz und Ressourcenverbrauch optimieren.
 
 ### 4.2 Teilziele
-- **T1**: VIA-M3-Compiler (C++, AAS M3 → C++ SDK)
-- **T2**: VIA-M2-SDK-Compiler (SDK → Kundensystem, Network Discovery)
-- **T3**: VIA-M1-System-Deployer (Distributed Compilation, Horse-Rider)
-- **T4**: Sub-Protokoll-Design (Edge/Deploy/Process-Group)
-- **T5**: KI-Integration Industrie 5.0 (NLP → M3 → System)
+
+Die Forschungsarbeit gliedert sich in fünf Teilziele, wobei sich die vorliegende Arbeit primär auf T2 (IPC-Optimierung) und T4 (Process-Group-Protocol) konzentriert:
+
+- **T1 (Kontext)**: VIA-M3-Compiler – Transformation AAS M3 Metamodell → C++ SDK
+- **T2 (Forschungsfokus)**: VIA-M2-SDK-Compiler – Automatische IPC-Mechanismus-Auswahl basierend auf Prozessabhängigkeiten
+- **T3 (Kontext)**: VIA-M1-System-Deployer – Distributed Compilation, Horse-Rider-Deployment, Kubernetes-Orchestrierung
+- **T4 (Forschungsfokus)**: Sub-Protokoll-Design – Spezifikation und Implementierung des Process-Group-Protocol unter OPC UA
+- **T5 (Ausblick)**: KI-Integration Industrie 5.0 – Natürlichsprachliche Systembeschreibung → Automatische Compilation
 
 ### 4.3 Forschungsmethodik
 
+Die Forschungsmethodik folgt einem ingenieurwissenschaftlichen Ansatz mit vier Hauptphasen: Requirements Engineering, Design, prototypische Implementierung und experimentelle Evaluation.
+
 #### 4.3.1 Methodisches Vorgehen
-1. **Requirements Engineering**: M3-Modellelemente für Prozesskommunikation definieren (AAS-Extension)
-2. **Design**: Compiler-Optimierungsalgorithmus (Graph-basiert, Constraint Solver)
-3. **Prototypische Implementierung**: M2-SDK-Compiler mit IPC-Optimizer (C++20/23)
-4. **Evaluation**: Benchmark-Suite, Use-Case-Implementierung, Vergleichsmessungen
+
+**Phase 1 – Requirements Engineering**: Definition der M3-Modellelemente zur Beschreibung von Prozesskommunikation als AAS-Extension. Dies umfasst die Spezifikation von Abhängigkeitstypen (datengetrieben, steuergetrieben, zeitgetrieben), Latenzanforderungen (Soft-Realtime, Best-Effort) und Ressourcenbeschränkungen (Memory, CPU, Bandbreite).
+
+**Phase 2 – Design**: Entwicklung eines Compiler-Optimierungsalgorithmus zur IPC-Mechanismus-Auswahl. Der Algorithmus modelliert Prozessabhängigkeiten als gerichteten Graphen, auf dem ein Constraint Solver (z.B. Z3) eine Pareto-optimale Lösung für Latenz, Durchsatz und Ressourcenverbrauch berechnet.
+
+**Phase 3 – Prototypische Implementierung**: Implementierung des M2-SDK-Compilers mit IPC-Optimizer in C++20/23. Der Prototyp generiert aus M2-Projektkonfigurationen vollständige Systemprojekte mit optimiertem IPC-Setup (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging).
+
+**Phase 4 – Evaluation**: Experimentelle Validierung mittels Benchmark-Suite und Real-World Use-Case. Vergleichsmessungen gegen etablierte Baselines (gRPC, Istio Service Mesh, UNIX Sockets) zur Validierung der Hypothesen H1-H4.
 
 #### 4.3.2 Evaluationsumgebung
 - **Labor-Setup**: 3-Node Kubernetes Cluster (64 Core, 256 GB RAM, 10 Gbit/s Netzwerk)
@@ -321,6 +331,8 @@ Die Analyse des Stands der Forschung offenbart mehrere fundamentale Lücken, die
 ---
 
 ## 5. Theoretischer Hintergrund
+
+Die Forschungsarbeit vereint Konzepte aus Compiler-Theorie (Abschnitt 5.1), Metamodell-Architekturen (Abschnitt 5.2), AAS-Standards (Abschnitt 5.3), OPC UA und ISA-95 Integration (Abschnitt 5.4), Prozesskommunikation (Abschnitt 5.5) sowie Management-Frameworks (Abschnitt 5.6). Dieses interdisziplinäre Fundament ist notwendig, um die Herausforderungen metamodell-basierter IPC-Optimierung zu adressieren.
 
 ### 5.1 Compiler-Theorie
 - Multi-Stage Compilation: M3 → M2 → M1
@@ -416,6 +428,8 @@ Die Analyse des Stands der Forschung offenbart mehrere fundamentale Lücken, die
 ---
 
 ## 7. Erwartete Ergebnisse
+
+Die Forschungsarbeit strebt sowohl wissenschaftliche Beiträge (Abschnitt 7.1) als auch praktische Ergebnisse (Abschnitt 7.2) an. Die Evaluation erfolgt anhand eines konkreten Use-Case-Szenarios aus der Automobilproduktion (Abschnitt 7.3), das die industrielle Relevanz demonstriert. Die erwarteten Ergebnisse adressieren direkt die formulierten Hypothesen H1-H4 und tragen zur Schließung der identifizierten Forschungslücken bei.
 
 ### 7.1 Wissenschaftliche Beiträge (Fokus Prozesskommunikation)
 - **B1**: Metamodell-Extension für Prozesskommunikation in AAS M3
