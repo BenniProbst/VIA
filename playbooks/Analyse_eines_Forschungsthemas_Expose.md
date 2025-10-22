@@ -95,24 +95,15 @@ Das VIA-Hauptprogramm orchestriert den gesamten Bootstrap-Zyklus durch sequenzie
 
 #### 2.3.1 M3-Ebene (Metamodell-Compiler)
 
-**Projektlokation**: `playbooks/VIA-M3-Compiler/` (versioniert)
+Der M3-Compiler, lokalisiert in `playbooks/VIA-M3-Compiler/` als versionierter Bestandteil des Repositories, definiert die AAS-lang (Asset Administration Shell Language) als domänenspezifische Programmiersprache für industrielle Systeme. Diese Compiler-Komponente bildet die erste Stufe der VIA-Compiler-Kette und ist für die Transformation von abstrakten Metamodell-Definitionen (M3) in eine typ-sichere C++ SDK (M2) verantwortlich.
 
-Der M3-Compiler definiert die AAS-lang (Asset Administration Shell Language) als domänenspezifische Programmiersprache für industrielle Systeme. Er liest AAS-Metamodell-Definitionen (M3) und transformiert diese in eine typ-sichere C++ SDK (M2).
+Der M3-Compiler empfängt als Eingabe die AAS IEC 63278 Textspezifikation, die über das SITL-System (Software-in-the-Loop) automatisch in ausführbaren M3-Modellcode transformiert wird. Zusätzlich verarbeitet er OPC UA IEC 62541 als M3-Bibliothek, ebenfalls über SITL eingelesen falls noch nicht vorhanden, sowie VIA-Extensions für Prozesskommunikation als custom M3-Definitionen. Diese Eingaben bilden die formale Grundlage für die anschließende SDK-Generierung.
 
-**Input**:
-- AAS IEC 63278 Textspezifikation (via SITL in M3-Modellcode transformiert)
-- OPC UA IEC 62541 als M3-Bibliothek (via SITL, falls nicht vorhanden)
-- VIA-Extensions für Prozesskommunikation (custom M3-Definitionen)
+Die Verarbeitung erfolgt durch einen custom Template-Engine, der in AAS-lang selbst definiert ist und auf C++20/23 Metaprogramming aufsetzt. Als M3-Interpreter fungiert Protobuf aus dem `third_party/` Verzeichnis, das zum Einlesen von Modell und Kundendaten verwendet wird. Ein integriertes Constraint-System validiert Typensicherheit und verhindert die Entstehung von Spaghetti-Code durch rigorose Modularisierung der generierten SDK.
 
-**Output**:
-- `playbooks/VIA-M2-SDK/` (gitignored, generierter C++ Code)
-- OPC UA NodeSet XML für VIA Custom Companion Spec
-- Protobuf `.proto` Dateien für Microservice-Kommunikation
-- Dokumentation mit durchgereichten M3-Kommentaren
+Als Output generiert der M3-Compiler das Verzeichnis `playbooks/VIA-M2-SDK/` mit dem vollständigen C++ SDK-Code (gitignored, da generiert), OPC UA NodeSet XML-Dateien für die VIA Custom Companion Specification, Protobuf `.proto` Dateien für die Microservice-Kommunikation zwischen Services, sowie umfassende Dokumentation mit durchgereichten M3-Kommentaren, die bis in die Binary-Headers propagieren.
 
-**Technologie**: C++20/23 Template-Engine (custom, in AAS-lang definiert), Protobuf als M3-Interpreter (third_party)
-
-**Problem**: Vermeidung von Spaghetti-Code durch Constraint-System, Modularisierung generierter SDK
+Die zentrale Herausforderung dieser Komponente liegt in der Vermeidung von Spaghetti-Code bei der automatischen Code-Generierung. Dies wird durch ein mehrschichtiges Constraint-System adressiert, das Typensicherheit, Modularität und Wartbarkeit der generierten SDK garantiert.
 
 #### 2.3.2 M2-Ebene (SDK-Compiler)
 
@@ -120,20 +111,11 @@ Der M3-Compiler definiert die AAS-lang (Asset Administration Shell Language) als
 
 Die M2-SDK fungiert als Compiler für Kundenprojekte. Sie liest `.via` Projektdateien (in AAS-lang geschrieben), validiert Syntax, und kompiliert in ein C++ Gesamtprojekt (M1).
 
-**Sub-Komponenten** (geplante Playbook-Struktur):
-- `network_discovery.md`: SNMP/OPC UA/Modbus Scanner, Topologie-Erkennung
-- `ipc_optimizer.md`: Graph-basierter Algorithmus zur IPC-Mechanismus-Auswahl (**Forschungsfokus**)
-- `auto_suggestions.md`: KI-gestützte Vorschläge für Systemkonfiguration
-- `test_generator.md`: Automatische Generierung deterministischer Tests aus M3-Constraints
+Die geplante Playbook-Struktur umfasst vier Sub-Komponenten, die verschiedene Aspekte der SDK-Funktionalität adressieren. Das `network_discovery.md` Playbook beschreibt einen SNMP/OPC UA/Modbus Scanner zur automatischen Topologie-Erkennung im Kundennetzwerk. Der `ipc_optimizer.md` Playbook implementiert einen graph-basierten Algorithmus zur IPC-Mechanismus-Auswahl und bildet den Forschungsfokus dieser Arbeit. Das `auto_suggestions.md` Playbook ermöglicht KI-gestützte Vorschläge für Systemkonfiguration basierend auf erkannter Netzwerktopologie. Schließlich definiert `test_generator.md` die automatische Generierung deterministischer Tests aus M3-Constraints, um vollständige Testabdeckung zu gewährleisten.
 
-**Input**: Kundenprojekt-Dateien (`customer_project/*.via`), Netzwerk-Topologie (optional via Network Discovery)
+Als Input empfängt die M2-SDK Kundenprojekt-Dateien im `.via` Format unter `customer_project/*.via` sowie optional eine Netzwerk-Topologie, die über das Network Discovery System ermittelt wurde. Die Verarbeitung dieser Eingaben resultiert in drei Hauptausgaben: Das Verzeichnis `playbooks/VIA-M1-System/` enthält das vollständige C++ Gesamtprojekt (gitignored, da generiert), Kubernetes Manifests werden als `deployment.yaml` bereitgestellt, und automatisch generierte Tests enthalten durchgereichte Kundenkommentare für vollständige Traceability.
 
-**Output**:
-- `playbooks/VIA-M1-System/` (gitignored, C++ Gesamtprojekt)
-- Kubernetes Manifests (`deployment.yaml`)
-- Generierte Tests mit durchgereichten Kundenkommentaren
-
-**Problem**: Deterministische Testabdeckung für industrielle Kombinatorik, IPC-Optimierung bei >50K Services
+Die zentrale Herausforderung dieser Komponente liegt in der deterministischen Testabdeckung für industrielle Kombinatorik sowie der IPC-Optimierung bei mehr als 50.000 Services, wobei skalierbare Algorithmen und effiziente Heuristiken notwendig sind.
 
 #### 2.3.3 M1-Ebene (System-Deployment)
 
@@ -141,64 +123,53 @@ Die M2-SDK fungiert als Compiler für Kundenprojekte. Sie liest `.via` Projektda
 
 Der M1-Deployer kompiliert das M1-Systemprojekt (C++ Code) in Binaries für alle Zielarchitekturen und verteilt diese über das Horse-Rider-Deployment-System.
 
-**Sub-Komponenten**:
-- `cross_compilation.md`: Multi-Architektur Toolchain Management (MIPS, RISC-V, ARM, x86, etc.)
-- `horse_rider_deployment.md`: C++23 Modules mit stabilen ABIs, Hot-Reload, Canary Deployment
-- `distributed_build.md`: GitHub Runners für parallele Builds
+Die Architektur umfasst drei Sub-Komponenten, die verschiedene Deployment-Aspekte abdecken. Das `cross_compilation.md` Playbook beschreibt das Multi-Architektur Toolchain Management für MIPS, RISC-V, ARM, x86 und weitere Plattformen, wodurch heterogene Industrieumgebungen mit Legacy-Systemen adressiert werden. Das `horse_rider_deployment.md` Playbook implementiert C++23 Modules mit stabilen ABIs, Hot-Reload-Mechanismen und Canary Deployment für ausfallsichere Updates. Das `distributed_build.md` Playbook orchestriert parallele Builds über GitHub Runners, um die Compilationszeit für große Systeme signifikant zu reduzieren.
 
-**Output**:
-- `build/binaries/{arch}/{device_id}/` Ordner mit Binaries
-- Deployment-Manifests für Kubernetes + Edge-Geräte
-- Versionierte Binaries mit Header-Dokumentation (für externe Edge-Programmierung)
+Der M1-Deployer generiert drei Kategorien von Ausgaben. Die kompilierten Binaries werden in der Ordnerstruktur `build/binaries/{arch}/{device_id}/` architekturspezifisch abgelegt, wobei jedes Edge-Gerät sein dediziertes Binary erhält. Deployment-Manifests für Kubernetes und Edge-Geräte ermöglichen automatisierte Rollouts über Container-Orchestrierung. Versionierte Binaries mit Header-Dokumentation erlauben externe Edge-Programmierung durch Drittanbieter-Systeme, die gegen stabile VIA-ABIs linken können.
 
-**Problem**: Hot-Reload, Canary-Deployment, Versionskonsistenz bei C++23 Modules, ABI-Stabilität
+Die zentralen Herausforderungen dieser Komponente liegen im Hot-Reload ohne Systemausfall, im Canary-Deployment mit automatischem Rollback bei Fehlern, in der Versionskonsistenz bei C++23 Modules über mehrere Compiler-Generationen hinweg sowie in der ABI-Stabilität für langfristige Industriekompatibilität (typischerweise 15-25 Jahre).
 
 #### 2.3.4 Deployment-System (Horse-Rider-Architektur)
 
 **Projektlokation**: Teil von `playbooks/VIA-M1-System-Deploy/horse_rider_deployment.md`
 
-Horse-Rider-Architektur entkoppelt Deployment-Logik (Horse) von Fachlogik (Rider): Der Horse-Service lädt Rider-Services als C++23 Modules dynamisch und ermöglicht Hot-Reload ohne Systemausfall. Bei Rider-Update prüft Horse ABI-Kompatibilität, lädt neues Modul parallel zum alten (Canary), und switchtswitches Traffic bei Erfolg. Mindestens 2 parallele Horses pro Edge-Gerät garantieren Redundanz (Digital Twin).
+Die Horse-Rider-Architektur entkoppelt Deployment-Logik (Horse) von Fachlogik (Rider) durch eine modulare Trennung der Verantwortlichkeiten. Der Horse-Service fungiert als stabiler Container, der Rider-Services als C++23 Modules dynamisch zur Laufzeit lädt und entlädt, wodurch Hot-Reload ohne Systemausfall ermöglicht wird. Bei einem Rider-Update prüft der Horse zunächst die ABI-Kompatibilität des neuen Moduls gegen die definierten Schnittstellen. Anschließend lädt er das neue Modul parallel zum alten (Canary-Deployment) und routet zunächst nur einen kleinen Prozentsatz des Traffics zum neuen Service. Bei erfolgreichem Canary-Test erfolgt der vollständige Traffic-Switch zum neuen Rider, während bei Fehlern ein automatisches Rollback zum alten Modul durchgeführt wird. Die Architektur sieht mindestens zwei parallele Horses pro Edge-Gerät vor, die als Digital Twin fungieren und gegenseitige Redundanz gewährleisten.
 
-**Problem**: ABI-Stabilität bei C++23 Modules, Zustandssynchronisation bei Hot-Reload, Rollback-Transaktionalität
+Die zentralen technischen Herausforderungen dieser Architektur liegen in der ABI-Stabilität bei C++23 Modules über mehrere Compiler-Versionen und Aktualisierungszyklen hinweg, in der Zustandssynchronisation bei Hot-Reload zwischen altem und neuem Rider-Service sowie in der Rollback-Transaktionalität, die sicherstellt, dass bei Fehlern ein konsistenter Systemzustand innerhalb von Sekundenbruchteilen wiederhergestellt werden kann.
 
 #### 2.3.5 Sub-Protokolle unter OPC UA → **FORSCHUNGSFOKUS**
 
 **Projektlokation**: `playbooks/VIA-M3-Compiler/via_protocols/` (zukünftig, Spezifikation noch offen)
 
-VIA definiert drei custom OPC UA Sub-Protokolle als Erweiterung des Standards:
-- **Edge-Group-Protocol**: Virtuelle Netzwerkgruppen für hierarchische Edgegeräte-Gruppierung
-- **Deploy-Protocol**: Versionierung, Logging, Rejuvenation für Horse-Rider-System
-- **Process-Group-Protocol**: IPC-Optimierung zwischen Services (Pipe, Unix Socket, TCP, File-Queue, Thread) → **Kern dieser Forschungsarbeit**
+VIA definiert drei custom OPC UA Sub-Protokolle als systematische Erweiterung des Standards, die verschiedene Aspekte der Systemorchestrierung adressieren. Das Edge-Group-Protocol ermöglicht virtuelle Netzwerkgruppen für hierarchische Edgegeräte-Gruppierung, wodurch die Skalierbarkeit auf mehr als 50.000 Geräte erreicht wird. Das Deploy-Protocol verwaltet Versionierung, Logging und Rejuvenation für das Horse-Rider-System, um ausfallsichere Updates zu gewährleisten. Das Process-Group-Protocol bildet den Kern dieser Forschungsarbeit und optimiert die IPC-Mechanismen zwischen Services durch automatische Auswahl zwischen Pipe, Unix Socket, TCP, File-Queue und Thread-Messaging basierend auf Prozessabhängigkeiten und Latenzanforderungen.
 
-Diese Protokolle werden als M3-Bibliothek (`via_protocols` lib) innerhalb der AAS-lang definiert und in M2-SDK integriert. MMB-Integration (Multi-Message Broker nach Dr. Soler Perez Olaya) für Many-to-Many Broadcast geplant.
+Die Implementierung dieser Protokolle erfolgt als M3-Bibliothek (`via_protocols` lib) innerhalb der AAS-lang, wodurch sie vom VIA-M3-Compiler verarbeitet und in die M2-SDK integriert werden können. Die geplante MMB-Integration (Multi-Message Broker nach Dr. Santiago Soler Perez Olaya) ermöglicht Many-to-Many Broadcast-Kommunikation für flexible Nachrichtenverteilung zwischen heterogenen Prozessgruppen.
 
-**Status**: Spezifikation in Planung, wird im Projektverlauf als M3-Modelle definiert
-
-**Problem**: Protokoll-Komposition, Effizienz bei >50k Geräten, Sicherheitsschichten, OPC Foundation Standardisierung
+Der aktuelle Status dieser Komponente ist die Spezifikationsphase; die konkreten Protokoll-Definitionen werden im weiteren Projektverlauf als M3-Modelle ausgearbeitet. Die zentralen Herausforderungen liegen in der Protokoll-Komposition verschiedener Sub-Protokolle ohne semantische Konflikte, in der Effizienz bei mehr als 50.000 Geräten durch hierarchische Gruppierung, in der Definition geschachtelter Sicherheitsschichten sowie in der zukünftigen Standardisierung durch die OPC Foundation als offizielle Companion Specification.
 
 #### 2.3.6 Network Discovery System
 
 **Projektlokation**: Teil von `playbooks/VIA-M2-SDK/network_discovery.md`
 
-Automatisches Scanning des Kundennetzwerks (SNMP, OPC UA, Modbus, MQTT, RPC) zur Topologie-Erkennung, Auslesen von Geräteeigenschaften (PLCs, SCADA, MES, Sensoren) und Generierung von Asset-Mapping-Vorschlägen für M2-Projektkonfiguration.
+Das Network Discovery System führt automatisches Scanning des Kundennetzwerks durch, indem es verschiedene industrielle Protokolle wie SNMP, OPC UA, Modbus, MQTT und RPC systematisch zur Topologie-Erkennung einsetzt. Das System liest Geräteeigenschaften von PLCs, SCADA-Systemen, MES-Servern und Sensoren aus, klassifiziert diese automatisch und erstellt eine strukturierte Netzwerktopologie. Basierend auf dieser Analyse generiert das System Asset-Mapping-Vorschläge für die M2-Projektkonfiguration, die dem Anwender als Startpunkt für die weitere Systemdefinition dienen.
 
-**Problem**: Protokoll-Heterogenität, Zugriffskontrolle, Offline-Geräte
+Die wesentlichen Herausforderungen dieser Komponente liegen in der Protokoll-Heterogenität verschiedener Industriestandards mit unterschiedlichen Datenmodellen und Kommunikationsmustern, in der Zugriffskontrolle auf sicherheitskritische Produktionssysteme ohne bestehende Credentials sowie im Umgang mit Offline-Geräten, die zum Scan-Zeitpunkt nicht erreichbar sind, aber dennoch in die Topologie integriert werden müssen.
 
 #### 2.3.7 Master Active Management (Deployment-Orchestrierung)
 
 **Projektlokation**: Teil von `playbooks/VIA-M1-System-Deploy/master_active_management.md`
 
-Active/Active Redundanz analog Active Directory: Deployment-Master koordiniert Kubernetes + Edge-Service-Orchestrierung, verwaltet Zugriffskontrolle (Rollen, Benutzer, Samba/AD-Integration) und konfiguriert Redundanz-Levels/Service-Verteilung.
+Das Master Active Management implementiert Active/Active Redundanz analog zu Microsoft Active Directory, wobei mehrere Deployment-Master gleichzeitig aktiv sind und sich gegenseitig replizieren. Der Deployment-Master koordiniert sowohl Kubernetes-Container-Orchestrierung als auch Edge-Service-Orchestrierung für nicht-containerisierte Geräte und bildet damit die zentrale Steuerungsinstanz des VIA-Systems. Die Zugriffskontrolle wird über ein rollenbasiertes Berechtigungssystem verwaltet, das Benutzer und Rollen definiert und optional mit bestehenden Samba- oder Active-Directory-Infrastrukturen integriert werden kann. Die Konfiguration von Redundanz-Levels und Service-Verteilung erfolgt durch Policies, die festlegen, wie viele Replikate jedes Services auf welchen Hosts deployed werden.
 
-**Problem**: Split-Brain-Szenarien, Konsistenz über Cluster, Failover-Zeiten
+Die kritischen Herausforderungen dieser Komponente liegen in der Vermeidung von Split-Brain-Szenarien, bei denen getrennte Master-Instanzen inkonsistente Entscheidungen treffen, in der Gewährleistung von Konsistenz über geografisch verteilte Cluster hinweg sowie in der Minimierung von Failover-Zeiten beim Ausfall eines Masters, um kontinuierliche Orchestrierung zu garantieren.
 
 #### 2.3.8 Multi-Architektur Cross-Compilation
 
 **Projektlokation**: Teil von `playbooks/VIA-M1-System-Deploy/cross_compilation.md`
 
-Unterstützung für MIPS, RISC-V, POWER9+, x86, ARM1+, Sparc auf Linux/Windows/Mac. M2-SDK-Kunde definiert Zielarchitekturen in `.via` Projektdateien, M1-Deployer kompiliert via CMake-Toolchains für alle Targets. Ermöglicht Legacy-Support (alte Industriesysteme) + moderne Architekturen.
+Das Multi-Architektur Cross-Compilation System ermöglicht die Unterstützung heterogener Hardwareplattformen, darunter MIPS, RISC-V, POWER9+, x86, ARM1+ und Sparc, jeweils auf Betriebssystemen wie Linux, Windows und macOS. Der M2-SDK-Kunde definiert die gewünschten Zielarchitekturen deklarativ in `.via` Projektdateien, woraufhin der M1-Deployer automatisch CMake-Toolchains für alle Targets konfiguriert und parallele Cross-Compilation durchführt. Diese Architektur-Vielfalt ermöglicht Legacy-Support für alte Industriesysteme, die teilweise seit Jahrzehnten in Produktion sind, sowie gleichzeitige Integration moderner Architekturen für neue Komponenten.
 
-**Problem**: Toolchain-Management, Treiber-Verfügbarkeit, Memory-Modelle
+Die wesentlichen Herausforderungen dieser Komponente liegen im Toolchain-Management für eine Vielzahl von Compiler-Versionen und Zielplattformen, in der Treiber-Verfügbarkeit für spezifische Hardware-Komponenten auf Legacy-Systemen sowie in den unterschiedlichen Memory-Modellen verschiedener Architekturen (z.B. Big-Endian vs. Little-Endian, unterschiedliche Pointer-Größen), die konsistente Datenserialisierung und IPC-Kommunikation über Architekturgrenzen hinweg erfordern.
 
 ---
 
@@ -212,19 +183,13 @@ Das aas-core-works Framework bildet den konzeptionellen Ausgangspunkt für die m
 
 **VIA-Projektintegration**: VIA übernimmt die M3/M2/M1-Architektur-Idee, implementiert jedoch einen eigenständigen M3-Compiler in `playbooks/VIA-M3-Compiler/`, der AAS IEC 63278 als M3-Modellcode interpretiert. Die textuelle Spezifikation (PDF/HTML der IEC 63278) wird über SITL (Software-in-the-Loop) automatisch in ausführbaren M3-Code transformiert, der vom VIA-M3-Compiler verarbeitet wird. Die 6 Language SDKs von aas-core-codegen dienen als Referenz-Implementierung, VIA fokussiert initial jedoch auf C++-SDK-Generierung mit eigenem Template-Engine (definiert in AAS-lang selbst, nicht in Python). Anders als aas-core-works, das Python-Skripte zur Code-Generierung nutzt, ist VIA-M3-Compiler ein produktionsreifer C++20/23-Compiler mit vollständigem Testframework und stabiler Binary-Distribution.
 
-Zentrale technische Eigenschaften:
+Das aas-core-works Framework implementiert den IEC 63278 Standard, der eine M3/M2/M1 Metamodel Architecture für Digital Twins definiert. Das aas-core-meta Repository enthält das M3 Metamodell in simplified Python als kanonische Definition, wobei Releases nach dem Schema YYYY.MM.DD versioniert werden. Der aas-core-codegen Multi-Target Compiler folgt dem Single Source of Truth Prinzip und ermöglicht automatisierte Generierung mit Fokus auf Skalierbarkeit.
 
-- **IEC 63278 Standard**: M3/M2/M1 Metamodel Architecture für Digital Twins
-- **aas-core-meta**: M3 Metamodel in simplified Python (canonical definition), versioned releases (YYYY.MM.DD)
-- **aas-core-codegen**: Multi-Target Compiler, Single Source of Truth, automated generation, scalability
-- **6 Language SDKs**: C++, C#, Python, TypeScript, Java, Golang (identical semantics)
-- **5 Schema Exports**: JSON Schema, XSD, RDF SHACL, JSON-LD Context, Protobuf
-- **Code Generation Pipeline**: Python M3 → Parser & Analyzer → Language SDKs + Schema Exports
-- **Transformation Rules**: Python classes → Target language classes, Properties → Getters/setters, Constraints → Validation functions, Documentation → API docs
-- **Constraint System**: Python `@invariant` decorators → Runtime Validation (Uniqueness, Multiplicity, Type Safety, Semantic Consistency)
-- **Code Injection Points**: Custom constructors, Serialization/deserialization, Performance optimizations
-- **Community**: 2.9K Stars, 307 Contributors, MPL 2.0 License
-- Limitation: Python-Skripte (nicht C++ Production-Compiler), statisches Modell (keine Runtime Reconfiguration), AAS-spezifisch (keine Industrial Real-Time Constraints)
+Das Framework generiert sechs Language SDKs (C++, C#, Python, TypeScript, Java, Golang) mit identischer Semantik sowie fünf Schema Exports (JSON Schema, XSD, RDF SHACL, JSON-LD Context, Protobuf). Die Code Generation Pipeline transformiert das Python M3 Metamodell über Parser und Analyzer in sprachspezifische SDKs und Schema Exports. Die Transformation Rules bilden Python-Klassen auf Zielsprachen-Klassen ab, Properties werden zu Getters/Setters transformiert, Constraints werden in Validierungsfunktionen übersetzt, und Dokumentation wird automatisch in API-Dokumentation propagiert.
+
+Das Constraint System nutzt Python `@invariant` Decorators für Runtime Validation, wobei Uniqueness, Multiplicity, Type Safety und Semantic Consistency validiert werden. Code Injection Points ermöglichen Custom Constructors, Serialization/Deserialization und Performance-Optimierungen an definierten Stellen im generierten Code. Die Community umfasst 2.9K Stars und 307 Contributors, das Projekt steht unter MPL 2.0 Lizenz.
+
+Die Limitationen des Frameworks liegen darin, dass Python-Skripte statt eines C++ Production-Compilers verwendet werden, das Modell statisch ist ohne Runtime Reconfiguration, und die Implementierung AAS-spezifisch ist ohne Berücksichtigung Industrial Real-Time Constraints.
 
 ### 3.2 OPC UA (IEC 62541) & open62541 C99 Stack
 
@@ -232,40 +197,21 @@ OPC UA (Open Platform Communications Unified Architecture) nach IEC 62541 bildet
 
 **VIA-Projektintegration**: open62541 wird als **third_party Bibliothek auf M2-Ebene** in `playbooks/VIA-M2-SDK/third_party/open62541/` integriert. Der VIA-M3-Compiler generiert OPC UA NodeSet XML-Dateien (VIA Custom Companion Spec) in `playbooks/VIA-M3-Compiler/output/via_companion_spec.xml`, die anschließend über den open62541 nodeset_compiler.py in C-Code (`via_nodeset.c/.h`) transformiert werden. Diese generierten Dateien werden mit den VIA-Prozessen (C++23 Modules) gelinkt, sodass jeder VIA-Prozess einen embedded OPC UA Server erhält. Die Dynamic Address Space API (`UA_Server_addObjectNode()`) wird vom VIA Service Registry verwendet, um zur Laufzeit OPC UA Nodes für neu registrierende Prozesse zu erzeugen – ein Hybrid-Modell aus statischen Typdefinitionen (VIAProcessType, VIARouterType) und dynamischen Instanzen. Die textuelle Spezifikation von OPC UA IEC 62541 wird analog zu AAS über SITL in M3-Modellcode transformiert, falls noch nicht als M3-Bibliothek vorhanden.
 
-Zentrale Eigenschaften:
+OPC UA implementiert ein Client-Server Many-to-Many Modell, bei dem mehrere Clients mit mehreren Servern kommunizieren können, unterstützt durch Discovery Mechanismen und Subscriptions für ereignisbasierte Datenübertragung. Die Informationsmodellierung bildet das Herzstück von OPC UA und ermöglicht beliebig komplexe Strukturen mit eigenen Objekttypen und Variablentypen, wobei das Modell objektorientiert und dynamisch erweiterbar ist.
 
-- **Client-Server Many-to-Many**: Mehrere Clients ↔ Mehrere Server, Discovery Mechanismen, Subscriptions
-- **Informationsmodellierung (Herzstück)**: Beliebig komplexe Strukturen, eigene Objekttypen/Variablentypen, objektorientiert, dynamisch erweiterbar
-- **M3/M2/M1 Architektur**: M3 (Metamodell: Objekte/Variablen/Methoden existieren), M2 (Modell: Domain-spezifische Typen), M1 (Instanz: Laufende Systeme)
-- **ModelCompiler**: XML-Modellbeschreibung → C#/C Code, UA Modeler für grafisches Design
-- **C++ SDKs**: OPC Foundation (ANSI C/C++), Unified Automation (kommerziell), open62541 (C99, ~250KB, Open Source)
-- **open62541**: C99 Implementation, MPL 2.0, 2.9K Stars, 307 Contributors, ursprünglich TU Dresden Forschungsprojekt
-  - **Embedded-Friendly**: ~250KB minimal config (Core + Namespace 0 MINIMAL), ~500KB full config, zertifiziert "Micro Embedded Device Server"
-  - **Plugin-Architektur**: Logging, Crypto (OpenSSL/mbedTLS), Access Control (RBAC), NodeStore (HashMap/ZipTree)
-  - **Platform Abstraction**: POSIX, Windows, Zephyr RTOS (freeRTOS legacy), portierbar auf neue Plattformen (clock, networking)
-  - **Nodeset Compiler**: Python Tool (nodeset_compiler.py), XML NodeSet → C Code, Integration mit VIA-M3-Compiler
-  - **Dynamic Address Space**: Nodes zur Laufzeit hinzufügen/löschen (VIA Registry ↔ OPC UA Nodes), `UA_Server_addObjectNode()` API
-  - **Performance**: 10K ops/sec (single-thread), 50K ops/sec (multi-thread 4 cores), 100K nodes tested, 1K notifications/sec
-  - **Security**: Basic256Sha256 (AES-256 + SHA256), X.509 Zertifikate, Encryption Policies
-- **76+ Companion Specifications** (UA-Nodeset Repository): DI, I4AAS, PLCopen, Robotics, CNC, MTConnect, ISA-95, PackML, EUROMAP, BACnet
-  - **DI (Device Integration)**: Generic device modeling, Base für VIA Custom Companion Spec (DeviceType, BlockType, ConfigurableObjectType)
-  - **I4AAS Companion Spec**: Maps AAS to OPC UA (AssetAdministrationShell → UA Object, Submodel → UA Object, Property → UA Variable)
-  - **VIA Custom Companion Spec** (Vision): VIAProcessType (extends DeviceType), VIARouterType, VIASchedulerType, VIARegistryType
-- **NodeSet XML Format**: Standardisierte Information Models, `<UANodeSet>` root, `<UAObject>`, `<UAVariable>`, `<UAMethod>`, `<UAObjectType>`, `<UADataType>`
-- **Hybrid Model für VIA**: Static NodeSet (VIA types) + Dynamic Instances (created at runtime when VIA processes register)
-- **Aggregationsserver**: Sammelt Daten von vielen Servern in einheitlichem Adressraum
-- **Multi-Language-Interoperabilität**: python-opcua, Java, .NET, gRPC-Bindings möglich
-- **Code Generation Pipeline (VIA Integration)**:
-  ```
-  VIA M3 Metamodel → VIA-M3-Compiler → OPC UA NodeSet XML
-                                        ↓
-                               open62541 nodeset_compiler.py
-                                        ↓
-                                   C Code (via_nodeset.c/.h)
-                                        ↓
-                               Link mit VIA Process (C++23 Module)
-  ```
-- Limitation: Statische NodeSets (behoben durch Dynamic Address Space API), keine dynamische Orchestrierung, keine Compile-Time-Optimierung
+Die M3/M2/M1 Architektur definiert drei Abstraktionsebenen: M3 als Metamodell, in dem Objekte, Variablen und Methoden als Konzepte existieren, M2 als Modell mit domain-spezifischen Typen, und M1 als Instanz-Ebene mit laufenden Systemen. Der ModelCompiler transformiert XML-Modellbeschreibungen in C# oder C Code, wobei der UA Modeler grafisches Design ermöglicht. Verschiedene C++ SDKs stehen zur Verfügung: Die OPC Foundation bietet eine ANSI C/C++ Implementierung, Unified Automation eine kommerzielle Lösung, und open62541 eine C99-basierte Open Source Variante mit circa 250KB Footprint.
+
+Die open62541 Implementierung ist eine C99 Implementation unter MPL 2.0 Lizenz mit 2.9K Stars und 307 Contributors, die ursprünglich als TU Dresden Forschungsprojekt entstand. Sie ist embedded-friendly mit circa 250KB minimaler Konfiguration (Core + Namespace 0 MINIMAL) und circa 500KB voller Konfiguration, zertifiziert als "Micro Embedded Device Server". Die Plugin-Architektur umfasst austauschbare Module für Logging, Crypto (OpenSSL oder mbedTLS), Access Control (RBAC) und NodeStore (HashMap oder ZipTree). Die Platform Abstraction unterstützt POSIX, Windows und Zephyr RTOS (freeRTOS legacy) und ist portierbar auf neue Plattformen durch abstrahierte Clock- und Networking-Interfaces.
+
+Der Nodeset Compiler ist ein Python Tool (nodeset_compiler.py), das XML NodeSets in C Code transformiert und für die Integration mit dem VIA-M3-Compiler vorgesehen ist. Die Dynamic Address Space API ermöglicht das Hinzufügen und Löschen von Nodes zur Laufzeit, was die Abbildung der VIA Registry auf OPC UA Nodes über die `UA_Server_addObjectNode()` API ermöglicht. Die Performance liegt bei 10.000 Operationen pro Sekunde im Single-Thread-Betrieb, 50.000 Operationen pro Sekunde mit vier Cores, wobei 100.000 Nodes getestet wurden und 1.000 Notifications pro Sekunde unterstützt werden. Die Sicherheitsimplementierung umfasst Basic256Sha256 (AES-256 + SHA256), X.509 Zertifikate und konfigurierbare Encryption Policies.
+
+Das UA-Nodeset Repository bietet über 76 Companion Specifications, darunter DI, I4AAS, PLCopen, Robotics, CNC, MTConnect, ISA-95, PackML, EUROMAP und BACnet. Die DI (Device Integration) Companion Specification definiert generic device modeling und bildet die Basis für die VIA Custom Companion Spec mit Typen wie DeviceType, BlockType und ConfigurableObjectType. Die I4AAS Companion Spec mappt AAS auf OPC UA, wobei AssetAdministrationShell zu UA Object, Submodel zu UA Object und Property zu UA Variable transformiert wird. Die VIA Custom Companion Spec (Vision) definiert VIAProcessType (extends DeviceType), VIARouterType, VIASchedulerType und VIARegistryType.
+
+Das NodeSet XML Format standardisiert Information Models mit `<UANodeSet>` als root-Element und enthält `<UAObject>`, `<UAVariable>`, `<UAMethod>`, `<UAObjectType>` und `<UADataType>` Definitionen. VIA nutzt ein Hybrid Model aus Static NodeSet (VIA types) und Dynamic Instances, die zur Laufzeit erstellt werden, wenn VIA-Prozesse sich registrieren. Aggregationsserver sammeln Daten von vielen Servern in einem einheitlichen Adressraum. Multi-Language-Interoperabilität wird durch python-opcua, Java, .NET und gRPC-Bindings ermöglicht.
+
+Die Code Generation Pipeline für VIA Integration verläuft wie folgt: Das VIA M3 Metamodell wird vom VIA-M3-Compiler in OPC UA NodeSet XML transformiert, das vom open62541 nodeset_compiler.py in C Code (via_nodeset.c/.h) übersetzt wird, der schließlich mit VIA Prozessen (C++23 Modules) gelinkt wird.
+
+Die Limitationen von OPC UA liegen in statischen NodeSets, wobei die Dynamic Address Space API diese Einschränkung für VIA behebt, sowie im Fehlen dynamischer Orchestrierung und Compile-Time-Optimierung in bisherigen Implementierungen.
 
 ### 3.3 Multi-Message Broker (Dr. Santiago Soler Perez Olaya et al., IEEE ETFA 2024)
 
@@ -277,19 +223,13 @@ Die MMB-Konzepte (AID/AIMC Mapping, Consistency Layer, Sync/Async Translation, M
 1. **Network Discovery** (`playbooks/VIA-M2-SDK/network_discovery.md`): Automatische Erkennung von Brownfield-Geräten, AID-Extraktion, AIMC-Mapping-Generierung als `.via`-Projektdatei-Vorschläge
 2. **Dynamische Protokoll-Orchestrierung**: Die 3 Sub-Protokolle organisieren sich **getrennt voneinander** im Gesamtnetz, bilden **geschachtelte und rekursive Sicherheitsstufen** in jeder Protokoll-Ebene, und ermöglichen virtuelle Netzwerkströme mit unterschiedlichen QoS-Garantien (Latenz, Paket-Ankunftssicherheit, Sicherheitsstufen).
 
-Zentrale Eigenschaften:
+Der MMB adressiert das Problem der Brownfield Integration, bei dem Legacy Devices mit inflexiblen Protokollen in moderne Systeme eingebunden werden müssen. Der MMB fungiert als Gateway mit Northbound-Schnittstellen (I4.0 HTTP API, zukünftig Type 3 Proactive AAS) und Southbound-Protokollen (Modbus, HTTP, MQTT, zukünftig PROFIBUS/EtherCAT/PROFINET).
 
-- **Problem**: Brownfield Integration (Legacy Devices mit inflexiblen Protokollen)
-- **MMB als Gateway**: Northbound (I4.0 HTTP API, zukünftig Type 3 Proactive AAS) ↔ Southbound (Modbus, HTTP, MQTT, zukünftig PROFIBUS/EtherCAT/PROFINET)
-- **Internal Layers**: Consistency Layer (identische Requests → gleiche Info), Mapping Layer (Connector-Auswahl + Data Transformation), AAS Storage (ein AAS pro Legacy Asset)
-- **AID/AIMC Submodels**:
-  - **AID (Asset Interfaces Description)**: Von Vendor, Available Endpoints, basiert auf W3C WoT TD
-  - **AIMC (Asset Interfaces Mapping Configuration)**: Von User, bidirectional Mapping Asset ↔ AAS SubmodelElements
-- **Sync/Async Translation**: Buffer latest status ODER block until response available
-- **AAS Interaction Types**: Type 1 (Passive: XML/JSON/RDF), Type 2 (Reactive: HTTP API), Type 3 (Proactive: autonomous inter-AAS, Zukunft)
-- **Real-time vs Non-real-time**: Gateway zwischen Hard/Soft Real-time (Fieldbus) und Non-real-time (HTTP)
-- **Protokoll-Translation**: Controller/Peripheral ↔ Client/Server ↔ Pub/Sub
-- Limitation: AIMC erlaubt keine Data Transformations, Type 3 noch nicht standardisiert, kein vollautomatisches Deployment
+Die interne Architektur umfasst drei Schichten: Der Consistency Layer garantiert, dass identische Requests die gleiche Information zurückgeben, der Mapping Layer wählt den passenden Connector aus und führt Data Transformation durch, und der AAS Storage speichert ein AAS pro Legacy Asset. Das AID/AIMC Submodel-Konzept trennt Vendor-bereitgestellte Informationen (AID - Asset Interfaces Description mit Available Endpoints basierend auf W3C WoT TD) von User-Konfiguration (AIMC - Asset Interfaces Mapping Configuration mit bidirectionalem Mapping zwischen Asset und AAS SubmodelElements).
+
+Die Sync/Async Translation ermöglicht zwei Modi: Entweder wird der latest status gebuffert, oder die Anfrage blockiert, bis eine Response verfügbar ist. AAS Interaction Types werden in drei Stufen klassifiziert: Type 1 (Passive: XML/JSON/RDF Dateiaustausch), Type 2 (Reactive: HTTP API für Request-Response), Type 3 (Proactive: autonomous inter-AAS Kommunikation, derzeit in Standardisierung). Der MMB bildet ein Gateway zwischen Real-time (Hard/Soft Real-time Fieldbus-Systeme) und Non-real-time (HTTP-basierte Cloud-Anbindung). Die Protokoll-Translation überbrückt verschiedene Kommunikationsmuster: Controller/Peripheral, Client/Server und Pub/Sub.
+
+Die Limitationen des MMB liegen darin, dass AIMC keine Data Transformations erlaubt (nur 1:1 Mapping), Type 3 Interaction noch nicht standardisiert ist, und kein vollautomatisches Deployment vorgesehen ist.
 
 ### 3.4 CMFM & Management Paradigmen
 
@@ -297,20 +237,17 @@ Das Comprehensive Management Function Model (CMFM) bietet einen theoretischen Ra
 
 **VIA-Projektintegration**: Das VIA Vocabulary ist **noch zu definieren** und wird in `playbooks/VIA-M3-Compiler/via_vocabulary.md` dokumentiert, sobald es aus dem AAS-Kontext extrahiert wurde. Die CMFM-Struktur (Goal, Output, Input, Constraints, Representation) wird auf M3-Ebene als AAS-lang Konstrukte implementiert: Kundenprojekte (`.via` Dateien) beschreiben ihre Ziele intent-basiert (z.B. "Verbinde Sensor A mit Prozess B, maximiere Durchsatz, minimiere Latenz"), der VIA-M2-Compiler leitet daraus automatisch IPC-Mechanismus (Pipe/Socket/TCP/FileQueue/Thread) und Service-Positionierung (gleicher Container/Host/Remote) ab. Die drei Management-Ebenen (Data/Control/Management) werden in VIA sauber getrennt: IPC (Data Plane), Process-Group-Protocol (Control Plane), Deploy-Protocol (Management Plane). Diese Trennung ist in `playbooks/VIA-M3-Compiler/via_protocols/` als M3-Modelle zu spezifizieren.
 
-Zentrale Konzepte:
+Das CMFM (Comprehensive Management Function Model) kontrastiert Human-Centered Management mit System-Centric Management und ermöglicht verschiedene Management Paradigmen: Value-based (SNMP mit Polling von Werten), Policy-based (Intent-basierte Zielvorgaben), Requirements-based (SDN/TSN mit QoS-Anforderungen) und Ontology-based (Semantic-basierte Reasoning-Systeme).
 
-- **CMFM**: Human-Centered vs. System-Centric Management
-- **Management Paradigmen**: Value-based (SNMP), Policy-based (Intent), Requirements-based (SDN/TSN), Ontology-based (Semantic)
-- **CMFM Stärken**: Heterogeneity Management, Intent-based, Knowledge Transfer
-- **CMFM Meta-Model**: Goal (mandatory), Output (mandatory), Input (optional), Constraints (optional), Representation (optional)
-- **Constraints-Typen**: Time, Order, Existence, Mutual Exclusiveness, Execution Success
-- **Taxonomy**: Hierarchische Composition, Multiple Super-CMFMs möglich
-- **VIA Vocabulary**: Elements (Process, Service, Registry, Scheduler, Router), Verbs (register, discover, route, schedule), IPC Types (Pipe, Socket, TCP, FileQueue, Thread)
-- **Data/Control/Management Plane**: IPC (Data), Orchestration (Control), CMFM (Management) - Separation besser als Legacy Industrial Systems
-- **Network of Networks**: VIA als holistic Management für heterogene IPC-Mechanismen (Pipe, Socket, TCP, FileQueue, Thread)
-- **Seamless Integration**: Access to different management systems, orchestration throughout
-- **Legacy Problem**: Keine Trennung Data/Control/Management in Industrial Systems, proprietary Interfaces, statische Configuration
-- Limitation: Keine Compiler-Kette, manuelle CMFM-Erstellung, Vocabulary Management yet-to-standardize
+Die Stärken von CMFM liegen in Heterogeneity Management für "Network of Networks", Intent-based Abstraktion statt Low-Level-Konfiguration, und Knowledge Transfer durch standardisierte CMF-Definitionen. Das CMFM Meta-Model definiert fünf Komponenten: Goal (mandatory, beschreibt das Ziel), Output (mandatory, beschreibt die erwartete Ausgabe), Input (optional, beschreibt notwendige Eingaben), Constraints (optional, definiert Einschränkungen) und Representation (optional, verschiedene Darstellungsformen).
+
+Constraints werden in fünf Typen klassifiziert: Time (zeitliche Beschränkungen), Order (Reihenfolge-Abhängigkeiten), Existence (Existenz-Bedingungen), Mutual Exclusiveness (gegenseitiger Ausschluss) und Execution Success (Erfolgs-Kriterien). Die Taxonomy ermöglicht hierarchische Composition, wobei Multiple Super-CMFMs möglich sind.
+
+Das VIA Vocabulary definiert Elements (Process, Service, Registry, Scheduler, Router), Verbs (register, discover, route, schedule) und IPC Types (Pipe, Socket, TCP, FileQueue, Thread) als domänenspezifisches Vokabular. Die Separation von Data/Control/Management Plane erfolgt durch IPC (Data Plane), Orchestration (Control Plane) und CMFM (Management Plane), was eine Verbesserung gegenüber Legacy Industrial Systems darstellt.
+
+VIA fungiert als "Network of Networks" mit holistic Management für heterogene IPC-Mechanismen (Pipe, Socket, TCP, FileQueue, Thread) und ermöglicht seamless Integration mit Access to different management systems und orchestration throughout. Das Legacy Problem industrieller Systeme liegt in fehlender Trennung von Data/Control/Management Planes, proprietary Interfaces und statischer Configuration.
+
+Die Limitationen von CMFM liegen darin, dass keine Compiler-Kette vorgesehen ist, CMFM-Erstellung manuell erfolgt, und Vocabulary Management yet-to-standardize ist.
 
 ### 3.5 SOA & Microservice Architecture (Dr. Santiago Soler Perez Olaya et al., IECON 2024)
 
@@ -318,16 +255,15 @@ Service-orientierte Architekturen (SOA) und Microservices bilden die strukturell
 
 **VIA-Projektintegration**: VIA nutzt **Protobuf auf M3-Ebene** als Interpreter für Metamodell-Definitionen und Kundenprojektdaten (`playbooks/VIA-M3-Compiler/` verwendet Protobuf aus `third_party/`). Der VIA-M3-Compiler generiert `.proto`-Dateien für die Microservice-Kommunikation, die in `playbooks/VIA-M2-SDK/proto/` abgelegt werden. Anders als Dr. Soler Perez Olayas Ansatz (OpenAPI → Protobuf → protoc), folgt VIA dem Pfad: **M3-Metamodell (in AAS-lang) → VIA-M3-Compiler → Protobuf-Definitionen + C++-SDK**. Die "One microservice per Submodel"-Idee wird in VIA umgesetzt: Jedes AAS-Submodel wird als eigenständiger VIA-Prozess (C++23 Module) deployed, wobei der M2-Compiler automatisch gRPC-Service-Stubs generiert. Die IPC-Optimierung wählt dann zur Compile-Zeit: gRPC (Remote), UNIX Socket (lokal, high-performance) oder Thread-Messaging (gleicher Prozess).
 
-Zentrale Erkenntnisse:
+Service-orientierte Architekturen (SOA) basieren auf fundamentalen Prinzipien: Modularity für unabhängige Services, Abstraction zur Kapselung von Implementierungsdetails, Loose Coupling für minimale Abhängigkeiten, Service Composition für flexible Kombination, und Reusability für Wiederverwendung über Systemgrenzen hinweg.
 
-- **SOA Prinzipien**: Modularity, Abstraction, Loose Coupling, Service Composition, Reusability
-- **Automotive SOA**: SOME/IP (Autosar), DDS (Publish/Subscribe), OPC UA (Interoperabilität)
-- **Microservice Network für AAS**: One microservice per Submodel, Northbound (HTTP API) ↔ Internal (gRPC) ↔ Southbound (Asset Protocol)
-- **gRPC + Protobuf Vorteile**: High-performance, low-latency, HTTP/2 multiplexing, language interoperability (C++, C#, Python, Java, Go), binary serialization (compact, efficient), backward/forward compatibility, contract-first paradigm
-- **Code Generation Pipeline**: OpenAPI (AAS Spec) → Protobuf (.proto files) → protoc → Language-specific Code (messages, service stubs)
-- **AAS SDK Integration**: aas-core-csharp für (de-)serialization, metamodel types
-- **Container Deployment**: Docker + Kubernetes, transparent relocation (services near workload/gateway)
-- **Limitation**: Protobuf kein Inheritance (resort to composition), duality Protobuf-generated vs AAS Core SDK classes, heterogene Protokolle nicht unified, manuelle Orchestrierung
+Automotive SOA nutzt SOME/IP (Autosar) für Fahrzeug-interne Kommunikation, DDS (Publish/Subscribe) für Echtzeit-Datenverteilung, und OPC UA für Interoperabilität mit Backend-Systemen. Das Microservice Network für AAS implementiert "One microservice per Submodel", wobei Northbound HTTP API für Clients, Internal gRPC für Service-zu-Service-Kommunikation, und Southbound Asset Protocol für Hardware-Anbindung verwendet wird.
+
+Die Kombination von gRPC und Protobuf bietet zahlreiche Vorteile: High-performance mit low-latency durch HTTP/2 multiplexing, language interoperability für C++, C#, Python, Java und Go, binary serialization für compact und efficient Datenübertragung, backward/forward compatibility für versionssichere Evolution, und contract-first paradigm für klare API-Definition.
+
+Die Code Generation Pipeline transformiert OpenAPI (AAS Spec) in Protobuf (.proto files), die vom protoc Compiler in Language-specific Code (messages, service stubs) übersetzt werden. Die AAS SDK Integration nutzt aas-core-csharp für (de-)serialization und metamodel types. Container Deployment erfolgt über Docker und Kubernetes mit transparent relocation, wobei services near workload oder gateway positioniert werden.
+
+Die Limitationen dieses Ansatzes liegen darin, dass Protobuf kein Inheritance unterstützt (resort to composition), eine duality zwischen Protobuf-generated und AAS Core SDK classes besteht, heterogene Protokolle nicht unified sind, und manuelle Orchestrierung erforderlich ist.
 
 ### 3.6 IPC, Monitoring & Service Mesh (Related Work)
 
@@ -350,27 +286,55 @@ Eine Lösung ist **Pareto-optimal**, wenn keine Zielgröße verbessert werden ka
 
 Monitoring-Integration erfolgt über das Deploy-Protocol (Logging, Telemetrie) und OPC UA (Prozessdaten-Exposition).
 
-Übersicht bestehender Ansätze:
+Die Übersicht bestehender Ansätze zeigt verschiedene Stärken und Schwächen: gRPC nutzt HTTP/2 und Protobuf mit circa 0.5ms Latenz im Single-Host-Betrieb, bietet jedoch keine integrierte Service Discovery. ZeroMQ implementiert Message Queues mit fünf Patterns (REQ/REP, PUB/SUB), verfügt jedoch über keine Compiler-Integration. DDS (OMG Data Distribution Service) ist für Real-Time optimiert mit QoS-Policies, verursacht aber circa 2ms Overhead und bietet keine Metamodell-Abstraktion.
 
-- **gRPC**: HTTP/2, Protobuf, ~0.5ms Latenz (Single-Host), Service Discovery fehlt
-- **ZeroMQ**: Message Queues, 5 Patterns (REQ/REP, PUB/SUB), keine Compiler-Integration
-- **DDS (OMG Data Distribution Service)**: Real-Time, QoS-Policies, Overhead ~2ms, keine Metamodell-Abstraktion
-- **Istio/Linkerd (Service Mesh)**: Runtime-Routing, Dynamic Discovery, Sidecar-Overhead 5-10ms
-- **UNIX Domain Sockets**: ~20μs Latenz, nur lokale Prozesse, keine verteilte Orchestrierung
-- **SNMP (Simple Network Management Protocol)**: Manager-Agent-Model, Polling (GET-Anfragen alle 60s) + Traps (Push bei Ereignissen), MIB-OID-Struktur (hierarchisch), Standard-MIBs (IF-MIB, HOST-RESOURCES-MIB, ENTITY-SENSOR-MIB), Grenzen: flache OID-Liste (keine Objekthierarchien), Polling-Paradigma (keine Pub/Sub), primär Monitoring (nicht Steuerung), Skalierungslimit bei 1000en Geräten
-- **MQTT (Message Queuing Telemetry Transport)**: Pub/Sub, Broker-basiert, IoT-Sensorik, Cloud-Anbindung, extrem schlank (bandbreite-kritisch)
-- **Hybrid-Ansatz (Empfohlen)**: SNMP (Infrastruktur-Monitoring), OPC UA (detaillierte Prozessdaten), MQTT (Cloud Analytics)
-- **Limitation**: Alle Ansätze erfordern manuelle Konfiguration, keine Compile-Time-Optimierung, keine unified heterogene Protokolle
+Service Mesh Lösungen wie Istio und Linkerd ermöglichen Runtime-Routing mit Dynamic Discovery, verursachen jedoch 5-10ms Sidecar-Overhead pro Request. UNIX Domain Sockets bieten circa 20μs Latenz für lokale Prozesse, unterstützen jedoch keine verteilte Orchestrierung über Host-Grenzen hinweg.
+
+SNMP (Simple Network Management Protocol) implementiert ein Manager-Agent-Model mit Polling (GET-Anfragen alle 60 Sekunden) und Traps (Push bei Ereignissen), nutzt eine hierarchische MIB-OID-Struktur und definiert Standard-MIBs wie IF-MIB, HOST-RESOURCES-MIB und ENTITY-SENSOR-MIB. Die Grenzen von SNMP liegen in der flachen OID-Liste ohne Objekthierarchien, im Polling-Paradigma ohne Pub/Sub-Unterstützung, in der primären Fokussierung auf Monitoring statt Steuerung, und im Skalierungslimit bei tausenden Geräten.
+
+MQTT (Message Queuing Telemetry Transport) ist Pub/Sub-basiert und Broker-zentriert, optimiert für IoT-Sensorik und Cloud-Anbindung, und extrem schlank für bandbreite-kritische Anwendungen. Ein empfohlener Hybrid-Ansatz kombiniert SNMP für Infrastruktur-Monitoring, OPC UA für detaillierte Prozessdaten, und MQTT für Cloud Analytics.
+
+Die fundamentale Limitation aller genannten Ansätze liegt darin, dass sie manuelle Konfiguration erfordern, keine Compile-Time-Optimierung bieten, und heterogene Protokolle nicht unified verwalten können.
 
 ### 3.7 Forschungslücken
 
-Die Analyse des Stands der Forschung offenbart mehrere fundamentale Lücken, die diese Arbeit adressiert:
+Die Analyse des Stands der Forschung offenbart mehrere fundamentale Lücken, die diese Arbeit adressiert. Es existiert keine mehrstufige Compiler-Kette M3→M2→M1 speziell für Prozesskommunikation, die Metamodell-Definitionen automatisch in optimierte IPC-Implementierungen übersetzt. Die automatische IPC-Mechanismus-Auswahl bei Compilation ist in bisherigen Frameworks nicht vorgesehen; stattdessen erfolgt die Wahl zur Laufzeit oder durch manuelle Konfiguration.
 
-- Keine mehrstufige Compiler-Kette M3→M2→M1 für Prozesskommunikation
-- Keine automatische IPC-Mechanismus-Auswahl bei Compilation
-- Keine Sub-Protokolle unter OPC UA standardisiert
-- Keine Compile-Time-Optimierung von Microservice-Positionierung
-- Service Mesh Overhead (5-10ms) vs. potenzielle Compiler-Optimierung unerforscht
+Unter OPC UA sind keine standardisierten Sub-Protokolle für Prozessgruppierung, Deployment-Management und IPC-Optimierung definiert, obwohl diese Funktionalität in industriellen Systemen dringend benötigt wird. Die Compile-Time-Optimierung von Microservice-Positionierung basierend auf Prozessabhängigkeiten und Latenzanforderungen ist ein unerforschtes Gebiet.
+
+Der Trade-off zwischen Service Mesh Overhead (5-10ms Sidecar-Latenz) und potenzieller Compiler-Optimierung wurde wissenschaftlich nicht systematisch untersucht. In-the-Loop Selbstoptimierung mit Pareto-Metriken (Latenz, Durchsatz, Ressourcenverbrauch) als autonome Feedback-Schleife existiert in keinem bekannten industriellen Framework. Schließlich fehlt das Konzept der M3-Bibliotheks-Komposition für Protokoll-Erweiterbarkeit, bei dem neue Protokolle auf bestehenden M3-Bibliotheken aufbauen können.
+
+### 3.8 Wissenschaftlicher Mehrwert dieser Arbeit
+
+Die vorliegende Forschungsarbeit leistet mehrere fundamentale Beiträge, die über inkrementelle Verbesserungen bestehender Systeme hinausgehen:
+
+#### 3.8.1 Theoretische Fundierung durch M3-Bibliotheks-Architektur
+
+**MMB als M3-Bibliothek**: Die Einbettung des Multi-Message Broker (MMB) als wiederverwendbare M3-Bibliothek demonstriert, wie Forschungsergebnisse aus der Brownfield-Integration (Dr. Santiago Soler Perez Olaya et al.) als formale Metamodell-Komponenten operationalisiert werden können. Die drei VIA-Sub-Protokolle (Edge-Group, Deploy, Process-Group) sind **selbst als M3-Bibliotheken in AAS-lang definiert** – analog zu Protobuf als M3-Interpreter – und laden Modelle von MMB. Diese Modell-Komposition auf M3-Ebene schafft eine **wissenschaftliche Grundlage für erweiterbare Protokoll-Architekturen** in der industriellen Automatisierung.
+
+**Wiederverwendbarkeit und Erweiterbarkeit**: Durch die Trennung von Basis-Bibliothek (MMB) und spezialisierten Protokollen (Edge-Group/Deploy/Process-Group) entsteht eine modulare Architektur, die zukünftige Erweiterungen ermöglicht. Andere Forschungsprojekte können MMB-Modelle importieren und eigene Protokoll-Semantik definieren – ein Paradigma, das in bisherigen OPC UA Companion Specifications fehlt.
+
+#### 3.8.2 Mathematische Rigorosität durch Pareto-Optimierung
+
+**Multi-Objective Optimization**: Die Anwendung von Pareto-Optimierung auf IPC-Mechanismus-Auswahl überführt eine bisher heuristische Entscheidung in ein **formal lösbares Optimierungsproblem**. Die konfligierenden Ziele (Latenz minimieren, Durchsatz maximieren, Ressourcenverbrauch minimieren) werden nicht durch Ad-hoc-Gewichtung gelöst, sondern durch Berechnung der **Pareto-Frontier** – der Menge aller nicht-dominierten Lösungen. Dies ermöglicht eine **wissenschaftlich nachvollziehbare Begründung** für jede IPC-Entscheidung und schafft Vergleichbarkeit zwischen Systemen.
+
+**Z3 Constraint-Solver**: Die Integration eines formalen Constraint-Solvers zur Compile-Zeit hebt die Arbeit über empirische Benchmarks hinaus. Die Lösungen sind nicht nur "gut gemessen", sondern **beweisbar optimal** innerhalb der definierten Constraints.
+
+#### 3.8.3 Autonome Systeme durch In-the-Loop Selbstoptimierung
+
+**Feedback-Loop-Architektur**: Die kontinuierliche Telemetrie-Auswertung (CPU%, RAM, Disk I/O, Netzwerk-Latenz, Message-Throughput) mit automatischer Kubernetes-Lastverteilung realisiert **autonome Cluster-Optimierung** – eine Kernvision von Industrie 5.0. Die Evaluationsschleife (Deploy-Protocol sammelt → M2-Compiler analysiert → Lastverteilung anpassen → Canary-Test → Übernahme/Rollback) demonstriert **selbstadaptierende Systeme** ohne menschliche Intervention.
+
+**Wissenschaftlicher Beitrag**: Diese Arbeit zeigt erstmals, wie Compile-Time-Optimierung (Pareto-Frontier) und Runtime-Adaptation (Telemetrie-Feedback) **komplementär kombiniert** werden können. Bestehende Ansätze sind entweder rein statisch (manuelle Konfiguration) oder rein dynamisch (Service Mesh) – VIA vereint beide Paradigmen.
+
+#### 3.8.4 Geschachtelte Sicherheitsarchitekturen
+
+**Rekursive Sicherheitsstufen**: Die Fähigkeit jeder Protokoll-Ebene, **getrennt voneinander** hierarchische Sicherheitsregeln zu bilden (z.B. Device-Groups → Edge-Groups → Cluster-Groups → Global), adressiert Enterprise-Anforderungen in heterogenen Netzwerken. Diese Architektur ist wissenschaftlich relevant, da sie **Separation of Concerns** auf Protokoll-Ebene realisiert – ein bisher ungelöstes Problem in OPC UA Companion Specifications.
+
+**Dynamisches MMB-Mapping**: Die Fähigkeit, Sub-Protokolle **virtuell zwischen Verarbeitungsgruppen umzumappen** (z.B. bei Bottleneck: neue Services instanziieren, Datenströme umleiten), demonstriert **Runtime-Adaptivität** trotz Compile-Time-Optimierung – ein fundamentaler Widerspruch, den VIA durch die Trennung von Protokoll-Definition (M3, statisch) und Protokoll-Instanziierung (MMB, dynamisch) auflöst.
+
+#### 3.8.5 Brückenschlag zwischen Compiler-Design und Industrieautomatisierung
+
+**Interdisziplinäre Innovation**: Die Anwendung von Compiler-Optimierungstechniken (M3/M2/M1 Metamodell-Kette, Constraint-Solving, Code-Generierung) auf industrielle Prozesskommunikation (OPC UA, IPC, Service-Orchestrierung) schafft eine **neue Forschungsrichtung** an der Schnittstelle von Informatik und Automatisierungstechnik. Die Arbeit zeigt, dass Industrie 4.0-Probleme von Compiler-Perspektive aus lösbar sind – eine Perspektive, die in bisherigen AAS-Implementierungen (Python-Skripte, manuelle Orchestrierung) fehlt.
 
 ---
 
@@ -442,45 +406,36 @@ Die Forschungsmethodik folgt einem ingenieurwissenschaftlichen Ansatz mit vier H
 Die Forschungsarbeit vereint Konzepte aus Compiler-Theorie (Abschnitt 5.1), Metamodell-Architekturen (Abschnitt 5.2), AAS-Standards (Abschnitt 5.3), OPC UA und ISA-95 Integration (Abschnitt 5.4), Prozesskommunikation (Abschnitt 5.5) sowie Management-Frameworks (Abschnitt 5.6). Dieses interdisziplinäre Fundament ist notwendig, um die Herausforderungen metamodell-basierter IPC-Optimierung zu adressieren.
 
 ### 5.1 Compiler-Theorie
-- Multi-Stage Compilation: M3 → M2 → M1
-- Code-Generation: Template-basiert, Type-Safe
-- Metaprogramming: C++20 Concepts, Constexpr
+
+Die Compiler-Theorie bildet die technische Grundlage für VIA mit Multi-Stage Compilation über drei Ebenen (M3 → M2 → M1), wobei jede Stufe spezifische Transformationen durchführt. Die Code-Generation erfolgt Template-basiert und Type-Safe, um Typsicherheit bereits zur Compile-Zeit zu garantieren. Metaprogramming nutzt C++20 Concepts für Constraint-basierte Template-Spezialisierung und Constexpr für Compile-Time-Berechnung komplexer Ausdrücke.
 
 ### 5.2 Metamodell-Architekturen (M3/M2/M1)
-- M3: Metamodell (Objects, Variables, Methods existieren)
-- M2: Modell (VIA-spezifische Typen)
-- M1: Instanz (Laufende Systeme)
+
+Die Metamodell-Architektur gliedert sich in drei Abstraktionsebenen: M3 definiert das Metamodell, in dem Objects, Variables und Methods als abstrakte Konzepte existieren; M2 repräsentiert das Modell mit VIA-spezifischen Typen wie VIAProcessType und VIARouterType; M1 bildet die Instanz-Ebene mit laufenden Systemen und konkreten Prozess-Instanzen.
 
 ### 5.3 Asset Administration Shell
-- IEC 63278: Standardisiertes Metamodell
-- Submodels: Modulare Datenbeschreibung
-- AID/AIMC: Asset Interface Description + Mapping
+
+Die Asset Administration Shell nach IEC 63278 definiert ein standardisiertes Metamodell für digitale Zwillinge in der Industrie 4.0. Submodels ermöglichen modulare Datenbeschreibung durch unabhängige, wiederverwendbare Komponenten. Das AID/AIMC-Konzept trennt Asset Interface Description (Vendor-bereitgestellte Schnittstellendefinition) von Asset Interfaces Mapping Configuration (User-konfiguriertes Mapping zwischen Asset und AAS).
 
 ### 5.4 OPC UA Information Model & ISA-95 Integration
-- **M3-basierte Typdefinitionen**: Metamodell für Objekte, Variablen, Methoden
-- **Companion Specifications**: Domain-Erweiterungen (DI, I4AAS, PLCopen)
-- **Address Space**: Hierarchische Nodes, objektorientiert
-- **ISA-95 Levels**: Level 2 (SCADA: Prozessebene, Echtzeit), Level 3 (MES: Produktionsleitebene), Level 4 (ERP: Unternehmensebene)
-- **SCADA**: Prozessdaten erfassen, Steuerbefehle senden, Alarmierung, Historisierung, Visualisierung (HMI)
-- **MES**: Produktionsaufträge, Feinplanung, Qualitätssicherung, OEE/KPI, Rückverfolgung, bidirektional mit SCADA
-- **OPC UA als Vermittler**: Standardisierter Zugriff für SCADA, MES, ERP, Cloud
+
+Das OPC UA Information Model basiert auf M3-basierten Typdefinitionen, die ein Metamodell für Objekte, Variablen und Methoden bereitstellen. Companion Specifications erweitern OPC UA um Domain-spezifische Funktionalität, darunter DI (Device Integration), I4AAS (Industrie 4.0 AAS), und PLCopen. Der Address Space organisiert Nodes hierarchisch und objektorientiert.
+
+Die ISA-95 Levels definieren funktionale Ebenen: Level 2 (SCADA: Prozessebene mit Echtzeit-Anforderungen), Level 3 (MES: Produktionsleitebene), und Level 4 (ERP: Unternehmensebene). SCADA-Systeme erfassen Prozessdaten, senden Steuerbefehle, verwalten Alarmierung und Historisierung, und bieten Visualisierung über HMI. MES-Systeme verwalten Produktionsaufträge, führen Feinplanung durch, implementieren Qualitätssicherung, berechnen OEE und KPIs, ermöglichen Rückverfolgung, und kommunizieren bidirektional mit SCADA. OPC UA fungiert als Vermittler und bietet standardisierten Zugriff für SCADA, MES, ERP und Cloud-Systeme.
 
 ### 5.5 Prozesskommunikation
-- IPC Mechanisms: Pipe, Socket, TCP, File-Queue, Thread
-- Data vs. Control vs. Management Plane
-- gRPC + Protobuf: Contract-First, Binary Serialization
+
+Die Prozesskommunikation nutzt verschiedene IPC Mechanisms: Pipe für sequenzielle Prozessketten, Socket für lokale bidirektionale Kommunikation, TCP für Remote-Kommunikation, File-Queue für asynchrone persistente Nachrichten, und Thread-Messaging für intra-prozessuale Kommunikation. Die Architektur trennt Data Plane (eigentliche Datenübertragung), Control Plane (Routing und Orchestrierung) und Management Plane (Konfiguration und Monitoring). gRPC und Protobuf implementieren Contract-First Development mit Binary Serialization für kompakte und effiziente Datenübertragung.
 
 ### 5.6 CMFM (Comprehensive Management Function Model)
-- **Manager-Centric Paradigm**: Fokus auf Ziele statt System-Details (vs. System-Centric)
-- **CMF Komponenten**: Goal (mandatory), Output (mandatory), Input (optional), Constraints (optional), Representations (optional)
-- **Generality Hierarchy**: Implementation → User → Domain → Parent Domain
-- **VIA as Domain**: Gesamte Prozesskommunikations-Domain
-- **Catalog vs. Core**: Liste aller CMFs vs. allgemein anwendbare CMFs nach Promotion
-- **Promotion**: Tacit (automatisch durch häufige Nutzung) vs. Explicit (durch Standardization Bodies)
-- **CMF Interrelations**: Equivalence (Merge gleicher Goals), Composition (Upwards/Downwards)
-- **AAS Integration**: CMFs als Operations im AAS Meta-Model, Input/Output als Attributes
-- **VIA CMFs**: process-register, process-discover, route-message, schedule-task
-- **Vocabulary Management**: Öffentliches Repository, Verknüpfung mit e-Class, CDD, I4.0 SemanticID
+
+Das CMFM implementiert ein Manager-Centric Paradigm, das auf Ziele statt System-Details fokussiert im Gegensatz zu System-Centric Ansätzen. CMF Komponenten umfassen Goal (mandatory, beschreibt Managementziel), Output (mandatory, erwartete Ausgabe), Input (optional, benötigte Eingaben), Constraints (optional, Einschränkungen) und Representations (optional, verschiedene Darstellungsformen).
+
+Die Generality Hierarchy definiert Abstraktionsebenen: Implementation (konkrete Implementierung), User (benutzerspezifisch), Domain (domänenspezifisch), Parent Domain (übergeordnete Domäne). VIA as Domain repräsentiert die gesamte Prozesskommunikations-Domain als einheitliches Konzept. Catalog vs. Core unterscheidet zwischen der Liste aller CMFs und allgemein anwendbaren CMFs nach Promotion.
+
+Promotion erfolgt tacit (automatisch durch häufige Nutzung) oder explicit (durch Standardization Bodies). CMF Interrelations umfassen Equivalence (Merge gleicher Goals zu einem CMF) und Composition (Upwards: Zusammenfassung mehrerer CMFs, Downwards: Zerlegung in Sub-CMFs). Die AAS Integration bildet CMFs als Operations im AAS Meta-Model ab, wobei Input und Output als Attributes repräsentiert werden.
+
+VIA CMFs definieren process-register (Prozess-Registrierung), process-discover (Service Discovery), route-message (Nachrichten-Routing) und schedule-task (Task-Scheduling). Vocabulary Management erfolgt über ein öffentliches Repository mit Verknüpfung zu e-Class, CDD (Common Data Dictionary) und I4.0 SemanticID.
 
 ---
 
@@ -516,80 +471,78 @@ Die Forschungsarbeit vereint Konzepte aus Compiler-Theorie (Abschnitt 5.1), Meta
 
 **Projektlokation**: `playbooks/VIA-M3-Compiler/` (versioniert)
 
-- **Input**: AAS IEC 63278 Textspezifikation (via SITL → M3-Code), OPC UA IEC 62541 als M3-Bibliothek (via SITL), VIA-Extensions für Prozesskommunikation (custom M3-Definitionen in AAS-lang)
-- **Verarbeitung**: C++20/23 Metaprogramming mit custom Template-Engine (definiert in AAS-lang selbst, nicht Python), Constraint-Validation über M3-Testframework, Protobuf als M3-Interpreter (`third_party/protobuf`) für Einlesen von Modell und Kundendaten
-- **Output**: `playbooks/VIA-M2-SDK/` (gitignored, generierter C++ Code), OPC UA NodeSet XML (`output/via_companion_spec.xml`), Protobuf `.proto` Dateien für Microservice-Kommunikation (`proto/`), Dokumentation mit durchgereichten M3-Kommentaren
-- **Besonderheit**: Wartbar und versioniert (im Gegensatz zu aas-core-works Python-Skripten), produktionsreifer Compiler mit vollständigem Testframework, vermeidet Spaghetti-Code durch Constraint-System
+Der VIA-M3-Compiler empfängt als Input die AAS IEC 63278 Textspezifikation, die über SITL (Software-in-the-Loop) automatisch in M3-Code transformiert wird, OPC UA IEC 62541 als M3-Bibliothek (ebenfalls über SITL eingelesen, falls nicht vorhanden), sowie VIA-Extensions für Prozesskommunikation als custom M3-Definitionen in AAS-lang.
+
+Die Verarbeitung erfolgt durch C++20/23 Metaprogramming mit einem custom Template-Engine, der in AAS-lang selbst definiert ist (nicht in Python wie bei aas-core-works). Constraint-Validation wird über das M3-Testframework durchgeführt, wobei Protobuf als M3-Interpreter aus `third_party/protobuf` zum Einlesen von Modell und Kundendaten verwendet wird.
+
+Als Output generiert der Compiler das Verzeichnis `playbooks/VIA-M2-SDK/` mit gitignored, generiertem C++ Code, OPC UA NodeSet XML in `output/via_companion_spec.xml`, Protobuf `.proto` Dateien für Microservice-Kommunikation in `proto/`, sowie umfassende Dokumentation mit durchgereichten M3-Kommentaren, die bis in die Binary-Headers propagieren.
+
+Die Besonderheit liegt darin, dass der Compiler wartbar und versioniert ist im Gegensatz zu aas-core-works Python-Skripten, als produktionsreifer Compiler mit vollständigem Testframework konzipiert ist, und Spaghetti-Code durch ein mehrschichtiges Constraint-System vermeidet.
 
 ### 6.2 VIA-M2-SDK-Compiler (SDK → Kundensystem)
 
 **Projektlokation**: `playbooks/VIA-M2-SDK/` (generiert, gitignored)
 
-- **Input**: Kundenprojekt-Dateien (`customer_project/*.via` in AAS-lang geschrieben), Netzwerk-Topologie (optional via Network Discovery `network_discovery.md`), Deployment-Ziele (Architekturen, OS)
-- **Verarbeitung**: Syntax-Prüfung der `.via` Dateien, Network Discovery Scanner (SNMP/OPC UA/Modbus), Auto-Vorschläge für Systemkonfiguration (`auto_suggestions.md`), **IPC-Optimierung** (`ipc_optimizer.md` - graph-basierter Algorithmus, Constraint-Solver für Compile-Time-Entscheidung), Test-Generator (`test_generator.md`)
-- **Output**: `playbooks/VIA-M1-System/` (gitignored, vollständiges C++ Gesamtprojekt), Kubernetes Manifests (`deployment.yaml`), Edge-Modules (C++23 Modules für Horse-Rider), Generierte Tests mit durchgereichten Kundenkommentaren
-- **Besonderheit**: **Release-Modus** (C++-Output-Stream über Memory-Filesystem/RAM direkt in g++ mit Pipe kompiliert für Performance), **Debug-Modus** (Projektdateien mit Dokumentation für Entwickler-Einsicht)
+Der VIA-M2-SDK-Compiler empfängt als Input Kundenprojekt-Dateien (`customer_project/*.via` in AAS-lang geschrieben), optional eine Netzwerk-Topologie via Network Discovery (`network_discovery.md`), sowie Deployment-Ziele mit Zielarchitekturen und Betriebssystemen.
+
+Die Verarbeitung umfasst mehrere Phasen: Zunächst erfolgt Syntax-Prüfung der `.via` Dateien, gefolgt vom Network Discovery Scanner für SNMP, OPC UA und Modbus. Auto-Vorschläge für Systemkonfiguration werden über `auto_suggestions.md` generiert. Die IPC-Optimierung in `ipc_optimizer.md` bildet den Forschungsfokus und implementiert einen graph-basierten Algorithmus mit Constraint-Solver für Compile-Time-Entscheidungen. Der Test-Generator in `test_generator.md` erstellt automatisch deterministische Tests aus M3-Constraints.
+
+Als Output generiert der Compiler das Verzeichnis `playbooks/VIA-M1-System/` (gitignored, vollständiges C++ Gesamtprojekt), Kubernetes Manifests als `deployment.yaml`, Edge-Modules als C++23 Modules für Horse-Rider-Deployment, sowie generierte Tests mit durchgereichten Kundenkommentaren für vollständige Traceability.
+
+Die Besonderheit liegt im Release-Modus, bei dem der C++-Output-Stream über Memory-Filesystem/RAM direkt mit Pipe in g++ kompiliert wird für maximale Performance, sowie im Debug-Modus, der Projektdateien mit umfassender Dokumentation für Entwickler-Einsicht bereitstellt.
 
 ### 6.3 VIA-M1-System-Deployer (System → Produktion)
 
 **Projektlokation**: `playbooks/VIA-M1-System-Deploy/` (Playbooks für Deployment-Logik)
 
-- **Input**: M1-Systemprojekt (`playbooks/VIA-M1-System/`), Deployment-Targets (Architecture Map für MIPS/RISC-V/ARM/x86/etc.), Kundendefinierte Systemtests (grobe Vordefinition)
-- **Verarbeitung**: **Distributed Compilation** (GitHub Runners für parallele Builds aller Module, siehe `distributed_build.md`), **Cross-Compilation** (Multi-Architektur Toolchain Management, `cross_compilation.md`), **Horse-Rider-Deployment** (C++23 Modules mit stabilen ABIs, Hot-Reload, Canary Deployment, `horse_rider_deployment.md`), Master Active Management für Orchestrierung (`master_active_management.md`)
-- **Output**: Deployed System für >50.000 Edge-Geräte, Binaries in `build/binaries/{arch}/{device_id}/`, Deployment-Manifests für Kubernetes + Edge-Geräte, Versionierte Binaries mit Header-Dokumentation (für externe Edge-Programmierung), Digital Twin mit Monitoring/Logging
-- **Besonderheit**: **Hot-Reload** (Horse-Service lädt neues Rider-Service parallel zu altem, Canary-Test, Traffic-Switch bei Erfolg), **Rollback** (Sekundenbruchteile bei Fehler durch Vorhalten alter Version), **Redundanz** (mindestens 2 parallele Horses pro Edge-Gerät, Digital Twin)
+Der VIA-M1-System-Deployer empfängt als Input das M1-Systemprojekt aus `playbooks/VIA-M1-System/`, Deployment-Targets als Architecture Map für MIPS, RISC-V, ARM, x86 und weitere Architekturen, sowie kundendefinierte Systemtests als grobe Vordefinition.
+
+Die Verarbeitung erfolgt in mehreren spezialisierten Phasen: Distributed Compilation über GitHub Runners ermöglicht parallele Builds aller Module (siehe `distributed_build.md`). Cross-Compilation mit Multi-Architektur Toolchain Management wird in `cross_compilation.md` durchgeführt. Horse-Rider-Deployment mit C++23 Modules, stabilen ABIs, Hot-Reload und Canary Deployment erfolgt nach `horse_rider_deployment.md`. Master Active Management orchestriert das gesamte Deployment gemäß `master_active_management.md`.
+
+Als Output entsteht ein deployed System für mehr als 50.000 Edge-Geräte mit Binaries in `build/binaries/{arch}/{device_id}/`, Deployment-Manifests für Kubernetes und Edge-Geräte, versionierte Binaries mit Header-Dokumentation für externe Edge-Programmierung, sowie ein Digital Twin mit Monitoring und Logging.
+
+Die Besonderheit liegt im Hot-Reload-Mechanismus, bei dem der Horse-Service ein neues Rider-Service parallel zum alten lädt, einen Canary-Test durchführt, und bei Erfolg den Traffic switched. Rollback erfolgt in Sekundenbruchteilen bei Fehlern durch Vorhalten der alten Version. Redundanz wird durch mindestens zwei parallele Horses pro Edge-Gerät als Digital Twin gewährleistet.
 
 ### 6.4 Sub-Protokolle unter OPC UA
 
 **Projektlokation**: `playbooks/VIA-M3-Compiler/via_protocols/` (zukünftig, **Spezifikation in Planung**)
 
-**M3-Modellgrundlage**: Die drei VIA-Sub-Protokolle bauen auf der **MMB-Bibliothek** (`playbooks/VIA-M3-Compiler/third_party/mmb/`) als M3-Basis auf. Die MMB-Architektur (Consistency Layer, Mapping Layer, Many-to-Many Broadcast) wird auf M3-Ebene implementiert und als Grundlage für die drei Protokoll-Ebenen verwendet.
+**M3-Bibliotheks-Architektur**: Die drei VIA-Sub-Protokolle sind **selbst als M3-Bibliotheken in AAS-lang definiert** (analog zu Protobuf als M3-Interpreter). Sie werden in `playbooks/VIA-M3-Compiler/via_protocols/` als Modelle implementiert und **laden Modelle von der MMB-Bibliothek** (`playbooks/VIA-M3-Compiler/third_party/mmb/`) als Basis.
+
+Die MMB-Architektur (Consistency Layer, Mapping Layer, Many-to-Many Broadcast) wird auf M3-Ebene als wiederverwendbare Bibliothek implementiert. Die drei Sub-Protokolle importieren MMB-Modelle und erweitern diese um VIA-spezifische Semantik:
+- **Edge-Group-Protocol**: Importiert MMB-Broadcast-Modelle → erweitert um hierarchische Gruppierung
+- **Deploy-Protocol**: Importiert MMB-Mapping-Modelle → erweitert um Versionierung/Telemetrie
+- **Process-Group-Protocol**: Importiert MMB-Consistency-Modelle → erweitert um IPC-Optimierung
+
+Diese Modell-Komposition auf M3-Ebene ermöglicht **Wiederverwendbarkeit** und **Erweiterbarkeit** – analog zu Protobuf, das ebenfalls Modelle lädt und transformiert.
 
 #### 6.4.1 Edge-Group-Protocol (Außenwelt-Ebene)
 
-**Funktion**: Virtuelle Netzwerkgruppen für hierarchische Edgegeräte-Gruppierung, vermeidet einzelne Koordination durch Gruppierung von Zielen.
+Das Edge-Group-Protocol implementiert virtuelle Netzwerkgruppen für hierarchische Edgegeräte-Gruppierung und vermeidet einzelne Koordination durch intelligente Gruppierung von Zielen.
 
-**Architektur**:
-- **Hardcoded Messages**: Gruppeneigenschaften werden zur Compile-Zeit in Binaries kompiliert (keine Runtime-Code-Change für Sicherheit)
-- **Binary ABI-Stabilität**: C++23 Modules mit stabilen Schnittstellen, sodass jedes Edge-Gerät selbst weiß, wohin es gehört
-- **Geschachtelte Sicherheitsstufen**: Hierarchische Gruppierung (Device-Groups → Edge-Groups → Cluster-Groups → Global) mit rekursiven Sicherheitsregeln pro Ebene
-- **Virtuelle Netzwerkströme**: Unterteilung der Außenwelt in getrennte Verarbeitungsgruppen mit unterschiedlichen QoS-Garantien
+Die Architektur basiert auf hardcoded Messages, wobei Gruppeneigenschaften zur Compile-Zeit in Binaries kompiliert werden, um Runtime-Code-Changes aus Sicherheitsgründen zu verhindern. Binary ABI-Stabilität wird durch C++23 Modules mit stabilen Schnittstellen gewährleistet, sodass jedes Edge-Gerät selbst weiß, wohin es gehört. Geschachtelte Sicherheitsstufen ermöglichen hierarchische Gruppierung (Device-Groups → Edge-Groups → Cluster-Groups → Global) mit rekursiven Sicherheitsregeln pro Ebene. Virtuelle Netzwerkströme unterteilen die Außenwelt in getrennte Verarbeitungsgruppen mit unterschiedlichen QoS-Garantien für Latenz, Durchsatz und Paket-Ankunftssicherheit.
 
-**Performance**: Kein virtueller Router notwendig (Zeitkritikalität gewahrt), Routing-Entscheidungen zur Compile-Zeit.
-
-**Dynamisches MMB-Mapping**: Zur Laufzeit können Edge-Groups virtuell über MMB zwischen Verarbeitungsgruppen umgemappt werden (z.B. bei Netzwerk-Rekonfiguration, Ausfall, Lastverschiebung).
+Die Performance profitiert davon, dass kein virtueller Router notwendig ist, wodurch Zeitkritikalität gewahrt bleibt, da Routing-Entscheidungen bereits zur Compile-Zeit getroffen werden. Dynamisches MMB-Mapping ermöglicht, dass Edge-Groups zur Laufzeit virtuell über MMB zwischen Verarbeitungsgruppen umgemappt werden können, beispielsweise bei Netzwerk-Rekonfiguration, Ausfall oder Lastverschiebung.
 
 #### 6.4.2 Deploy-Protocol (Verwaltungs-Ebene)
 
-**Funktion**: Verwaltung, Versionierung, Systemupdates, Rejuvenation für Horse-Rider-System.
+Das Deploy-Protocol verwaltet Versionierung, Systemupdates und Rejuvenation für das Horse-Rider-System und bildet damit die Verwaltungs-Ebene der VIA-Architektur.
 
-**Architektur**:
-- **Separation**: Metadaten und Messdaten der Computer getrennt von Anlagendaten (Kapselung)
-- **Logging**: Netzwerk-Logs für Fehleranalyse, Telemetrie-Sammlung (CPU%, RAM MB, Disk I/O)
-- **Horse-Rider-Integration**: Protokollverwaltung durch Deployment-Service, Canary-Deployment, Hot-Reload, Rollback
-- **Geschachtelte Sicherheitsstufen**: Versionierungs-Policies pro Cluster/Gruppe (z.B. "Production: nur Stable", "Staging: Canary erlaubt")
+Die Architektur implementiert strikte Separation, wobei Metadaten und Messdaten der Computer getrennt von Anlagendaten verwaltet werden zur Kapselung verschiedener Verantwortlichkeiten. Logging umfasst Netzwerk-Logs für Fehleranalyse sowie Telemetrie-Sammlung von CPU-Last in Prozent, RAM-Auslastung in Megabyte und Disk I/O. Die Horse-Rider-Integration ermöglicht Protokollverwaltung durch den Deployment-Service mit Canary-Deployment, Hot-Reload und Rollback-Mechanismen. Geschachtelte Sicherheitsstufen definieren Versionierungs-Policies pro Cluster oder Gruppe, beispielsweise "Production: nur Stable" oder "Staging: Canary erlaubt".
 
-**In-the-Loop Selbstoptimierung**: Deploy-Protocol sammelt kontinuierlich Telemetrie von allen Services → M2-Compiler analysiert Bottlenecks → Kubernetes-Lastverteilung wird dynamisch angepasst → Neue Positionierung als Canary getestet → Bei Verbesserung der Pareto-Metriken (Latenz/Durchsatz/Ressourcen) permanent übernommen.
+In-the-Loop Selbstoptimierung wird durch eine kontinuierliche Feedback-Schleife realisiert: Das Deploy-Protocol sammelt Telemetrie von allen Services, der M2-Compiler analysiert Bottlenecks, Kubernetes-Lastverteilung wird dynamisch angepasst, neue Positionierung wird als Canary getestet, und bei Verbesserung der Pareto-Metriken (Latenz, Durchsatz, Ressourcenverbrauch) wird die neue Konfiguration permanent übernommen.
 
-**Dynamisches MMB-Mapping**: Deployment-Gruppen können zur Laufzeit neu organisiert werden (z.B. "alle Analytics-Services auf dedizierte High-RAM-Nodes").
+Dynamisches MMB-Mapping ermöglicht, dass Deployment-Gruppen zur Laufzeit neu organisiert werden können, beispielsweise indem alle Analytics-Services auf dedizierte High-RAM-Nodes verschoben werden.
 
 #### 6.4.3 Process-Group-Protocol (Datenebene) → **Kern dieser Forschungsarbeit**
 
-**Funktion**: Transparente IPC-Optimierung zwischen Services, trennt Programm-Steuerung von Daten.
+Das Process-Group-Protocol bildet den Kern dieser Forschungsarbeit und implementiert transparente IPC-Optimierung zwischen Services, wobei Programm-Steuerung von Daten getrennt wird.
 
-**Architektur**:
-- **IPC-Mechanismen**: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging (als AAS-lang Enumerations im M3 definiert)
-- **Automatisierung**: M2-SDK-Compiler erstellt automatisch Prozessketten von Mikroservices basierend auf Prozessabhängigkeiten
-- **Compile-Time-Optimierung**: Constraint-Solver (Z3) berechnet Pareto-Frontier für Latenz/Durchsatz/Ressourcen
-- **Cluster-Verteilung**: Virtuelle Weiterverarbeitung oder Gliederung in Unteraufgaben auf anderen Containern/Maschinen
-- **Geschachtelte Sicherheitsstufen**: IPC-Kommunikation kann pro Prozess-Gruppe unterschiedliche Verschlüsselungs-/Authentifizierungs-Level haben
+Die Architektur definiert fünf IPC-Mechanismen (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) als AAS-lang Enumerations im M3-Metamodell. Die Automatisierung erfolgt durch den M2-SDK-Compiler, der automatisch Prozessketten von Mikroservices basierend auf Prozessabhängigkeiten erstellt. Compile-Time-Optimierung nutzt einen Constraint-Solver (Z3), der die Pareto-Frontier für konfligierende Ziele (Latenz minimieren, Durchsatz maximieren, Ressourcenverbrauch minimieren) berechnet. Cluster-Verteilung ermöglicht virtuelle Weiterverarbeitung oder Gliederung in Unteraufgaben auf anderen Containern oder Maschinen. Geschachtelte Sicherheitsstufen erlauben, dass IPC-Kommunikation pro Prozess-Gruppe unterschiedliche Verschlüsselungs- und Authentifizierungs-Level haben kann.
 
-**Dynamisches MMB-Mapping**: Die Prozesskommunikations-Topologie kann zur Laufzeit über MMB umgemappt werden:
-- Edge-Devices → Aggregation-Services → Analytics-Services
-- Bei Bottleneck: Neue Aggregation-Services instanziieren, Datenströme umleiten (virtuelles Mapping über MMB)
-- Sub-Protokoll organisiert sich **getrennt** von Edge-Group und Deploy-Protocol im Gesamtnetz
+Dynamisches MMB-Mapping ermöglicht, dass die Prozesskommunikations-Topologie zur Laufzeit über MMB umgemappt werden kann. Eine typische Pipeline verläuft von Edge-Devices über Aggregation-Services zu Analytics-Services. Bei Bottlenecks können neue Aggregation-Services instanziiert und Datenströme über virtuelles Mapping umgeleitet werden. Das Sub-Protokoll organisiert sich getrennt von Edge-Group-Protocol und Deploy-Protocol im Gesamtnetz, wodurch unabhängige Optimierung jeder Ebene möglich wird.
 
-**Windows-Limitation**: Auf Windows sind die IPC-Möglichkeiten begrenzter (keine Unix Sockets).
+Eine Windows-Limitation besteht darin, dass auf Windows-Systemen die IPC-Möglichkeiten begrenzter sind, insbesondere fehlen Unix Sockets als hochperformante lokale Kommunikationsoption.
 
 ---
 
@@ -604,39 +557,36 @@ Die Forschungsarbeit vereint Konzepte aus Compiler-Theorie (Abschnitt 5.1), Meta
 Die Forschungsarbeit strebt sowohl wissenschaftliche Beiträge (Abschnitt 7.1) als auch praktische Ergebnisse (Abschnitt 7.2) an. Die Evaluation erfolgt anhand eines konkreten Use-Case-Szenarios aus der Automobilproduktion (Abschnitt 7.3), das die industrielle Relevanz demonstriert. Die erwarteten Ergebnisse adressieren direkt die formulierten Hypothesen H1-H4 und tragen zur Schließung der identifizierten Forschungslücken bei.
 
 ### 7.1 Wissenschaftliche Beiträge (Fokus Prozesskommunikation)
-- **B1**: Metamodell-Extension für Prozesskommunikation in AAS M3 → Implementiert als VIA-Extensions in `playbooks/VIA-M3-Compiler/`, definiert IPC-Typen (Pipe, Socket, TCP, FileQueue, Thread) als AAS-lang Enumerations, Constraint-System für Latenzanforderungen/Ressourcenbeschränkungen
-- **B2**: Compiler-Optimierungsalgorithmus für IPC-Mechanismus-Auswahl → Implementiert in `playbooks/VIA-M2-SDK/ipc_optimizer.md`, graph-basierter Ansatz mit Constraint-Solver (Z3), Pareto-Optimierung (Latenz/Durchsatz/Ressourcen), Compile-Time-Entscheidung mit optionaler Runtime-Anpassung
-- **B3**: Process-Group-Protocol als OPC UA Sub-Protokoll → Spezifikation in `playbooks/VIA-M3-Compiler/via_protocols/process_group_protocol.md`, Integration mit open62541 Dynamic Address Space API, Hybrid-Modell (statische Typen + dynamische Instanzen)
-- **B4**: Benchmark-Vergleich: Compiler-Optimierung vs. Service Mesh vs. Manuelle Konfiguration → Evaluationsumgebung: 3-Node Kubernetes Cluster (64 Core, 256 GB RAM), Mininet für Skalierungstests (bis 1.000 Nodes simuliert), 4 Szenarien (S1-S4, siehe Abschnitt 4.3.2)
-- **B5**: Skalierbarkeitsnachweis >100.000 Services mit hierarchischer Gruppierung → Edge-Group-Protocol ermöglicht hierarchische Gruppierung (Edge-Groups → Cluster-Groups → Global), Ziel: lineares Skalierungsverhalten (Hypothese H3)
+
+Die wissenschaftlichen Beiträge dieser Arbeit umfassen fünf Kernelemente. Beitrag B1 liefert eine Metamodell-Extension für Prozesskommunikation in AAS M3, implementiert als VIA-Extensions in `playbooks/VIA-M3-Compiler/`, die IPC-Typen (Pipe, Socket, TCP, FileQueue, Thread) als AAS-lang Enumerations definiert und ein Constraint-System für Latenzanforderungen und Ressourcenbeschränkungen bereitstellt.
+
+Beitrag B2 entwickelt einen Compiler-Optimierungsalgorithmus für IPC-Mechanismus-Auswahl, implementiert in `playbooks/VIA-M2-SDK/ipc_optimizer.md`, der einen graph-basierten Ansatz mit Constraint-Solver (Z3) nutzt, Pareto-Optimierung für Latenz, Durchsatz und Ressourcenverbrauch durchführt, und Compile-Time-Entscheidungen mit optionaler Runtime-Anpassung ermöglicht.
+
+Beitrag B3 spezifiziert das Process-Group-Protocol als OPC UA Sub-Protokoll in `playbooks/VIA-M3-Compiler/via_protocols/process_group_protocol.md` mit Integration der open62541 Dynamic Address Space API und einem Hybrid-Modell aus statischen Typen und dynamischen Instanzen.
+
+Beitrag B4 führt einen Benchmark-Vergleich zwischen Compiler-Optimierung, Service Mesh und manueller Konfiguration durch, wobei die Evaluationsumgebung einen 3-Node Kubernetes Cluster (64 Core, 256 GB RAM) und Mininet für Skalierungstests bis 1.000 Nodes umfasst, mit vier Szenarien S1-S4 gemäß Abschnitt 4.3.2.
+
+Beitrag B5 liefert einen Skalierbarkeitsnachweis für mehr als 100.000 Services mit hierarchischer Gruppierung, wobei das Edge-Group-Protocol hierarchische Gruppierung (Edge-Groups → Cluster-Groups → Global) ermöglicht mit dem Ziel linearen Skalierungsverhaltens (Hypothese H3).
 
 ### 7.2 Praktische Ergebnisse
-- **E1**: M2-SDK-Compiler Prototyp mit IPC-Optimizer (Open-Source) → C++20/23 Implementierung in `playbooks/VIA-M2-SDK/`, vollständiges Testframework, generiert lauffähige M1-Systemprojekte (`playbooks/VIA-M1-System/`)
-- **E2**: Benchmark-Suite für IPC-Performance (Latenz, Throughput, CPU, Memory) → Metriken: End-to-End Latenz (P50/P95/P99 Perzentile), Messages/s, CPU-Last (%), Memory Footprint (MB), automatische Testausführung über generiertes Deploy-Protocol
-- **E3**: Use-Case-Implementierung: SCADA + MES + PLC-Edge-Integration → Exemplarisches Szenario mit 100 PLC-Edge-Devices (MIPS/ARM), 10 MES-Servern (x86), 3 SCADA-Servern (x86), 5 Analytics-Services (Kubernetes Pods), Prozesskette 1Hz Produktionsdaten → 0.1Hz Aggregation → Event-based Alarme
-- **E4**: Standardisierungsvorschlag: VIA Process-Group-Protocol für OPC Foundation → VIA Custom Companion Specification (VIAProcessType, VIARouterType, VIASchedulerType, VIARegistryType), Dokumentation als OPC UA NodeSet XML, Submission an OPC Foundation zur Prüfung als offizielle Companion Spec
+
+Die praktischen Ergebnisse gliedern sich in vier Deliverables. Ergebnis E1 umfasst einen M2-SDK-Compiler Prototyp mit IPC-Optimizer als Open-Source-Implementierung, realisiert in C++20/23 unter `playbooks/VIA-M2-SDK/` mit vollständigem Testframework, der lauffähige M1-Systemprojekte in `playbooks/VIA-M1-System/` generiert.
+
+Ergebnis E2 liefert eine Benchmark-Suite für IPC-Performance mit Metriken für Latenz (P50/P95/P99 Perzentile), Throughput (Messages/s), CPU-Last (%), und Memory Footprint (MB), wobei automatische Testausführung über das generierte Deploy-Protocol erfolgt.
+
+Ergebnis E3 implementiert einen Use-Case für SCADA, MES und PLC-Edge-Integration als exemplarisches Szenario mit 100 PLC-Edge-Devices (MIPS/ARM), 10 MES-Servern (x86), 3 SCADA-Servern (x86) und 5 Analytics-Services (Kubernetes Pods), wobei die Prozesskette 1Hz Produktionsdaten über 0.1Hz Aggregation zu Event-based Alarmen transformiert.
+
+Ergebnis E4 erstellt einen Standardisierungsvorschlag für das VIA Process-Group-Protocol zur Einreichung bei der OPC Foundation, umfassend die VIA Custom Companion Specification (VIAProcessType, VIARouterType, VIASchedulerType, VIARegistryType), dokumentiert als OPC UA NodeSet XML zur Prüfung als offizielle Companion Spec.
 
 ### 7.3 Konkrete Evaluation-Kriterien
 
 #### 7.3.1 Use-Case-Szenario: Automobilproduktion (Exemplarisch)
-**System-Architektur:**
-- **100 PLC-Edge-Devices**: Roboterarme, Förderbänder, Prüfstationen (MIPS/ARM, Linux)
-- **10 MES-Server**: Manufacturing Execution System (x86, Windows Server)
-- **3 SCADA-Server**: Supervisory Control, Visualisierung (x86, Linux)
-- **5 Analytics-Services**: Predictive Maintenance, Quality Control (Kubernetes Pods)
 
-**Prozesskette (Beispiel):**
-1. PLC-Edge → MES: Produktionsdaten (1 Hz, 1 KB)
-2. MES → Analytics: Aggregierte Daten (0.1 Hz, 10 KB)
-3. Analytics → SCADA: Alarme + Prognosen (Event-based, 100 Bytes)
-4. SCADA → PLC-Edge: Steuerkommandos (0.5 Hz, 50 Bytes)
+Das exemplarische Use-Case-Szenario aus der Automobilproduktion dient zur Validierung der VIA-Architektur in einem realistischen industriellen Kontext. Die System-Architektur umfasst 100 PLC-Edge-Devices für Roboterarme, Förderbänder und Prüfstationen auf MIPS oder ARM mit Linux, 10 MES-Server als Manufacturing Execution System auf x86 mit Windows Server, 3 SCADA-Server für Supervisory Control und Visualisierung auf x86 mit Linux, sowie 5 Analytics-Services für Predictive Maintenance und Quality Control als Kubernetes Pods.
 
-**Erfolgsmetriken (quantitativ):**
-- **Latenz P95 < 5ms** (End-to-End Prozesskette)
-- **Throughput > 10.000 Msg/s** (Gesamtsystem)
-- **CPU-Last < 20%** (pro Service)
-- **Memory Footprint < 50 MB** (pro Service)
-- **Entwicklungszeit: 8h manuell → 2h metamodell-generiert** (75% Reduktion)
+Die exemplarische Prozesskette verläuft wie folgt: PLC-Edge sendet Produktionsdaten an MES mit 1 Hz Frequenz und 1 KB Nachrichtengröße, MES aggregiert und sendet Daten an Analytics mit 0.1 Hz und 10 KB, Analytics generiert Alarme und Prognosen für SCADA Event-based mit 100 Bytes, und SCADA sendet Steuerkommandos zurück an PLC-Edge mit 0.5 Hz und 50 Bytes.
+
+Die quantitativen Erfolgsmetriken definieren messbare Zielwerte: Latenz P95 unter 5ms für die End-to-End Prozesskette, Throughput über 10.000 Messages pro Sekunde für das Gesamtsystem, CPU-Last unter 20% pro Service, Memory Footprint unter 50 MB pro Service, sowie Entwicklungszeit-Reduktion von 8 Stunden manuell auf 2 Stunden metamodell-generiert, was einer 75% Reduktion entspricht.
 
 #### 7.3.2 Vergleich mit Baselines
 | Metrik | gRPC (manuell) | Istio Service Mesh | UNIX Sockets | VIA (Ziel) |
@@ -647,34 +597,28 @@ Die Forschungsarbeit strebt sowohl wissenschaftliche Beiträge (Abschnitt 7.1) a
 | Config-Zeit | 8h | 4h (Runtime-Auto) | N/A (lokal only) | 2h (Compile-Auto) |
 
 ### 7.4 Limitationen
-- **L1**: Compile-Time-Optimierung erfordert statische Topologie (dynamische Änderungen → Neu-Compilation)
-- **L2**: M3-Modellelemente noch nicht in offizieller AAS-Spezifikation
-- **L3**: Cross-Architektur-Performance variiert (MIPS vs. x86)
-- **L4**: Laborumgebung (3 Nodes) → Extrapolation auf >50k Geräte
+
+Die Forschungsarbeit unterliegt vier wesentlichen Limitationen. Limitation L1 besteht darin, dass Compile-Time-Optimierung eine statische Topologie erfordert, wobei dynamische Änderungen eine Neu-Compilation notwendig machen, was die Flexibilität zur Laufzeit einschränkt.
+
+Limitation L2 liegt darin, dass die entwickelten M3-Modellelemente noch nicht in der offiziellen AAS-Spezifikation standardisiert sind, wodurch Interoperabilität mit anderen AAS-Implementierungen zunächst begrenzt ist.
+
+Limitation L3 betrifft die Cross-Architektur-Performance, die zwischen verschiedenen Plattformen variiert (MIPS vs. x86), was unterschiedliche Optimierungsergebnisse für heterogene Systeme zur Folge hat.
+
+Limitation L4 besteht darin, dass die Laborumgebung mit drei Nodes Extrapolation auf mehr als 50.000 Geräte erfordert, wobei Skalierungsverhalten in Produktionsumgebungen von simulierten Ergebnissen abweichen kann.
 
 ---
 
 ## 8. Zeitplan (Fokus Prozesskommunikation)
 
-- **Phase 1** (4 Wochen): Research & Analyse (AAS, OPC UA, IPC) ✅ ABGESCHLOSSEN
-- **Phase 2** (2 Wochen): Playbook & M3-Metamodell-Design ⏳ IN PROGRESS
-- **Phase 3** (6 Wochen): M2-SDK-Compiler Prototyp mit IPC-Optimizer
-  - Woche 1-2: Graph-basierter Optimierungsalgorithmus
-  - Woche 3-4: IPC-Mechanismus-Implementierung (Pipe, Socket, TCP, File-Queue, Thread)
-  - Woche 5-6: Process-Group-Protocol unter OPC UA
-- **Phase 4** (4 Wochen): Benchmark-Suite & Use-Case
-  - Woche 1-2: Benchmark-Implementierung (Latenz, Throughput, CPU, Memory)
-  - Woche 3-4: Automobilproduktion Use-Case (SCADA+MES+PLC)
-- **Phase 5** (4 Wochen): Evaluation & Vergleichsmessungen
-  - Woche 1: Baseline-Messungen (gRPC, Istio, UNIX Sockets)
-  - Woche 2-3: VIA-Messungen & Skalierungstests
-  - Woche 4: Auswertung & Hypothesen-Validierung
-- **Phase 6** (4 Wochen): Dokumentation & Publikation
-  - Woche 1-2: Forschungsbericht verfassen
-  - Woche 3: Paper für INDIN/ETFA-Konferenz vorbereiten
-  - Woche 4: OPC Foundation Standardisierungsvorschlag
+Der Zeitplan gliedert sich in sechs Phasen mit einer Gesamtdauer von 24 Wochen (circa 6 Monate). Phase 1 umfasste Research und Analyse zu AAS, OPC UA und IPC über vier Wochen und ist abgeschlossen. Phase 2 fokussiert auf Playbook und M3-Metamodell-Design über zwei Wochen und befindet sich derzeit in Bearbeitung.
 
-**Gesamtdauer**: 24 Wochen (~6 Monate)
+Phase 3 erstreckt sich über sechs Wochen zur Entwicklung des M2-SDK-Compiler Prototyps mit IPC-Optimizer. Woche 1-2 implementieren den graph-basierten Optimierungsalgorithmus, Woche 3-4 realisieren die IPC-Mechanismus-Implementierung für Pipe, Socket, TCP, File-Queue und Thread, und Woche 5-6 spezifizieren das Process-Group-Protocol unter OPC UA.
+
+Phase 4 umfasst vier Wochen für Benchmark-Suite und Use-Case. Woche 1-2 implementieren die Benchmark-Suite für Latenz, Throughput, CPU und Memory, während Woche 3-4 den Automobilproduktion Use-Case mit SCADA, MES und PLC realisieren.
+
+Phase 5 widmet sich über vier Wochen der Evaluation und Vergleichsmessungen. Woche 1 führt Baseline-Messungen für gRPC, Istio und UNIX Sockets durch, Woche 2-3 erheben VIA-Messungen und Skalierungstests, und Woche 4 wertet die Ergebnisse aus und validiert die Hypothesen H1-H4.
+
+Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woche 1-2 verfassen den Forschungsbericht, Woche 3 bereitet ein Paper für INDIN oder ETFA-Konferenz vor, und Woche 4 erstellt den OPC Foundation Standardisierungsvorschlag.
 
 ---
 
