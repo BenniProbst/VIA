@@ -1,0 +1,322 @@
+Page 1
+Funktionsweise von OPC UA: Schnittstellen,
+Entwicklernutzen und Anpassbarkeit
+OPC UA (OPC Unified Architecture)  ist ein plattformunabhängiger Industrie-Kommunikationsstandard , der
+geschaffen  wurde,  um  die  Interoperabilität  zwischen  verschiedenen  Geräten  und  Systemen  in  der
+Automatisierung zu verbessern . Es handelt sich dabei um eine  serviceorientierte Architektur , die
+sämtliche Funktionalitäten der alten OPC-Classic-Spezifikationen in einem  erweiterbaren, einheitlichen
+Framework  vereint .  OPC   UA  legt  besonderen  Wert  auf  Sicherheit  (Authentifizierung,
+Verschlüsselung) und Zuverlässigkeit in der Datenkommunikation, während es gleichzeitig eine hersteller-
+und plattformübergreifende  Standard-Schnittstelle  für den Datenaustausch bereitstellt . Im Folgenden
+wird erläutert, wie OPC UA als Vermittlungsschicht zwischen orchestrierten Industrie-Services fungiert, wie
+es die dynamische Abbildung komplexer Informationsmodelle  (inklusive Industrie-4.0-Konzepten wie der
+Verwaltungsschale)  ermöglicht,  und  wie  Entwickler  OPC   UA  (z. B.  in  C++)  einsetzen  und  an  eigene
+Bedürfnisse anpassen können.
+OPC UA als Vermittler zwischen orchestrierten Industrie-Services
+(Server/Client)
+OPC UA folgt einem  Client-Server-Modell , wobei  mehrere Clients und Server gleichzeitig  in einem System
+interagieren können . Ein OPC UA-Server stellt einen adressierbaren Informationsraum (Address Space)
+zur Verfügung, der die Daten und Dienste eines oder mehrerer Geräte/Services repräsentiert. OPC UA-
+Clients können sich mit einem oder mehreren Servern verbinden, um diese Daten abzufragen, zu schreiben
+oder  Dienste  (Methoden)  auszuführen.  Wichtig  ist,  dass  ein  Server  mehrere  gleichzeitige  Client-
+Verbindungen  bedienen  kann  und  umgekehrt  ein  Client  mit  mehreren  Servern  parallel
+kommunizieren  kann .  Dieses  Many-to-Many-Modell  erlaubt  es,  verteilte  industrielle  Services  zu
+orchestrieren, indem OPC UA als gemeinsamer Vermittler fungiert.
+OPC UA wird in der Industrie 4.0 als Key-Enabler  für die horizontale und vertikale Integration angesehen. Es
+adressiert  die  Herausforderung,  dass  moderne  industrielle  Umgebungen  aus  sehr  vielen  heterogenen
+Geräten und Teilsystemen bestehen (verschiedene Hersteller , verschiedene Protokolle) .  OPC UA löst
+Interoperabilitätsprobleme , indem es als  vereinheitlichende Vermittlungsschicht  dient: Unterschiedlichste
+Maschinen, Sensoren und Dienste können ihre Daten über OPC UA austauschen, ohne dass proprietäre
+Schnittstellen  nötig  sind .  Die  Plattformunabhängigkeit  von  OPC   UA  ermöglicht  den  Einsatz  vom
+eingebetteten  Mikrocontroller  bis  zur  Cloud-Infrastruktur .  So  kann  ein  OPC   UA-Server
+beispielsweise direkt auf einer Steuerung (SPS) laufen, während ein anderer Teil des Systems in einer Cloud-
+Anwendung  als  OPC   UA-Client  agiert  –  beide  kommunizieren  nahtlos  über  OPC   UA.  Tatsächlich  stellt
+OPC UA die nötige Infrastruktur bereit, um durchgängige Interoperabilität  auf allen Ebenen zu erreichen, von
+Maschine-zu-Maschine-Kommunikation bis hin zur Anbindung von Enterprise-Systemen .
+In  einem  orchestrierten  Systemdesign  kann  man  also  mehrere  OPC   UA-Server  für  verschiedene
+industrielle Services einsetzen , etwa jeder Produktionsabschnitt oder jeder spezialisierte Dienst bringt1
+23
+1
+4
+5
+6
+7
+89
+9
+1
+
+Page 2
+einen  eigenen  Server  hervor .  Diese  verteilen  sich  ggf.  über  verschiedene  Knoten  im  Netzwerk.  Ein
+übergeordneter Orchestrierungsdienst könnte als OPC UA-Client fungieren, der mit allen diesen Servern
+spricht,  um  die  Gesamtanlage  zu  steuern  oder  Daten  zu  sammeln.  OPC   UA  definiert  standardisierte
+Discovery -Mechanismen, um verfügbare Server im Netzwerk zu finden, sowie Subscriptions , um Änderungen
+effizient zu überwachen . Damit eignet es sich hervorragend als  Vermittler , der die verschiedenen
+Komponenten einer Industrie-4.0-Architektur miteinander verbindet. So können z. B. Daten von verteilten
+Sensor-Services und Aktor-Services über OPC UA zusammengeführt werden, um in einer Leitstand-Software
+(Client) ein einheitliches Bild der Anlage zu erhalten.
+Standardisierte  Schnittstellen:  Für  jeden  OPC   UA-Server  gibt  es  eine  einheitliche  Schnittstelle  aus
+Diensteaufrufen (Service Sets) – Lesen, Schreiben, Browsen, Methodenausführung, Ereignis-Abonnements
+usw. –, über die Clients mit dem Server interagieren . Diese Schnittstelle ist protokollunabhängig auf
+hoher Ebene definiert und macht die Server untereinander austauschbar  aus Sicht eines Clients. In der
+Praxis bedeutet das: Wenn mehrere orchestrierte Services OPC UA unterstützen, sprechen sie alle dieselbe
+„Sprache“. Ein Client kann unterschiedliche Services abfragen, ohne sich um deren interne Details kümmern
+zu  müssen,  solange  sie  ihre  Daten  im  OPC   UA-Adressraum  nach  den  gemeinsamen  Regeln  anbieten.
+OPC UA stellt damit  für Entwickler und Integratoren eine einheitliche API  zur Verfügung, um auf beliebige
+industrielle  Datenquellen  zuzugreifen .  Ein  in  OPC   UA  integrierter  Service  „verpackt“  seine
+gerätespezifischen  Daten  in  die  Standardstruktur  des  OPC   UA-Adressraums  und  bietet  sie  als
+standardisierte Knoten/Objekte an . Externe Systeme können diese Objekte dann über die OPC UA-
+Services ansprechen, ohne herstellerspezifische Protokolle implementieren zu müssen.
+Beispiel Orchestrierung:  Angenommen, es existieren mehrere OPC UA-Server in einer Fabrik (etwa einer
+pro Maschine oder pro Produktionsinsel). Anstatt dass ein Client jeden Server einzeln abfragen und die
+Daten manuell zusammenführen muss, kann man auch einen  OPC UA-Aggregationsserver  einsetzen. Ein
+solcher Aggregator fungiert selbst als OPC UA-Server , der im Hintergrund als Client zu allen einzelnen
+Servern verbindet. Er sammelt deren Daten und stellt sie in einem einheitlichen Adressraum  zusammen.
+Dies bietet dem Endanwender oder höheren Anwendungen einen einzigen Zugriffspunkt für sämtliche
+Daten . Integration Objects  bietet z. B. einen „OPC UA Universal Server“ an, der genau diese Rolle erfüllt –
+er besitzt OPC UA-Client-Connectoren zu den Quellsystemen  und dient als zentraler Hub, um Daten aus
+vielen OPC UA-Servern in einem System zu integrieren . Solche Architekturen zeigen, dass OPC UA in
+verteilten  Systemen  als  Vermittler  und  Datenhub  funktioniert,  um  fragmentierte  Dienste  zu  einer
+kohärenten Gesamtsicht zusammenzuführen.
+Zusammengefasst ermöglicht OPC UA also eine orchestrierte Kommunikation  zwischen zahlreichen Industrie-
+Services,  indem  es  eine  gemeinsame,  sichere  und  plattformunabhängige  Schnittstelle  bereitstellt.  Dies
+bildet die Basis dafür , dass höhere Ebenen (z. B. MES/ERP-Systeme oder IoT-Plattformen) und unterlagerte
+Steuerungen/Sensoren dynamisch verbunden  werden können, ohne dass für jede Verbindung individuelle
+Treiber notwendig sind. Die standardisierte OPC UA-Schnittstelle übernimmt die Vermittlung.
+Dynamische Abbildung von Industrie-Netzwerken und Rollen
+(Informationsmodelle)
+Eine  herausragende  Eigenschaft  von  OPC   UA  ist  das  umfassende  Informationsmodellierungs-
+Framework . Statt nur rohe Datenpunkte bereitzustellen, können mit OPC UA beliebig komplexe Strukturen
+und Objekte  im Adressraum des Servers modelliert werden . Das bedeutet, Entwickler können eigene1011
+1213
+14
+14
+15
+15
+16
+2
+
+Page 3
+Objekttypen , Variablentypen  und sogar ganze Informationsmodelle  definieren, die genau zu ihrer Domäne
+passen.  OPC   UA  ermöglicht  die  Modellierung  beliebiger  Objekt-  und  Variablentypen  und  der
+Beziehungen  zwischen  ihnen .  Diese  Typdefinitionen  (Klassen)  können  sowohl  standardisiert
+(branchenweit)  als  auch  spezifisch  für  einen  Hersteller  oder  ein  einzelnes  System  sein .  Jeder
+benutzerdefinierte  Typ  wird  durch  einen  Namespace  und  eindeutigen  Bezeichner  kenntlich  gemacht,
+sodass Klarheit herrscht, welche Organisation oder Person seine Semantik definiert hat . Im laufenden
+Betrieb zeigt der Server die Semantik  der Daten in seinem Adressraum an – das heißt, ein Client kann durch
+Browsing  die Struktur und Bedeutung der verfügbaren Daten erkunden (z. B. erkennen, welche Objekte
+zueinander in Beziehung stehen und von welchem Typ sie sind) .
+Dieses flexible Modellierungskonzept erlaubt es, ein komplettes  Industrienetzwerk digital abzubilden .
+Jede physische Komponente oder jeder Service kann im OPC UA-Adressraum durch ein Objekt repräsentiert
+werden, das Eigenschaften (Messwerte, Parameter), Methoden (Funktionen, die der Server ausführen kann)
+und  Events  (Ereignismeldungen)  besitzt.  Dank  der  Objektorientierung  können  auch  Hierarchien  und
+Mehrschicht-Modelle  gebildet  werden  –  etwa  eine  Produktionsanlage  (als  Objekt)  enthält  mehrere
+Maschinen-Objekte, die wiederum Sensor- und Aktor-Objekte enthalten usw. Selbst mehrstufige Strukturen
+lassen sich abbilden, ohne die Übersicht zu verlieren . OPC UA bietet somit die Grundlage,  virtuelle
+Abbilder  von realen Anlagen oder Prozessen im Kommunikationssystem zu erstellen. Diese Abbilder sind
+nicht  statisch:  Der  Informationsraum  eines  OPC  UA-Servers  kann  zur  Laufzeit  erweitert  oder  geändert
+werden (viele Stacks unterstützen das Hinzufügen/Entfernen von Knoten dynamisch) . Damit können
+sich verändernde Anlagenkonfigurationen oder dynamische Rollenverteilungen in der Produktion direkt im
+Modell nachgezogen werden.
+Rollen  dynamisch  definieren:  In  der  Praxis  bedeutet  das,  man  kann  zwischen  verarbeitenden  und
+messenden  Rollen unterscheiden, indem man entsprechende Objekttypen oder Attribute im Modell einführt.
+Beispielsweise könnte man einen Objekttyp  VerarbeitungsStation  definieren, der Methoden zum Steuern
+eines Prozesses hat, und einen anderen Typ SensorStation , der primär Messwerte als Variablen exponiert.
+OPC   UA  ermöglicht  es,  ähnliche  Entitäten  durch  unterschiedliche  Typdefinitionen  präzise  zu
+unterscheiden , einschließlich ihres Rollenprofils und Kontextes . So ließe sich etwa ein Temperatursensor
+in  einem  Heizkessel  als  eigener  Objekttyp  modellieren,  getrennt  von  einem  Temperatursensor  in  einer
+Klimaanlage ,  selbst  wenn  beide  einen  Temperaturwert  liefern  –  ihre  unterschiedlichen  Rollen  und
+Einbettungen  werden  durch  unterschiedliche  Typen  mit  ggf.  unterschiedlichen  Metadaten  kenntlich
+gemacht .  Clients  können  durch  Auswerten  des  Typs  und  der  referenzierten  Beziehungen  sofort
+erkennen, welche Funktion oder Rolle ein bestimmtes Objekt im Gesamtsystem hat (z. B. Messwertlieferant
+vs. aktiver Verarbeiter).
+Ein konkretes Industrie-4.0-Beispiel für solch ein flexibles Informationsmodell ist die  Verwaltungsschale
+(Asset Administration Shell, AAS) . Die AAS definiert ein Metamodell, um alle Informationen eines Assets
+(Maschine,  Gerät,  Komponente)  strukturiert  zu  beschreiben  –  von  Nameplate-Daten  über
+Betriebsparameter bis zu Messwerten und Fähigkeiten. OPC UA kann dieses Metamodell komplett abbilden:
+Es  existiert  eine  Companion-Spezifikation,  welche  die  AAS-Elemente  (definiert  in  UML)  auf  OPC   UA-
+Objekttypen  und  -Datentypen  mappt .  Mit  anderen  Worten,  OPC   UA  dient  hier  als
+Implementierungstechnologie  für  standardkonforme  digitale  Zwillinge  (Verwaltungsschalen) .
+Jeder Aspekt der AAS (Submodelle, Eigenschaften, Beziehungen usw.) wird durch Knoten und Objekttypen
+im OPC UA-Adressraum repräsentiert. Ein OPC UA-Server , der eine Verwaltungsschale implementiert, zeigt
+also die komplette digitale Repräsentation eines physischen Assets an, und Clients können diese dynamisch
+explorieren und auch interagieren . AAS nutzt dabei auch Modellierungsregeln von OPC UA wie  Optionale17
+17
+17
+17
+16
+18
+19
+19
+2021
+20
+3
+
+Page 4
+oder Wiederholbare Komponenten , um flexible Strukturen abzubilden (z. B. eine Anlage kann optional 0…
+n  Sensorobjekte  haben).  Dieses  Beispiel  verdeutlicht,  dass  OPC   UA  ausreichend  mächtig  ist,  um  jedes
+beliebige Industrienetzwerk mit all seinen Rollen und Beziehungen digital zu beschreiben . Was die AAS für
+einzelne  Assets  bietet  –  nämlich  eine  dynamisch  definierbare  Schnittstelle  zwischen  verwaltender
+(verarbeitender)  und wertliefernder (messender)  Ebene – kann auf beliebige Architekturen übertragen werden.
+Mit OPC UA lässt sich Ihre eigene, ggf. über AAS hinausgehende, Idee eines flexiblen digitalen Abbilder- und
+Orchestrierungssystems realisieren, da das OPC UA-Informationsmodell nahezu grenzenlos erweiterbar ist
+.
+Zusammenfassend ist die  Informationsmodellierung  das Herzstück von OPC UA. Entwickler können ein
+Metamodell (M2)  ihrer Anwendungsdomäne definieren – beispielsweise eine Klasse von Industrie-Service
+oder eine bestimmte Anlagenstruktur – und OPC UA liefert die Basisebene (M3)  und das Laufzeit-Framework,
+um daraus konkrete  Instanzen (M1)  zu machen. Die Basisebene M3 umfasst die generischen OPC UA-
+Vorgaben (z. B. dass es Objekte, Variablen, Methoden, Beziehungen gibt). Darauf aufbauend wird auf M2 ein
+domänenspezifisches  Modell  entworfen  (etwa  eine  Bibliothek  von  Objekttypen  für  Ihre  orchestrierten
+Services). Schließlich wird auf M1 dieses Modell in einem laufenden System instanziiert: Ein OPC UA-Server
+erzeugt die tatsächlichen Knoten/Objekte gemäß den Typdefinitionen und befüllt sie mit Live-Daten. Diese
+strikte Trennung der Ebenen macht das System hochgradig anpassbar  – Änderungen am konzeptionellen
+Modell  (M2)  lassen  sich  konsistent  ins  laufende  System  (M1)  übertragen,  ohne  die  Grundlagen  des
+Protokolls (M3) ändern zu müssen. Für den Entwickler bedeutet das: OPC UA unterstützt von Grund auf
+dynamische Informationsmodelle , um komplexe industrielle Netzwerke und Rollen flexibel abzubilden .
+Umsetzung in C++ und Integration mit anderen Sprachen
+(Entwicklerperspektive)
+OPC UA ist bewusst sprachneutral spezifiziert –  Implementierungen  existieren jedoch in vielen gängigen
+Programmiersprachen. Die OPC Foundation stellt Referenz-Stacks für  Java, .NET (C#)  sowie  ANSI C/C++
+bereit ,  und  es  gibt  mehrere  kommerzielle  und  Open-Source-SDKs  (z. B.  von  Unified  Automation,
+open62541, FreeOPCUA für Python etc.), die Entwicklern die Arbeit erleichtern. Wenn Sie Ihr neues System
+ausschließlich in  C++ umsetzen möchten, stehen Ihnen also erprobte Werkzeuge zur Verfügung. Ein C++
+OPC UA Server SDK bietet z. B. Klassenbibliotheken, welche die low-level Kommunikationsdetails kapseln
+und  häufig  benötigte  Funktionen  (Sicherheit,  Session-Handling,  Subscription-Handling  usw.)
+implementieren .  Damit  können  Sie  sich  auf  die  Integration  Ihrer  geschäftsspezifischen  Logik
+konzentrieren: Das SDK definiert klar umrissene Schnittstellen , über die Sie die Daten Ihres Systems in den
+OPC UA-Server einspeisen . So beschreibt Unified Automation: der C++ OPC UA Server wird genutzt, um die
+verfügbaren Informationen eines Anlagensystems zu beschreiben und extern in standardisierter Weise
+zugreifbar  zu  machen .  Anders  formuliert,  Ihr  C++-Code  füllt  den  OPC   UA-Adressraum  mit  Leben
+(Knoten, Werte, Funktionen), und das SDK kümmert sich darum, dass ein OPC UA-Client diese gemäß
+Standard abfragen kann.
+Die  interne  Entwickler-Verwendbarkeit  von  OPC   UA  zeigt  sich  auch  darin,  dass  es  modellgetriebene
+Ansätze  unterstützt. Sie können Informationsmodelle zunächst auf abstrakter Ebene entwerfen (z. B. mit
+UML  oder  einer  domänenspezifischen  Modellierungssprache)  und  anschließend  teilweise  automatisiert
+Code daraus erzeugen. Die OPC Foundation stellt beispielsweise ein  ModelCompiler -Tool bereit, das aus
+einer XML-Modellbeschreibung Quellcode in C# oder C generiert  – inklusive Klassen für Datentypen und
+Definitionsdateien für Knoten . Übliche Entwicklungswerkzeuge (etwa der „UA Modeler“) erlauben es,17
+22
+23
+2425
+14
+26
+4
+
+Page 5
+grafisch ein Objektmodell zu gestalten und dann C++-Codegerüst für die Implementierung zu exportieren.
+Hier  spricht  man  von  einem  Compiler-Compiler -Prinzip:  Ihr  Modell  (M2)  wird  durch  ein  Werkzeug  in
+lauffähige Bausteine (M1-Code) „kompiliert“. Als Ergebnis erhalten Sie z. B. C++-Header und -Stub-Klassen
+für Ihre definierten OPC UA-Typen, die Sie dann nur noch mit konkreter Logik füllen müssen. Dieser Ansatz
+erhöht die Konsistenz und spart Entwicklungszeit, da die Schnittstellen zur Laufzeit  automatisch passend
+zum Modell generiert werden.
+Eine  besondere  Anforderung  in  Ihrem  Szenario  ist,  dass  Schnittstellen  zu  anderen
+Programmiersprachen  dynamisch mit erzeugt werden sollen, wenn aus M2 nach M1 kompiliert wird.
+Prinzipiell gibt es dafür zwei Herangehensweisen:
+OPC UA als gemeinsame Sprache nutzen:  Da OPC UA ein plattformunabhängiges Protokoll ist,
+können Komponenten in verschiedenen Sprachen miteinander kommunizieren, solange sie OPC UA
+sprechen. Das heißt, Ihr C++-basiertes System kann über OPC UA Daten und Dienste anbieten , und ein
+beliebiger Client – egal ob in Python, Java oder einer anderen Sprache – kann mittels eines OPC UA-
+Client-SDKs darauf zugreifen. Die Interoperabilität ist also inhärent gegeben . Sie müssen nicht explizit
+für jede Sprache eine separate Schnittstelle bauen; die OPC UA-Adressraum und Service-Schnittstelle
+ist die universelle Schnittstelle. Ein Python-Programm könnte z. B. mit python-opcua  als OPC UA-
+Client  Ihre  C++-Serverdaten  lesen ,  oder  ein  .NET-Programm  mit  dem  .NET  OPC   UA  SDK
+Methoden auf Ihrem Server aufrufen – ohne dass Sie dafür Ihren C++ Server-Code ändern. In diesem
+Sinne schafft OPC UA eine lose Kopplung  zwischen Komponenten in verschiedenen Sprachen und
+Umgebungen.
+Sprach-spezifische Bindings generieren:  Zusätzlich kann man überlegen, aus dem gemeinsamen
+Modell  automatisch  Bindings  oder  Stub-Klassen  für  mehrere  Sprachen  zu  erzeugen.  Ein
+Modellcompiler  könnte  etwa  nicht  nur  C++-Klassen,  sondern  auch  eine  Client-Bibliothek  in  einer
+anderen Sprache  generieren, die das Informationsmodell reflektiert. In der OPC UA-Welt gibt es z.B.
+Tools, die aus dem veröffentlichten NodeSet  (XML-Datei, welche das Modell eines Servers beschreibt)
+Klassen  für  Clients  generieren.  Zwar  ist  das  von  der  OPC  Foundation  primär  für  .NET  und  C
+vorgesehen ,  doch  das  Prinzip  ließe  sich  erweitern:  Ihre  M2-zu-M1-Übersetzung  könnte
+dynamisch Adapter für andere Sprachen  ausspucken. Denkbar wäre zum Beispiel, dass für ein
+definiertes  Informationsmodell  automatisch  eine  REST/HTTP-API  oder  eine  gRPC-Schnittstelle
+generiert wird, über die andere Anwendungen (unabhängig von Sprache) zugreifen können. Auch
+können Technologien wie  SWIG  oder  pybind11  genutzt werden, um C++-Klassen in Script-Sprachen
+verfügbar zu machen, falls eine direktere Einbettung gewünscht ist. Wichtig zu betonen: OPC UA
+selbst trennt strikt zwischen dem abstrakten Modell und den konkreten Sprach-Bindings – es gibt
+definierte  Implementierungen  für  jede  Sprache .  Dadurch  ist  es  möglich,  dass  dieselbe
+Informationsbeschreibung  auf verschiedenen Plattformen genutzt werden kann. Ein Typ, den Sie
+in  Ihrem  C++-Server  definieren,  kann  etwa  in  einer  C#-Umgebung  durch  die  identische
+Modelldefinition nachgebildet und verstanden werden. Auf dieser Grundlage können automatische
+Übersetzungen/Generierungen aufsetzen.
+Für die Entwicklung in C++ bedeutet all das: Sie können voll auf die Performance und Kontrolle dieser
+Sprache setzen und gleichzeitig sicher sein, dass Sie nicht in einem Insel-System enden. OPC UA sorgt dafür ,
+dass  Ihre  Lösung  nach  außen  offen  ist.  Über  standardisierte  Protokoll-Bindings  (bspw.  UA-TCP  oder
+(zukünftig) MQTT via PubSub) kann Ihr System mit Fremdsystemen reden, ohne dass diese C++ können
+müssen.  Multi-Sprachen-Schnittstellen  entstehen  sozusagen  natürlicherweise,  weil  jeder  Teilnehmer• 
+27
+• 
+26
+2823
+5
+
+Page 6
+lediglich OPC UA können muss. Falls dennoch tiefergehende Integration erforderlich ist (z. B. ein Python-
+Skript soll in den Ablauf eingeklinkt werden), können Sie dies architektonisch einplanen: entweder als
+eigenständiger OPC UA-Client/Server in Python, oder indem Sie modulare Komponenten entwickeln, in
+denen Teile des Systems als Scripts geladen werden. OPC UA ist flexibel genug, solche hybride Ansätze zu
+tragen, da es z. B. Methodenaufrufe standardisiert (ein OPC UA-Methodenaufruf könnte intern z.B. einen
+Python-Skripttrigger auslösen, wenn der Server so implementiert wird).
+Zusammenfassung (Entwicklerperspektive):  Aus Sicht des Entwicklers bietet OPC UA eine reichhaltige API
+und  Struktur ,  die  man  mit  C++  (oder  anderen  Sprachen)  implementieren  kann,  um  eigene  Systeme
+aufzubauen.  Durch  die  Trennung  von  Modell  und  Implementierung  kann  man  auf  hoher  Ebene
+definieren, welche Schnittstellen (Daten, Funktionen) das System anbieten soll, und diese Definition dann in
+C++-Code umsetzen – unterstützt von Tools, die viel Boilerplate-Code generieren . Anpassungen sind auf
+allen Ebenen möglich: vom Anlegen eigener Objekttypen (für domänenspezifische Rollen) bis hin zum
+Schreiben eigener Transport-Plugins, falls nötig. OPC UA ist darauf ausgelegt, erweiterbar  zu sein, ohne die
+Kompatibilität  zu  brechen .  Neue  Informationsmodelle  können  hinzugefügt  werden,  neue
+Transportwege (Protokoll-Mappings) können spezifiziert werden  – Ihr System bleibt zukunftssicher und
+upgradefähig. Für Ihr Projekt bedeutet das: Mit C++ und OPC UA als Basis schaffen Sie ein vermittelndes
+System, das  jedes industrielle Netzwerk flexibel abbilden  kann (weitgehend analog zur Verwaltungsschale,
+aber erweiterbar nach Ihren reiferen Ideen) und das zugleich für andere Entwickler und Dienste offen ist,
+dank standardisierter Schnittstellen. Die Funktionsweise von OPC UA – vom mehrschichtigen Modell über
+die  Client/Server-Services  bis  zur  sicheren,  plattformübergreifenden  Kommunikation  –  gibt  Ihnen  die
+Bausteine  an  die  Hand,  um  ein  solches  System  als  Compiler-Compiler -Architektur  zu  entwerfen  und
+erfolgreich umzusetzen. 
+Quellen:  Die  obigen  Ausführungen  stützen  sich  auf  offizielle  OPC   UA-Dokumentationen  und
+Industriequellen,  darunter  Veröffentlichungen  der  OPC  Foundation ,  Fachartikel  zum  OPC   UA-
+Standard  sowie technische Referenzen zu OPC UA-Entwicklungstools (z. B. Unified Automation SDK
+ und  open62541 ).  Diese  zeigen  übereinstimmend,  dass  OPC   UA  als  vermittelnde
+Kommunikationsplattform  mit  reichhaltigen  Modellierungsmöglichkeiten  ideal  ist,  um  verteilte  Industrie-
+Services in einem dynamischen, anpassbaren System zu integrieren. 26
+29
+30
+1617
+47
+14 18
+6
+
+Page 7
+OPC UA, balancing cybersecurity and performance | INCIBE-CERT | INCIBE
+https://www.incibe.es/en/incibe-cert/blog/opc-ua-balancing-cybersecurity-and-performance
+Unified Architecture - Landingpage - OPC Foundation
+https://opcfoundation.org/about/opc-technologies/opc-ua/
+Aggregating Multiple OPC UA Servers into a Unified OPC UA Server – OPC Connect
+https://opcconnect.opcfoundation.org/2024/09/aggregating-multiple-opc-ua-servers-into-a-unified-opc-ua-server/
+C++ Based OPC UA Client & Server SDK (Bundle) - Unified Automation
+https://www.unified-automation.com/products/server-sdk/c-ua-server-sdk.html
+opcfoundation.org
+https://opcfoundation.org/wp-content/uploads/2017/11/OPC-UA-Interoperability-For-Industrie4-and-IoT-DE.pdf
+GitHub - open62541/open62541: Open source implementation of OPC UA (OPC Unified Architecture) aka
+IEC 62541 licensed under Mozilla Public License v2.0
+https://github.com/open62541/open62541
+What Is OPC UA? – IT Explained | PRTG
+https://www.paessler .com/it-explained/opc-ua
+Industry 4.0 Asset Administration Shell - 5.1 General rules for the mapping of the AAS metamodel to
+the OPC UA information model
+https://reference.opcfoundation.org/I4AAS/v100/docs/5.1
+GitHub - OPCFoundation/UA-ModelCompiler: ModelCompiler converts XML files into C# and ANSI C
+https://github.com/OPCFoundation/UA-ModelCompiler
+Python OPC-UA - Read the Docs
+https://python-opcua.readthedocs.io/en/latest/1 4 5 6
+2 3 8 910 11 12 13 16 29
+715
+14 24 25
+17 23 28 30
+18
+19 22
+20 21
+26
+27
+7

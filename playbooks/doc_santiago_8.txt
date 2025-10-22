@@ -1,0 +1,566 @@
+Page 1
+Service-Oriented Architecture for I4.0 Digital Twins
+Nico Braunisch∗, Tom Gneuß∗, Uwe Schmidt∗, Marko Ristin†, Hans Wernher van de Venn†, Martin Wollschlaeger∗
+∗Technische Universit ¨at Dresden
+Chair for Industrial Communication
+Dresden, Germany
+Email: {nico.braunisch, tom.gneuss, uwe.schmidt1, martin.wollschlaeger}@tu-dresden.de
+†Zurich University of Applied Sciences (ZHAW)
+Institute for Mechatronic Systems (IMS)
+Winterthur, Switzerland
+Email: {rist, vhns}@zhaw.ch
+Abstract —In the dawn of Industry 4.0, a new era of un-
+precedented efficiency beckons, powered by the intricate web
+of interconnected machines, manufacturing sites, vendors, and
+consumers. The linchpin of this transformative journey is the
+Digital Twin, embodied in the Asset Administration Shell. By
+meticulously mirroring every facet of the real-world asset, the
+AAS offers a standardized portal for real-time data acquisition
+and proactive asset management. We present a Servicer Oriented
+Architecture for implementing Industry 4.0 Digital Twins using
+the Asset Administration Shell. We propose partitioning the
+AAS into a microservice network and formalise service defi-
+nitions using gRPC and Protobuf. Our architecture allows for
+transparent service relocation near the asset, leveraging efficient
+gRPC communication. Additionally, We demonstrate that code
+generation tools streamline boilerplate generation and simplify
+the architecture update process.
+Index Terms—Industry 4.0, Asset Administration Shell, SOA
+I. I NTRODUCTION
+The advent of Industry 4.0 (I4.0) has paved the way for a
+new era of industrial automation and digitisation, fundamen-
+tally transforming traditional manufacturing processes. A key
+component of this transformation is the concept of Digital
+Twins (DT), which are virtual representations of value chain
+assets, also known as Asset Administration Shells (AAS) [1].
+Currently, there exists an implementation-independent spec-
+ification of the HTTP API for AAS [2], yet there is no roadmap
+for the possible realisation of this concept for a large and
+distributed I4.0 system. The primary objective of this paper is
+to highlight the importance of a Service-Oriented Architecture
+(SOA) for such an endeveaor, shown in Figure 1. SOA
+provides a flexible and scalable framework that can effectively
+manage and integrate the complex network of DTs, enhancing
+the efficiency and productivity of industrial processes [3].
+In this work, we propose a novel approach based on
+gRPC, an open-source framework for communication between
+software services developed by Google [4]. Due to its robust-
+ness and high performance, gRPC is a perfect candidate for
+managing the intricate interactions between DTs in a SOA.
+We evaluate the applicability of SOA based on gRPC for
+large I4.0 systems. In particular, we observe that these benefits
+Fig. 1. Main Aspects and Components of I4.0 Services and digital Twins
+(adapted from IEC FDIS 63278-1, Fig. 4).
+are fuelled by the creation of a service network that enables
+communication patterns beyond the capabilities of the HTTP
+API definition. Finally, we show how the compliance with the
+I4.0 ecosystem outside is ensured by a proxy service so that
+external services can still use the conventional HTTP when
+communicating.
+II. I4.0 ARCHITECTURE AND DESIGN PRINCIPLES
+This section shall establish a common understanding of
+the terms and concepts that will be referred to throughout
+the remainder of this work. It starts out with an overview
+about the I4.0 vision, in particular its realisation using Asset
+Administration Shells. We will continue with an exploration
+of SOA and microservice architectures, as well as possible
+implementations of these designs.
+A. Industry 4.0
+The idea of I4.0 is to connect industrial machines and pro-
+cesses using modern information and communication technol-
+ogy [5]. As a powerful driver of this development, the German
+initiative Plattform Industrie 4.0 promotes standardisation for
+I4.0 [6]. In essence, the envisioned advantage of I4.0 is a
+deeply interconnected and therefore highly optimised cross-
+vendor supply chain.IECON 2024 - 50th Annual Conference of the IEEE Industrial Electronics Society | 978-1-6654-6454-3/24/$31.00 ©2024 IEEE | DOI: 10.1109/IECON55916.2024.10905573
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:30:34 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 2
+1) Asset Administration Shell: A cornerstone of I4.0 is the
+introduction of the DT as a virtual replica of an asset. In
+this context, an asset is anything of value for a company,
+be it a product, machinery, or software [1]. By modelling an
+asset digitally in great detail as a DT, its defining properties
+can be stored and exchanged. Furthermore, if the asset is an
+active component, e.g., a production machine on the shop floor,
+its DT can collect operational data and offer a standardised
+interface for remote management or control.
+A possible realisation of the DT concept is the AAS, which
+is standardised in Germany since 2016 (DIN SPEC 91345) and
+internationally since 2020 (IEC 63278). An AAS summarizes
+and organizes all information that is known about an asset
+throughout its lifecycle. The AAS metamodel [1] — part of
+which is depicted in Figure 2 — defines the data structures
+and components of the AAS so that it is interoperable between
+suppliers, producers and customers.
+Therein, the Asset Administration Shell is formalised as a
+structure that logically consists of Submodels . These submod-
+els reflect various aspects of the asset and carry the actual
+aspect-specific information. The assets data is captured in
+Submodel Elements which support a multitude of data types.
+Fig. 2. Overview of the Asset Administration Shell metamodel [1]
+2) AAS API: Part 1 of the specification defines the core
+data structures for modelling a DT [1]. While an AAS is
+directly representable as a graph, it is usually serialized for
+file exchange to interoperable formats such as XML, JSON,
+RDF and AASX, following the predefined schemas [7].
+Part 2 of the AAS specification [2] defines an
+implementation-independent HTTP interface on top of
+the core metamodel. This allows remote access to the
+properties stored in an AAS and invocation of operations
+viaestablished Internet protocols. In summary, the possible
+schemes for interacting with the AAS are:
+•Type 1 (passive): This type of AAS involves straightfor-
+ward information exchange viafiles. Due to simplicity,
+this method is suitable for systems with low complexity.
+•Type 2 (active): In this type, the AAS uses an Appli-
+cation Programming Interface (API) for information ex-
+change. This allows for more dynamic and real-time data
+sharing, enabling complex interactions between systems.•Type 3 (proactive): This is the most advanced type
+of AAS where the shells are designed to communicate
+with each other autonomously. This enables high levels
+of automation and interoperability, making it ideal for
+complex and intelligent Industry 4.0 systems.
+3) I4.0 Services: In Part 2 of the AAS specification [2],
+the standard outlines the need to separate the whole AAS API
+into certain so-called interfaces. A service in the ecosystem
+implements one of these interfaces and, thereby, provides the
+defined functionality. On the one side, there are the AAS
+and submodel-related services, which provide read and write
+access to the fields of an AAS or submodel and its elements,
+respectively. They are used to manipulate the information
+related to an AAS. On the other hand, there are infrastructure
+services Discovery andRegistry . They are necessary because
+the AAS ecosystem is expected to be distributed, and thus
+these services allow for discovery and location of the services
+corresponding to an AAS or a submodel in question. Requests
+to a particular AAS or submodel are recursively forwarded to
+the appropriate AAS or submodel service, and the answer is
+propagated back to the requesting entity. A sequence diagram
+for a possible interaction is illustrated in Figure 3.
+Fig. 3. Simplified sequence diagram for a possible interaction with the I4.0
+services. SM refers to a Submodel .
+B. Service-oriented Architecture
+Service-oriented architecture (SOA) is an architectural style
+of software that promotes the development of applications as
+an orchestrated collection of services which communicate over
+network [8]. It is particularly aimed at building enterprise IT
+systems where each service logically represents a repeatable
+business process like persistence or user management. Its key
+features are:
+•Independent Development: In SOA, services can be
+developed independently. For maintainability, they often
+adhere to a homogenous technology stack in practice.
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:30:34 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 3
+•Reusability: Services in SOA are reusable and can be
+incorporated into various applications.
+•Communication: Services communicate by exchanging
+messages viastandardised protocols such as SOAP. In
+many cases, these messages are transmitted on an Enter-
+prise Service Bus (ESB).
+•Collaboration: Services share resources and need to
+collaborate to fulfil a business request.
+•Deployment: The services are deployed together and
+thoroughly orchestrated to meet the requirements of the
+business application.
+1) Advantages:
+•Flexibility: SOA allows for high flexibility, as services
+can be developed and updated independently.
+•Scalability: SOA supports scalability, as services can be
+scaled independently.
+2) Disadvantages:
+•Complexity: Managing and orchestrating services in
+SOA can be complex.
+•Performance: Communication between services can lead
+to performance losses. Message exchange adds overhead,
+even when services run on the same processor.
+C. Microservices
+The microservice architecture (MSA) has emerged as a
+specialisation of SOA, also promoting the development of
+applications as a collection of small, independent services. A
+major difference compared to SOA is the granularity: Whereas
+SOA services cover a business process, a microservice is
+responsible for a narrowly scoped task [8].
+1) Key Features:
+•Focused: In microservices, services are small and focus
+on performing a single task well.
+•Independent Development: Each microservice can be
+developed and scaled independently of others. Their con-
+crete technology stack is irrelevant to the other microser-
+vices as long as they comply with the defined interfaces.
+•Decentralised Data Management: Each microservice
+has its own database and manages its own data.
+2) Advantages:
+•Independence: Microservices can be developed, de-
+ployed, and scaled independently, speeding up develop-
+ment.
+•Parallelism: We can instantiate independent microser-
+vices in parallel to improve scalability.
+•Fault Isolation: Errors in one microservice do not affect
+other microservices. In fact, microservices are expected
+to fail, which is compensated by parallelism.
+3) Disadvantages:
+•Complexity: Managing microservices can be complex
+since there are even more services than in SOA.
+•Data Integrity: Maintaining data integrity across mul-
+tiple microservices can be challenging, especially for
+parallel serivces fulfilling the same task.D. gRPC and Protocol Buffers
+The gRPC Remote Procedure Call (gRPC) protocol devel-
+oped by Google and the related interface description language
+Protocol Buffers (Protobuf) are powerful technologies that
+have become integral in the development of modern distributed
+systems. This section provides an in-depth exploration of these
+technologies, their benefits, and their role in MSA.
+1) gRPC: gRPC is an open-source high-performance uni-
+versal RPC framework developed by Google [4]. It uses
+Protobuf as its interface definition language, enabling the
+definition of services and message types.
+Key Features
+•Efficiency : gRPC is designed for both high-performance
+computing needs and low-latency requirements, making
+it suitable for a variety of systems.
+•Language Interoperability : gRPC supports several pro-
+gramming languages, allowing developers to build appli-
+cations in their preferred languages.
+•Network Usage Optimisation : gRPC uses HTTP/2 for
+transport, which supports multiplexing requests over a
+single TCP connection, leading to better network resource
+utilisation.
+•Remote procedures and channels : gRPC allows both for
+request-response interaction through its remote procedure
+calls as well as publish-subscribe communication through
+itschannels .
+2) Protocol Buffers (Protobuf): Protobuf is a binary serial-
+isation protocol developed by Google [9]. It offers a compact
+and efficient format for data serialisation with a strong focus
+on backward and forward compatibility. A user can write
+Protobuf files to define the API endpoints of the service
+together with the so-called messages ,i.e., data structures to
+be exchanged. This definition is later translated into language-
+specific constructs.
+Key Features
+•Efficiency : Protobuf messages are compact and consume
+less bandwidth compared to text-based formats like JSON
+or XML.
+•Backward and Forward Compatibility : Protobuf is
+designed to easily evolve over time, and a newer version
+of a Protobuf can parse old data formats.
+•Language Interoperability : Protobuf provides support
+for a wide range of programming languages.
+3) gRPC and Protobuf in Microservices: Microservices
+often need to communicate with each other efficiently and
+reliably over lightweight protocols. gRPC, with its support
+for Protobuf, provides a robust and efficient mechanism for
+microservice communication. Its contract-first approach man-
+dates interface and message definitions in advance, and the
+Protobuf compiler generates boilerplate code for developers,
+reducing the risk of errors. In contrast to calling a HTTP
+API without predefined structure from within the programming
+code, RPC embeds service endpoints as well-structured classes
+and objects into the programming language. That way, the
+endpoints can be invoked as if they were local functions,
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:30:34 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 4
+while the payload is automatically parsed efficiently. RPC thus
+eliminates the overhead of dynamically constructing HTTP
+payloads and requests, and instead fosters convenient data
+exchange and manipulation. Due to the language-agnostic and
+backward-compatible design of Protobuf and gRPC, microser-
+vices can evolve independently.
+In conclusion, gRPC and Protobuf are powerful tools in
+the development of efficient, reliable, and scalable distributed
+systems. Their use in microservices architecture provides
+clear benefits in terms of efficiency, reliability, and developer
+productivity.
+III. R ELATED WORK
+The introduction of a SOA in the automated manufac-
+turing domain comes with great opportunities and equally
+hard challanges as Kuhn et al. [3] have elaborated on in a
+recent publication. The authors have implemented a SOA for
+an AAS-enhanced production line using the BaSyx software
+suite [10]. They highlight the different timing restrictions as
+a major conflict between the SOA approach and the legacy
+control systems. Since SOA only has soft or no real-time
+constraints, it does not comply with strict timing requirements
+in fieldbus-based communication. Whereas the approach of
+Kuhn et al. left time-critical device control to the traditional
+Programmable Logic Controller (PLC)-based solution, it un-
+derlined the importance of an I4.0 SOA on higher levels like
+data aggregation and production planning.
+The advantage of I4.0 in the organisation of a manufacturing
+process is further demonstrated by Kanaan et al. [11] by
+implementing an AAS for a laser engraving machine. The
+improvement is driven by leveraging the VDI/VDE 2193-1
+[12] bidding protocol that enables self-organizing assets to ini-
+tiate the execution of a process based on their capabilities and
+requirements. The natural modularity of their manufacturing
+pipeline is complemented by a SOA that provides a solid stage
+for collaborating assets.
+Dietrich et al. presents a modular and scalable system
+architecture for the Asset Administration Shell using open-
+source technologies [13]. The core components include an
+AAS server responsible for managing and providing digital
+twins of assets, a database for storing asset information and
+metadata, and communication interfaces supporting protocols
+like OPC UA and MQTT for external system interaction.
+The implementation leverages a microservices architecture,
+where each microservice addresses specific functions such
+as data management and communication, ensuring scalabil-
+ity and flexibility. Key technologies utilized include Docker
+for containerization, Kubernetes for container management,
+Apache Kafka for messaging, and InfluxDB for time-series
+data storage.
+IV. S YSTEM ARCHITECTURE
+The system we present in this work must be able to store
+the data that is captured by the AAS and its submodels,
+communicate to the asset viathe protocol it supports, and
+provide this information to the outside viathe AAS Type 2interface — currently HTTP. We identified the potential to
+partition this workload based on the natural structure of the
+AAS: submodels represent a distinct facette of the asset, which
+perfectly aligns with the inherit independency of services in
+a MSA. Therefore, a network of microservices is connected
+using gRPC for high-efficiency service-to-service data trans-
+mission. The introduction of a proxy-like service isolates the
+internal network from the I4.0 environment and allows us to
+manipulate and, therefore, optimise the service endpoints for a
+more streamlined information exchange. gRPC interfaces can
+omit irrelevant parameters and custom-added endpoints can
+accelerate traversal of the AAS and its submodels.
+Figure 4 summarises the participating components of our
+design and their relation. The HTTP-Northbound service ap-
+pears as the sole representative of the particular AAS that
+lives on this network. It provides the Asset Adminstration
+Shell Interface and Submodel Interface of the AAS API
+specification [2] to the I4.0 environment. The actual runtime
+for the AAS and its submodels is built by the AssetAd-
+ministrationShellService and SubmodelService . In order to
+narrowly scope their responsibility, the SubmodelServices only
+implement the submodel-related endpoints specified in the
+Submodel Interface API and custom ones, if necessary. This
+eases the operation of the Northbound, which can map a HTTP
+request to identically named gRPC function call, as indicated
+byGetSubmodelElements . As part of the SubmodelService , the
+Southbound depicted in yellow is responsible for establishing
+a connection to the physical asset viaits native protocol. The
+idea of choosing an appropriate adapter based on the asset is
+taken from [14].
+The design is prepared for the inclusion of an additional mi-
+croservice that implements the Submodel Repository Interface .
+By representing all participating SubmodelServices at once, it
+can mitigate the Northbound’s workload of determining the
+correct SubmodelService for a particular request.
+A. Generation of Protobuf
+Protobuf is used as an interface description format for
+gRPC-based service-to-service communication. The microser-
+vice endpoints mirror the API endpoints of the northbound
+service and thus also follow the AAS specification of [2].
+A JSON/YAML specification of that AAS API is publicly
+available on OpenAPI-Hub listing services like Submodel
+Service Specification and Asset Administration Shell Service
+Specification . Implementers can choose one of them or the
+Entire-API-Collection API which defines all endpoints.
+Using the OpenAPI Generator tool [15], the service speci-
+fication can be converted to Protobuf format. This conversion
+will generate definitions for all services, their endpoints, and
+the messages that are exchanged. We can manually tailor
+these Protobuf definitions to the needs of the services, for
+example, by removing redundant request parameters or whole
+unprovided endpoints.
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:30:34 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 5
+Fig. 4. Overview of the services and selected API endpoints involved in the architecture.
+B. Generation of the language-specific HTTP API code
+The Northbound service acts as an HTTP API according
+to the AAS specification and also provides a UI in the form
+of a Swagger-based documentation of the API. Using the
+JSON/YAML specification available on OpenAPI-Hub and
+with the help of the OpenAPI Code Generator tool, boilerplate
+code is generated for such a web service.
+C. Generation of the language-specific gRPC code
+The Profobuf files generated from the OpenAPI specifica-
+tion define the API endpoints and messages in proto3 syntax.
+After transpilation, the messages will become classes that have
+getters and setters for a fast data population. The Protobuf
+compiler also generates classes for AAS metamodel types
+such as Submodel andSubmodelElement since these objects
+are implicitly exchanged upon requests.
+The service definitions are converted into interfaces or ab-
+stract classes depending on the target language. They contain
+stubs for all endpoints of that service.
+D. Implementation of the service
+The Protobuf compiler can only generate gRPC-ready ser-
+vice stubs, and functionalities of the required endpoints are im-
+plemented by hand. For the northbound service (or submodel
+repository, if included), we need to determine the address
+of the SubmodelService that manages the requested resource.
+Either a volatile storage within the northbound (or submodel
+repository) service or an additional internal submodel registry
+microservice can be used to resolve the address. Once the
+address information is obtained, a gRPC channel can be
+opened to the SubmodelService and the respective endpoint
+can be invoked.
+Upon receiving a gRPC request, the SubmodelService can
+either return the according information from its cached sub-
+model object or fetch updates from the asset to which it
+is connected. Communication with the actual asset must be
+carried out through the protocol that the asset supports. For thatpurpose, the Southbound component contains a set of packages
+for the various protocols.
+E. Deployment
+With the choice of a MSA, we allow the services to stay
+mobile, i.e., they do not need to run on the same machine. A
+SubmodelService can, for example, run on a machine close to
+the asset for better connectivity viathe assets native protocol
+while the gRPC communication is used for longer distance.
+The loose coupling with gRPC channels also makes it possible
+to implement the services in different programming languages.
+In order to preserve the flexibility gained with this setup, the
+services themselves are packed and deployed in a container.
+In this way, the implementation is also independent from the
+machine it is running on, so that the relocation of a service is
+a transparent and unchallenging process.
+V. E VALUATION
+We evaluate the architecture by realising it as a C# .NET
+software. Protobuf supports the generation of abstract C#
+methods for the service endpoint stubs and Plain Old C#
+Objects (POCOs) for the messages. We use ASP.NET Core
+package for handling HTTP alongside the implementation
+of gRPC remote procedures. The OpenAPI-Hub Entire-API-
+Collection API is converted to Protobuf and later generated as
+code. However, due to the lack of expressiveness of OpenAPI
+schema, some data types differ to the original specification.
+Another problem is the even more restrictive syntax of Proto-
+buf, which does not allow for inheritance of data structures,
+so we resort to their composition. The OpenAPI Generator
+sometimes fails to detect inheritance trees, does not convert
+them properly, and thus outputs invalid Protobuf files. Some
+data types seem to be ill-defined in the OpenAPI specification
+which the OpenAPI Generator compensates by introducing
+empty (yet invalid) structures. All these issues must be finally
+resolved manually in the final step. Nevertheless, the pipeline
+for converting the OpenAPI specification of the AAS API to
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:30:34 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 6
+Protobuf is more time-efficient than manually writing Protobuf
+definitions from scratch.
+For managing the content of the AAS and submodels in the
+respective services, we use the AAS Core C# SDK [16]. It
+also contains classes for AAS metamodel types like Submodel
+Element together with the functionality for (de-)serialisation
+from/to JSON and XML. The handling of this duality between
+Protobuf-generated classes and AAS Core SDK classes will be
+discussed in a future publication.
+In our implementation, there is no dynamic southbound
+connection that communicates with the asset viaone of many
+protocols. Instead, upon the start of the service, a static AAS
+in XML structure is loaded using the AAS Core SDK, and
+its information is served or edited when requested. For an
+impression of how to achieve dynamic asset interaction, we
+refer the reader to [14].
+The containerised deployment is managed by Docker. The
+packaged northbound and runtime services are combined with
+off-the-shelf infrastructure services like the AAS Registry [17].
+VI. C ONCLUSION AND FUTURE WORK
+In this work, we have presented a microservice architecture
+for the realisation of I4.0 Digital Twins. We identified the po-
+tential to partition the natural structure of the AAS consisting
+of independent submodels into a network of microservices.
+Following the contract-first paradigm, the service and message
+definitions are formalised using Protobuf, which has been
+generated from the OpenAPI specification of the AAS API.
+After the deployment, the services communicate viathe gRPC
+protocol.
+This architecture is flexible as it allows transparent relo-
+cation of the individual services close to the asset without
+interfering with the operations. Since the microservice network
+is shielded from the outside, we can take full advantage of
+gRPC communication by letting it deviate from the baseline
+AAS API specification. For ease of deployment and operation,
+all services are packaged and started as Docker containers.
+Our implementation proves that the creation of an I4.0 AAS
+system can be aided by code generation tools such as the
+OpenAPI Generator and Protobuf fuelled by JSON/YAML
+specifications of the API. This process streamlines most of
+the boilerplate generation and leaves only a few patches to be
+fixed manually. Therefore, it simplifies the update whenever a
+new version of the AAS specification is released.
+For the future, we aim to test the southbound connection
+to assets using a multitude of different protocols. With the
+recently released Asset Interface Description (AID) and As-
+set Interface Mapping Configuration (AIMC) submodels, the
+establishment of an asset connection can be further enhanced.
+By design, this architecture requires one microservice for
+each submodel. Whenever a new submodel is added during
+runtime, a new container for such a service must be started,
+parameterised according to the submodel, and registered. This
+important sequence of operations is not yet possible in our
+approach, and remains to be conceptualised and implemented.The AAS Core SDK proved to be valuable in managing
+and manipulating AAS and submodel data within the microser-
+vices. Thus, a future publication of ours will elaborate on how
+to harmonize its AAS classes and those generated by Protobuf.
+We envision a unification in order to obtain a single reliable
+and robust source of the AAS metamodel SDK.
+ACKNOWLEDGMENT
+This paper is created during the research project Fluid4.0
+under the reference 01IS22089A. The project is funded by the
+German Federal Ministry for Economic Affairs and Climate
+Action.
+REFERENCES
+[1] I. D. T. A. (Publisher), “Details of the asset administration shell. part
+1 the exchange of information between partners in the value chain of
+industrie 4.0 (version 3.0),” Industrial Digital Twin Association, Tech.
+Rep., 05 2023.
+[2] ——, “Details of the asset administration shell. part 2 - interoperability
+at runtime - exchanging information via application programming inter-
+faces (version 3.0),” Industrial Digital Twin Association, Tech. Rep., 11
+2023.
+[3] T. Kuhn, F. Schnicke, and P. Oliveira Antonino, “Service-based archi-
+tectures in production systems: Challenges, solutions & experiences,” in
+2020 ITU Kaleidoscope: Industry-Driven Digital Transformation (ITU
+K), 2020, pp. 1–7.
+[4] M. Bolanowski, K. ˙Zak, A. Paszkiewicz, M. Ganzha, M. Paprzycki,
+P. Sowi ´nski, I. Lacalle ´Ubeda, and C. Palau, “Eficiency of REST
+and gRPC realizing communication tasks in microservice-based ecosys-
+tems,” 08 2022.
+[5] S. Yang, R. M., J. Kaminski, and H. Pepin, “Opportunities for industry
+4.0 to support remanufacturing,” Applied Sciences , vol. 8, p. 1177, 07
+2018.
+[6] T. Miny, G. Stephan, J. Vialkowitsch, and T. Usl ¨ander, “Functional view
+of asset administration shell in an industrie 4.0 system environment,”
+Tech. Rep., 04 2021.
+[7] N. Braunisch, M. Ristin, R. Lehmann, M. Wollschlaeger, and H. W.
+van de Venn, “Generation of digital twins for information exchange be-
+tween partners in the industrie 4.0 value chain,” in Industrial Informatics
+(INDIN) , 2023.
+[8] S. W. Group, SOA Source Book . Van Haren, 2009, https://www.
+opengroup.org/soa/source-book/intro/.
+[9] “gRPC,” https://protobuf.dev/.
+[10] A. Fay, A. Clauss, B. Kampgen, and J. Buchmann, “Eclipse BaSyx:
+An open platform for industry 4.0,” in International Conference on
+Engineering, Technology and Innovation (ICE/ITMC) . IEEE, 2019,
+pp. 1–8.
+[11] K. Kanaan, J. Wermann, M. A. B ¨ar, and A. W. Colombo, “Industry
+4.0-compliant digitalization of a re-configurable and flexible laser cutter
+module within a digital factory,” in International Conference on Indus-
+trial Technology (ICIT) , 2023, pp. 1–7.
+[12] VDI/VDE, “VDI/VDE 2193-1 language for I4.0 components - structure
+of messages,” VDI/VDE, Tech. Rep., 2020.
+[13] C. Dietrich, J. Heugel, and M. Epple, “A reference implementation
+for the asset administration shell based on open source software,” in
+International Conference on Industrial Technology (ICIT) . IEEE, 2020,
+pp. 717–722.
+[14] N. Braunisch, R. Lehmann, U. Schmidt, T. Gneuß, D. Kluge, and
+M. Wollschlaeger, “Dynamic multi-message broker for proactive indus-
+try 4.0 digital twins.”
+[15] “OpenAPI generator,” https://openapi-generator.tech/.
+[16] N. Braunisch, M. Ristin, R. Lehmann, M. Wollschlaeger, and H. W.
+van de Venn, “Empowering industry 4.0 with generative and model-
+driven SDK development,” in Industrial Electronics Society (IECON) ,
+2023.
+[17] “Python AAS registry,” https://github.com/admin-shell-io/
+python-aas-registry.
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:30:34 UTC from IEEE Xplore.  Restrictions apply. 

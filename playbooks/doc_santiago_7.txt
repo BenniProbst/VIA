@@ -1,0 +1,763 @@
+Page 1
+Dynamic Multi-Message Broker
+for proactive Industry 4.0 Digital Twins
+Nico Braunisch∗, Robert Lehmann∗, Uwe Schmidt∗, Tom Gneuß∗, Daniel Kluge†, and Martin Wollschlaeger∗
+∗Institute of Applied Computer Science ,TU Dresden , Dresden, Germany
+Email: {nico.braunisch, robert.lehmann, tom.gneuss, martin.wollschlaeger }@tu-dresden.de
+†Infineon Technologies , Dresden, Germany
+Email: daniel.kluge@infineon.com
+Abstract —The vision of Industry 4.0 (I4.0) promises unprece-
+dented interconnectedness of vendors, manufacturers and other
+partners in the value chain. A key enabler in this new landscape
+of communicating factories is the digital twin, a virtual replica
+of every asset that mirrors all its facets and properties along
+the whole life cycle. The ambition of including existing factories
+with legacy devices into this ecosystem is not without significant
+challenges. These older devices are equipped with purpose-
+built hardware and inflexibly bound to certain communication
+protocols that do not integrate with I4.0 interaction methods. In
+order to bridge this gap, an adapter is required that mediates
+between the highly optimized industrial protocols and modern,
+vastly linked I4.0 devices. This work presents a gateway, called
+the Multi-Message Broker (MMB), which can connect to legacy
+devices via a suite of appropriate interfaces and simultaneously
+offer I4.0-compliant APIs for these connected assets. This creates
+a digital twin for legacy devices and makes them accessible to I4.0
+information exchange. The aim is to integrate plants and systems
+with the lowest possible effort. As existing device descriptions
+and information models can form a basis for the digital twin,
+this and their applicability for the MMB will also be discussed.
+A prototype that implements selected aspects of the concept will
+demonstrate the functionality and advantages of such a system.
+Index Terms —Digital Twin, Asset Administration Shell, Gate-
+way, Industry 4.0, Retrofit
+I. I NTRODUCTION
+Automated factories today use fieldbuses to connect and
+steer their devices including machinery. In the automation
+pyramid model, this interaction is ranked on the lowest level,
+the so-called field level. One level up, in the control layer,
+sit devices like programmable logic controllers (PLCs) that
+manage the operation of field devices [1].
+The communication between control and field level is often
+subject to stringent timing requirements; i.e., real-time. Field-
+bus protocols offer various functionalities and are thus suitable
+for different interaction patterns and topologies. Hence, within
+a factory, a multitude of protocols may be used.
+Driven by the ideas of Industry 4.0 (I4.0), the objectives
+of automated industries have evolved towards digitalized pro-
+cesses and a richer coupling with partners in the value chain.
+Traditional fieldbuses are not equipped to serve these modern
+requirements, since their intended interaction range does not
+exceed the boundaries of a production site. Even if, the
+heterogeneity of available protocols would hinder streamlined
+information exchange.
+Fig. 1. Design of Multi-Message Broker
+To enable this unprecedented level of interconnectedness,
+uniform specifications and standards are an integral part of I4.0
+development. The digital twin, a virtual replica of every asset,
+is the key player in I4.0 as it mirrors the entirety of the asset’s
+data in every aspect across the whole life cycle [2]. Through
+standardized interfaces, this information becomes available to
+users and other assets alike.
+Production sites and vendors including their partners that
+want to profit from the advantages of I4.0 need to adopt
+these new standards in their processes. Since replacing existing
+machinery and production lines; also called brownfield; is not
+economical, they must be augmented with new capabilities.
+This work presents a message broker to act as gateway
+between legacy devices and modern I4.0 interfaces, shown
+in Figure 1. The gateway is intended to handle a variety
+of communication protocols, hence the name Multi-Message
+Broker (MMB). It provides digital twin functionalities for an
+existing asset that is not empowered to serve these features
+on its own. We are taking our concepts from [3] and [4] and
+adapting them to the current state of technology in the field of
+digital twins and I4.0. Existing solutions for the integration of
+I4.0 into legacy assets will first be evaluated. Based on this,
+the MMB will be designed and prototypically implemented.2024 IEEE 29th International Conference on Emerging Technologies and Factory Automation (ETFA) | 979-8-3503-6123-0/24/$31.00 ©2024 IEEE | DOI: 10.1109/ETFA61755.2024.10711028
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 12:32:10 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 2
+II. S TATE OF THE ART
+Before concrete decisions can be made for the creation
+of the MMB, it is required to evaluate current concepts and
+technologies for the digitalization of industrial plants. Addi-
+tionally, this section shall establish an understanding of the
+underlying principles of I4.0 and the intricacies of traditional
+device networking in automation.
+A. Traditional Device Networking
+Most production plants use a wide variety of communication
+buses to connect their machines, sensors, transport systems
+and other components. Compared to ubiquitous networking
+technologies like Ethernet; or full-fledged internet; industrial
+communication protocols are highly optimized for their use
+case. Their wide-spread adoption is due to the protocols
+capability of efficient and reliable information exchange. The
+devices are also equipped with networking technology specific
+for one or more of these protocols.
+Devices come with an information sheet about themselves in
+form of a file that specifies properties, capabilities and func-
+tions. Depending on the protocol, these device descriptions
+must be registered before the device can join the network.
+1) Fieldbuses: Fieldbuses connect field devices and are
+located at the lowest layer of the automation pyramid model.
+Common examples are PROFIBUS, Modbus, PROFINET,
+EtherCAT and Ethernet/IP. The latter three demonstrate how
+Ethernet or variations of it ultimately got adopted for indus-
+trial communication. This development required optimizing
+Ethernet-based communication for the stringent requirements
+and removed protocol overhead that would have jeopardized
+the efficiency.
+Fieldbus protocols can be categorized with regard to their
+architecture into 1) controller/peripheral formerly known as
+master/slave 2) client/server and 3) publish/subscribe also
+known as observer.
+In the controller/peripheral architecture, there are one or
+occasionally more controllers responsible for steering the
+devices. In regular time intervals, known as bus cycle times,
+the controller sends out packages containing instructions or
+other data to the periphery. During the same cycle, the devices
+write back current process data, measurements or internal state
+information so that the controller stays updated [5].
+In a client/server architecture, every participant can initiate
+direct communication with a partner. It is then known as the
+client that is requesting information or invoking operations on
+a server. A server can become a client to another server [6].
+Publish/subscribe architectures decouple the communication
+partners. Participants of the network subscribe to topics about
+which they require information and publish updates on other
+channels. The intervals in which messages are published are
+not constant. A central broker can be responsible for managing
+message forwarding so that participants are not required to
+know each other [7].
+Devices may not natively support the protocol of a network
+they are supposed to join, which calls for an adapter as
+a translator between the two protocols. The adapter shall
+Fig. 2. Linking different fieldbuses
+be transparent to both communication partners and enable
+frictionless, loss-free communication. Instead of just serving
+one device, an adapter can also be placed to mediate between
+two entire bussystems. It is then commonly called a gateway .
+With this kind of inter-protocol communication, particular
+attention must be paid regarding adherence to the requirements
+of both protocols like real-time capabilities or synchronicity.
+2) Synchronicity: While the synchronicity of a communi-
+cation protocol can be considered from very different aspects,
+the focus here is on whether a request telegram is immediately
+followed by a response telegram. If so, the communication
+is called synchronous or blocking and asynchronous or non-
+blocking otherwise. In asynchronous communication, partici-
+pants receive a request and can respond at their own discre-
+tion. This is only possible in networks where the requestee
+is allowed to initiate the subsequent information exchange
+and where the original requester can handle spontaneously
+incoming messages.
+A translation between these two strategies is not trivial
+and can only be solved with additional computation by the
+gateway. From synchronous to asynchronous, either the syn-
+chronous response must be delayed until the asynchronous
+response is available; or only an acknowledgement of receipt
+is returned immediately, and the actual response must be
+requested again at a later point in time by a new dedicated
+request. Conversely, when translating an asynchronous request,
+the gateway blocks until receiving a synchronous response
+from the downstream device and reply to the original requester
+asynchronously or buffers the result until polled manually.
+3) Real-time Capability: Real-time capability refers to con-
+straints on guaranteed reaction time of a system upon a
+request. This involves computation time of the participants and
+also message transmission in the network. It can be subdivided
+into hard and soft real-time constraints. In the case of hard
+real-time, a reaction is expected to happen in a certain amount
+of time, which must not be exceeded but also not fallen
+short of. Soft real-time only assures statistical compliance to
+the timing and allows for occasional deviations. The whole
+information exchange must be completed within the given time
+frame for any kind of real-time capability; i.e., protocols that
+require retransmission in the event of errors cannot be real-
+time capable since that introduces unforeseeable delays.
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 12:32:10 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 3
+B. Industry 4.0
+The term Industry 4.0 describes ”the intelligent networking
+of machines and processes in industry with the help of
+information and communication technology” [8]. It envisions
+a world of connected and communicating machinery that
+thereby optimizes production processes by a tightly coupled
+cross-vendor information exchange. Founded in April 2013,
+thePlattform Industrie 4.0 is a German initiative aiming to
+push this development [9].
+1) Asset Administration Shell: A centrepiece of I4.0 is the
+so-called digital twin — realized by the Asset Administration
+Shell (AAS) as standardized in Germany since 2016 (DIN
+SPEC 91345) and internationally since 2020 (IEC 63278).
+Being a model of the real-world asset, it allows precise
+management and information exchange over the asset’s whole
+lifecycle.
+In the metamodel, an AssetAdministrationShell object log-
+ically consists of Metadata and several Submodels (SM)
+which reflect various facets of the asset [10]. Submodels in
+turn encompass SubmodelElements (SME) that hold properties
+relevant for this facet. The AAS in its entirety can be serialized
+and deserialized in order to be passed between partners. The
+specification defines formats like XML, JSON, RDF and
+AASX for that [11].
+2) AAS Interaction: On top of the static exchange of AAS,
+the documentation [12] details other patterns for interact-
+ing with an AAS. The most common method nowadays is
+the information access via an implementation-agnostic HTTP
+interface as specified in the API definition [13]. For the
+future, a dedicated I4.0 language for autonomous inter-AAS
+communication is envisioned. These three means of interacting
+with the AAS are also expressed as passive AAS (Type 1)
+for static exchange, reactive AAS (Type 2) for interface-
+based access and proactive AAS (Type 3) for peer-to-peer
+communication [14]. A proactive approach will be employed
+in relation to active communication and self-orchestrated I4.0
+components. [15]. They are illustrated in Figure 3.
+Fig. 3. Interaction models of Asset Administration Shell [10]
+3) Submodel for asset integration: The Asset Interfaces De-
+scription (AID) and Asset Interfaces Mapping Configuration
+Fig. 4. Principle AID submodel usage and possible data mapping process
+e.g. by Asset Interfaces Mapping Configuration (AIMC) form [16] and [17] .
+(AIMC) are two submodels of the AAS, shown in Fig. 4.
+Provided by the vendor of the asset, the AID specifies available
+endpoints and means of interaction with the asset. This helps in
+initiating a connecting to the asset for retrieving information
+or invoking operations. In its current version 1.0, the AID
+supports Modbus, HTTP and MQTT with other protocols
+planned for future versions.
+The AIMC submodel further details how these endpoints are
+linked to properties of a submodel in the AAS for that specific
+asset. It therefore spans the gap between data provided by the
+asset and information presented in the AAS.
+The W3C Web of Things Thing Description (WoT TD)
+is considered a baseline for the content and structure of
+the definition of this SM template due to its status as an
+open, royalty-free standard. In addition to the protocol-specific
+information provided by the AID, it also provides the ability
+to reference external descriptors such as GSD, GSDML, IO
+Device Description, WoT TD (as a supplement), and so forth.
+These external descriptors are not limited to the protocols
+currently defined in the AID. As a complement to the AID,
+an Asset Interfaces Mapping Configuration (AIMC) Submodel
+can be employed to map the received data from the asset ser-
+vices to a specific location within an AAS (e.g. an application-
+specific SM to monitor data). The principle scope and use of
+the AID Submodel in combination with an AIMC is elucidated
+in Figure 4.
+Although AID and AIMC can be used in conjunction with
+one another, they are separate submodels. AID describes the
+available interfaces of an asset and is typically provided by the
+asset provider. In contrast, AIMC configures a (bidirectional)
+mapping between an asset and an AAS and is usually provided
+by the asset user. Furthermore, an AIMC in an AAS A might
+reference an AID in an AAS B.
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 12:32:10 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 4
+It is important to note that none of these submodels actually
+execute the interaction with the asset. A runtime environment
+is responsible for taking the instructions of the AID submodel,
+interacting with the asset, populating the AAS according to the
+AIMC submodel and delivering the information via an I4.0
+interface.
+C. Retrofitting
+The biggest challenge in integrating existing systems into
+I4.0 are the devices themselves. Since they are optimized for
+their own particular use case, they do not come with highly
+performant general-purpose computing hardware. Making a
+brownfield machine available for modern I4.0 applications
+by running new software on the device is not feasible; so
+additional hard- and software must be introduced to translate.
+In a process called retrofitting, a separate device is added
+alongside the old one to act as connector or adapter. The
+adapter represents the legacy device in the new context, e.g.,
+by providing an AAS for it. At the same time, the adapter
+communicates with the brownfield device via the interfaces it
+supports; for example a fieldbus protocol; and passes along
+information from/to the I4.0 context. For more complex sys-
+tems that house many devices, gateways or proxy systems are
+the preferred way for integration. They do not represent just
+one device but summarize many participants in the internal
+network.
+In the context of I4.0 and the AAS, retrofitting also means
+defining an AID for the asset, since that is what the connector
+or gateway uses for interaction. This could be done based
+on the device description that already states capabilities and
+properties of the device and the protocol it facilitates for
+communication.
+D. Current Gateway Solutions
+I4.0 advancements enable seamless data exchange between
+industrial devices and systems. Gateways, middleware, and
+brokers play a critical role in this ecosystem, facilitating data
+exchange and decision-making. We explored their role in I4.0
+applications by reviewing existing research.
+Miao et al. present a comprehensive survey of edge com-
+puting for I4.0, encompassing gateway technologies, commu-
+nication protocols, and fog computing [18]. They highlight
+the significance of edge computing in enabling real-time data
+processing, analytics, and management at the network’s edge.
+Dinh et al. [19] provide a comprehensive survey of the state-
+of-the-art in industrial data stream processing and analytics in
+fog computing, with a focus on I4.0 applications. They explore
+various techniques and tools for processing and analysing real-
+time data streams in fog computing environments.
+Roman et al. examine the critical role of middleware in I4.0,
+discussing different middleware architectures and solutions
+[20]. They highlight the challenges and requirements of mid-
+dleware for I4.0 applications and present various middleware
+platforms and frameworks.
+Qiu et al. offer a comprehensive survey of message bro-
+kerage protocols for the Industrial Internet of Things (IIoT),with a focus on I4.0 applications [21]. They compare and
+evaluate different message brokerage protocols based on their
+performance, scalability, and reliability characteristics.
+Lee et al. explore the pivotal role of gateways in I4.0, pro-
+viding an overview of gateway technologies and applications
+[22]. They highlight the importance of gateways in I4.0.
+III. D ESIGN OF THE MULTI -MESSAGE BROKER
+Retrofitting the brownfield and thereby enabling legacy
+assets to participate in modern I4.0 interactions is achieved by
+introducing an intermediate gateway called the Multi-Message
+Broker . This overspanning goal is broken down into concise
+requirements in the next part. Based on them, we present the
+high-level concept and its inner workings.
+A. Requirements
+We identify four use cases or actions that are expected from
+the MMB. During the design and development process they
+are considered as guidance and later for testing the success of
+the implementation.
+Provision of an I4.0 interface: Making existing machines
+and sensors suitable for I4.0 by providing an AAS is the most
+important application of the MMB. The I4.0 interface shall
+not fall short of the functionalities that have been provided by
+the asset in its native environment. In order to match them
+as precisely as possible, the device descriptions are a crucial
+reference.
+Currently, only the HTTP API for Type 2 AAS is formally
+specified, but the MMB must be capable of supporting future
+interfaces alongside that. When doing so, it shall be possible
+to serve the same data over two APIs in parallel, which
+necessitates proper data consistency management within the
+MMB.
+Data mapping: Although the AAS and its submodels for the
+device can be derived from the device description, corner cases
+may occur where the data structures do not match perfectly. In
+such scenarios, the MMB must be able to transform the data
+from the source to the destination format. The details of this
+transformation could potentially be determined by the MMB
+by taking into account the submodel template and the device
+description. Ideally, the transformation instructions would also
+be given by the AIMC which is however not possible in the
+current state of its specification.
+Handling of synchronous and asynchronous communication:
+The connection to different assets on the inside is variable in
+that it can be done via a synchronous or also an asynchronous
+protocol, whereas the outside HTTP API for AAS is inherently
+synchronous. In order for the MMB to be able to serve
+synchronous and asynchronous asset connectors, it must buffer
+the latest asset status and deliver properties upon request. It
+can alternatively choose to block the synchronous I4.0 HTTP
+response while waiting for the latest data from the asset.
+Support for various asset protocols: An asset provides all
+of its runtime data via a specific protocol; the details of which
+are given by the device description. Represented in the AID
+submodel, the MMB can use these parameters to establish
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 12:32:10 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 5
+connections with the asset. The MMB must be able to support
+many protocols because of two reasons: 1) It may be connected
+to a multitude of assets that are not on the same fieldbus and
+use different protocols 2) One asset may not provide all its
+endpoints through one protocol alone Which one to chose for
+a particular interaction must be specified, e.g., in the AID and
+then chosen adaptively by the MMB during runtime.
+B. High-level Overview
+Figure 5 displays the key components in the design of the
+MMB. The required interfaces towards the I4.0 ecosystem
+and towards the assets are reflected by the two packages
+Northbound (NB) and Southbound (SB). Furthermore, NB and
+SB support various protocols for interaction and are expected
+to be extensible to future protocols. In case of a mismatch
+between synchronous NB communication (e.g. HTTP) and
+asynchronous asset communication (e.g. MQTT), an imple-
+mentation of the concrete SB connector must be equipped
+with coping mechanisms. The internal layers coordinate the
+data flow by assuring the correct data format, keeping data
+consistent across requests and selecting appropriate interfaces
+for each communication. The Consistency Layer in particular
+ensures that multiple identical requests through different NB
+interfaces serve the same information. Selection of the suitable
+connector upon request of an asset’s property is the responsi-
+bility of the Mapping Layer . It is configured using the device
+descriptions (alternatively in the form of AID and AIMC)
+from which also the need for a potential data transformation
+can be deduced. Within the internal layers, the MMB stores
+and manages an AAS instance for each legacy asset that is
+connected to the MMB. By containing the AID and AIMC
+submodels, the AAS helps to organize data mappings and
+connection parameters for the respective asset.
+Fig. 5. Components of the MMB and their interaction.
+C. Submodel adaptation
+The design of the AIMC was only initiated at the time
+the prototype was created. The used schema was extractedfrom one of the internal examples for AID and AIMC. The
+list of SourceSinkMappings in the AIMC was of particular
+relevance, as it establishes the links between the endpoint
+descriptions defined in the AID and the elements of the
+asset. The information from these links is sufficient for the
+functionality of the prototype. The resulting submodel, which
+was employed for the prototype’s testing, is shown in Fig. 7.
+In addition to the modifications described here in, other issues
+arose that were not straightforward to resolve.
+The design of the AID was incomplete at the time the
+prototype was created. The schematic of the design is pre-
+sented in 4. As a mitigation, the AID was manually adapted
+during development to enable the implementation of additional
+functionalities within the prototype. First and foremost, the
+forms entry of an interface was expanded to a list instead of
+consisting of a collection which reduces nesting. This reduces
+nesting and, as the idShort fields of the forms are not relevant,
+unnecessary overhead when reading in the description. To
+identify the various operations, the syntax of the forms entries
+was adapted to the fields of the same name in the Web of
+Things (WoT) description, whereby the opproperty is as-
+sumed, which defines the operation. This enables the definition
+of distinct endpoints for assets, facilitating both reading and
+writing of values.
+The most significant alteration is that descriptions for op-
+erations and events; that were not yet specified at the time
+of the work; are now possible. Both types of entries are
+almost identical to those for attributes and also use a list
+offorms with the same syntax. The distinction here lies
+in the specification of the value for the field opof the
+respective forms . For operations, it is possible to specify
+whether they are executed synchronously or asynchronously,
+which is important for reading a result. Although asynchronous
+execution and asynchronous reading are provided in the AAS
+interface specification, they have not been defined yet in the
+AID and there is also no corresponding definition in the WoT
+description. The submodel created after the changes was used
+to test the prototype. In addition to the changes made here,
+other problems arose that were not trivial to solve.
+D. Holistic Process
+An exemplified process of starting and running the MMB
+is depicted in Figure 6. At the start of the program, the device
+and interface descriptions must be read in and based on these,
+an AAS for internal purposes is built. On the one side, these
+AAS constitute an I4.0-compliant model that the NB interfaces
+can refer to. On the other side, by containing the AID and
+AIMC submodels, communication and mapping details are
+summarized in the AAS as well. In the next step, the asset
+connectors are also created, parameterized with the help of
+AIMC and launched, which concludes the startup phase.
+Data access from user side happens, e.g., on the whole AAS,
+certain submodels or submodel elements. In the northbound
+I4.0 API, the request is evaluated and forwarded to the inner
+layers of the MMB. If only a static value is requested, the AAS
+can immediately return it to the NB component, which will
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 12:32:10 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 6
+prepare a response to the requester (not displayed in Figure
+6). However, if the Mapping Layer contains a mapping to
+a runtime property of the asset, the call must be forwarded
+further to the appropriate connector. In case an operation is
+invoked on the asset, e.g., writing a value, the Consistency
+Layer manages concurrent access.
+Connection details are stated in the AID submodel and
+taken into account by the asset connector when handling the
+communication. It takes care of protocol-specific intricacies
+and shields these details from the upper layers. The response
+from the asset is received by the connector and returned to the
+Mapping Layer , where an optional data transformation can
+be performed. The Consistency Layer ensures that identical
+requests that happen at the same time; but through another
+NB interface; receive the same result. Finally, the response is
+sent back to the original requester by the same NB interface
+where it was requested from.
+User
+ :MMB
+load description
+Asset
+request
+return
+Startup
+:NB API
+parameterize
+:Connector
+parameterize
+request
+create
+create
+Operation
+request
+return
+request
+ resolve protocol
+return
+transform
+return
+Fig. 6. MMB startup phase and one request operation.IV. E VALUATION
+The concept presented in this work has been evaluated
+for feasibility using a prototype. We defined goals of the
+implementation beforehand in order to select suitable pro-
+gramming languages and frameworks. The language shall be
+object-oriented and support 1) streamlined creation of HTTP
+endpoints 2) in-code AAS model modification. Regarding
+the features of the prototype, we settled for the following
+cornerstones:
+•provision of at least one I4.0-compliant interface based
+on the API specification
+•connection mechanism to at least one legacy asset
+•configuration of the asset connector based on the AID
+•data mapping to the AAS properties following the AIMC
+•implementation in separate modules and introduction of
+abstract classes to ensure extendability
+A. Implementation
+Ultimately, the prototype was implemented in TypeScript
+with Node.js as the runtime environment. As framework for
+working with AAS model objects during runtime, we chose
+aas-core3.0-typescript . The AAS core framework for Type-
+script was used because it was relatively new and most of the
+experience with Typescript was in its implementation [23]. On
+the northbound side, the HTTP interface as the only officially
+specified one got implemented. The IoT protocol MQTT was
+selected as southbound protocol and an according connector
+was developed.
+TheMultiMessageBroker is the heart of the application and
+all available AASs are registered with its subcomponent AAS-
+Registration . There exists a FileImporter class responsible for
+loading the AAS description files and making them available
+to the AAS core framework. Another important component is
+theAIMCMapper which automatically evaluates the content
+of the AIMC and AID submodels inside a loaded AAS. For
+each of these two submodels, it contains a dedicated parser.
+With the prototype, we provide one northbound I4.0 inter-
+face for HTTP and one southbound asset connector commu-
+nicating via MQTT. The classes responsible for this are the
+HTTPInterfaceServer and the MQTTConnector respectively.
+Further, I4.0 interfaces and connectors can be created as de-
+scendants of the abstract classes AbstractInterfaceServer and
+AbstractConnectionObject . They define a generalized interface
+for the NB and SB APIs and can be subclassed for new
+protocols. While the abstract classes are part of the MMB
+library, the concrete implementations are being defined in a
+separate project. This approach was chosen in order to keep
+the number of dependencies as low as possible and minimize
+project size.
+Events — either from the NB or SB side — are reacted to
+by invoking callbacks on the MultiMessageBroker . Concrete
+interface classes can trigger onRequestCallback and onCon-
+nectorEvent respectively, which indicates either an incoming
+request from the NB side or updated data from the SB side.
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 12:32:10 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 7
+Fig. 7. AID and AIMC used for testing
+B. Tests
+To test the prototype, an MQTT broker was started locally
+and a simple script was used to simulate an asset that integrates
+various elements:
+•A ”TestParam1 ” attribute that is read-only. It is an integer
+that is incremented when ” TestOperation1 ” is executed
+and decremented when ” TestOperation2 ” is executed. The
+current value is published in an MQTT channel at regular
+intervals and whenever it changes.
+•A ”TestParam2 ” attribute that can be read and written.
+It is a truth value and is also published regularly on an
+MQTT channel and can be changed by sending a message
+to yet another channel.
+•A ”TestOperation1 ” operation. This has neither input nor
+output values. When executed, ” TestParam1 ” is incre-
+mented and an output is generated on the command line.
+•A ”TestOperation2 ” operation. This has an input value.
+When executed, ” TestParam1 ” is decremented and there
+is an output on the command line that uses the input.
+•A ”TestOperation3 ” operation. This has one input and one
+output value. When executed, a message is published on
+another MQTT channel that uses the input
+A model of the corresponding asset was created in the
+AASX Package Explorer — an essential tool for the creation
+of AASX packages. It defines static values and placeholders
+for dynamically updated properties. The AID and AIMC
+submodels are also delivered with this AAS model and have
+been created manually using the same tool. By loading this
+AAS, the MMB can instantiate a runtime model that contains
+the connection parameters as well as a concisely defined asset
+structure that can be updated and provided through the I4.0
+interface.
+V. D ISCUSSION
+Whether it is possible to develop a message broker that
+can provide an I4.0-compliant interface for any assets in the
+current context and taking into account the current state of
+the art was given a possible answer. This was based on the
+requirements from the given scenarios and challenges were
+overcome by making slight adjustments. To this end, existingapproaches for interface descriptions and system models as
+well as integration approaches for legacy were analysed.
+Requirements for our MMB were discussed as the basis
+for a holistic concept. Using a prototype, we were able to
+prove the feasibility of such a message broker by meeting
+most of the requirements. The NB component complies with
+the specification for a I4.0 HTTP interface. Data that is
+sent from/to the asset is mapped and potentially transformed
+in the Mapping Layer using the modified AIMC submodel.
+Feasibility for asynchronous communication has been shown
+by using MQTT as communication protocol for the brown-
+field device. Although only this one SB connector has been
+implemented, the developed library provides a framework for
+faster implementation of other SB protocols.
+In particular, the AAS model was used as a digital twin
+to represent the legacy asset in the I4.0 context. The two
+AAS submodels AID and AIMC could successfully be used
+as means to describe the endpoints of the legacy asset and
+their relation to properties of the I4.0 model. In doing so,
+we encountered a major issue with the AIMC: Although
+it is indented to describe relations between the I4.0 digital
+twin (AAS) and the concrete asset endpoints (defined by the
+AID) in its native protocol, it does not allow specifying data
+transformations. They can still be implemented in a runtime
+environment with proper knowledge, but the AIMC could have
+provided well-defined guidance on that.
+In addition, a great deal of modelling effort is required
+in the AAS not only due to the domain-oriented models,
+but also in the description and provisioning of the interfaces
+using the AID and in the AIMC for a unified connection
+between domain-oriented features and endpoints. However, we
+estimate that this effort can be reduced with the appropriate
+use of modelling software. For the future we expect more
+development iterations on the presented prototype as it only
+supports a limited set of protocols. A major improvement
+would be the introduction of an automated process that can
+obtain AID submodels based on legacy device descriptions,
+as this step has been carried out manually here. We also hope
+to streamline the data mapping process by incorporating even
+more details provided by the AIMC submodels.
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 12:32:10 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 8
+VI. S UMMARY AND OUTLOOK
+A. Summary
+The aim of this work was to develop a message broker
+that can provide an I4.0-compliant interface for any interface
+on an asset. It should also be possible to access the asset’s
+runtime data via a request to the I4.0 API. To this end, existing
+approaches for interface descriptions and system models as
+well as integration approaches for devices that have long
+existed in industry were examined. The difficulties that hinder
+the transition to I4.0 and the importance of the digital twin
+and thus also the system models were identified. Specific
+requirements for the MMB were then discussed before a com-
+plete concept was created. Using a prototype that implemented
+selected elements of the concept, it was possible to show that
+such a MMB can be used. In particular, the AAS model was
+used here as a digital twin, as it is defined in great detail,
+which simplifies its use in automated scenarios. The two AAS
+submodels Asset Interfaces Description and Asset Interfaces
+Mapping Configuration were particularly promising for use
+in the MMB, as they offer a way to define endpoints of the
+asset and map elements of the asset administration shell to
+these endpoints. Although some work still needs to be done
+on the specifications, the prototype was able to demonstrate
+successful implementation.
+B. Outlook
+Before the MMB designed in this work can be used produc-
+tively, some aspects of the concept need to be examined and
+defined in more detail. In particular, the parts not implemented
+in the prototype, such as data synchronization and security
+settings for network interfaces, are essential to prevent data
+loss and unauthorized access. It should also be clearly defined
+how the synchronization of response telegrams is handled
+within the MMB. In the internal prototype, synchronous
+response telegrams between operations were expected (i.e. the
+functions were not asynchronous), but a discussion of whether
+an asynchronous approach would be more efficient should be
+carried out.
+It is crucial to evaluate improvements and alternatives to
+the AID and AIMC submodels in the future. Although the
+functionality could be implemented using them, the funda-
+mental problems discussed in Section V arose. If future
+iterations of the AID and AIMC SMs can solve the issues,
+these improvements must be incorporated into the MMB.
+In addition, setting up the connector for an existing device
+could be significantly accelerated by supporting other common
+device descriptions and models.
+The issue of efficiency has not yet been considered. The
+developed prototype is sufficient to host a small number of
+AAS, but an increasing number of connected assets will lead
+to problems. First and foremost, the approach of sharing con-
+nectors between assets that use the same protocol is beneficial
+for a small number of assets, but scales very poorly. Using
+separate threads or processes for each AAS, including their
+interfaces and connectors, would be one approach.REFERENCES
+[1] T. Meudt, M. Pohl, and J. Metternich, “Die automatisierungspyramide
+- ein literatur ¨uberblick,” Darmstadt, Tech. Rep., Juni 2017. [Online].
+Available: http://tuprints.ulb.tu-darmstadt.de/6298/
+[2] A. Braune, C. Diedrich, S. Gr ¨uner, G. Huettemann, M. Klein, C. Legat,
+M. Lieske, U. L ¨owen, M. Thron, T. Usl ¨ander, A. Belyaev, M. Okon,
+G. Spiegelberg, G. Stephan, and J. Vialkowitsch, Usage View of Asset
+Administration Shell , 03 2019.
+[3] N. Braunisch, S. Schlesinger, and R. Lehmann, “Adaptive industrial
+iot gateway using kafka streaming platform,” in 2022 IEEE 20th
+International Conference on Industrial Informatics (INDIN) , 2022, pp.
+600–605.
+[4] ——, “Function call gateway for operational aspects in industrie 4.0,”
+in2021 26th IEEE International Conference on Emerging Technologies
+and Factory Automation (ETFA ) , 2021, pp. 1–8.
+[5] “A comprehensible guide to industrial ethernet,” https://copperhilltech.
+com/a-comprehensible-guide-to-industrial-ethernet/.
+[6] S. Sulyman, “Client-server model,” IOSR Journal of Computer Engi-
+neering , vol. 16, pp. 57–71, 01 2014.
+[7] ——, “Client-server model,” IOSR Journal of Computer Engineering ,
+vol. 16, pp. 57–71, 01 2014.
+[8] “Was ist industrie 4.0?” https://www.plattform-i40.de/IP/Navigation/DE/
+Industrie40/WasIndustrie40/was-ist-industrie-40.html.
+[9] “Hintergrund zur plattform industrie 4.0,” https://www.plattform-i40.de/
+IP/Navigation/DE/Plattform/Hintergrund/hintergrund.html.
+[10] “Details of the asset administration shell - part 1 v3.0-rc02,”
+Plattform Industrie 4.0, Tech. Rep., 2022, https://www.plattform-i40.
+de/IP/Redaktion/DE/Downloads/Publikation/Details oftheAsset
+Administration Shell Part1 V3.html.
+[11] N. Braunisch, M. Ristin-Kaufmann, R. Lehmann, M. Wollschlaeger,
+and H. W. van de Venn, “Generation of digital twins for information
+exchange between partners in the industrie 4.0 value chain,” in 2023
+IEEE 21st International Conference on Industrial Informatics (INDIN) ,
+2023, pp. 1–6.
+[12] T. Miny, G. Stephan, J. Vialkowitsch, and T. Usl ¨ander, “Functional view
+of asset administration shell in an industrie 4.0 system environment,”
+Tech. Rep., 04 2021.
+[13] “Details of the asset administration shell - part 2 v1.0-rc02,”
+Plattform Industrie 4.0, Tech. Rep., 2021, https://www.plattform-i40.
+de/IP/Redaktion/DE/Downloads/Publikation/Details oftheAsset
+Administration Shell Part1 V3.html.
+[14] T. Miny, G. Stephan, J. Vialkowitsch, and T. Usl ¨ander, “Functional view
+of asset administration shell in an industrie 4.0 system environment,”
+Tech. Rep., 04 2021.
+[15] S. Grunau, M. Redeker, D. G ¨ollner, and L. Wisniewski, The Implementa-
+tion of Proactive Asset Administration Shells: Evaluation of Possibilities
+and Realization in an Order Driven Production , 01 2022, pp. 131–144.
+[16] I. D. T. A. (Publisher), “Asset interfaces description,” Tech. Rep., 01
+2024.
+[17] ——, “Asset interfaces mapping configuration (prerelease),” Tech. Rep.,
+01 2024.
+[18] Y . Miao, M. Li, B. Li, and Q. Sheng, “Edge computing for industry 4.0:
+A survey of edge nodes, communication protocols and fog computing,”
+IEEE Access , vol. 6, no. 1, pp. 7036–7068, 2017.
+[19] D. T. Dinh, Q. D. Tang, M. Gaber, G. Tri, and Q. Qi, “Industrial data
+stream processing and analytics in fog computing: A survey,” IEEE
+Internet of Things Journal , vol. 5, no. 1, pp. 288–300, 2018.
+[20] R. Roman, J. Molina, J. Campillo, H. V o, J. M. Sardo, and M. Nogueira,
+“Middleware for industry 4.0: A review,” Future Generation Computer
+Systems , vol. 101, pp. 231–245, 2019.
+[21] H. Qiu, Y . Wang, M. Li, Q. Sheng, and D. Zhao, “A survey of message
+brokerage protocols for industrial internet of things,” IEEE Access ,
+vol. 6, no. 1, pp. 32 952–32 982, 2018.
+[22] J.-h. Lee, K.-b. Kim, S.-m. Jung, and B.-H. Lee, “Industry 4.0: A
+gateway to manufacturing automation,” Sensors , vol. 18, no. 4, p. 1189,
+2018.
+[23] N. Braunisch, M. Ristin-Kaufmann, R. Lehmann, M. Wollschlaeger,
+and H. W. van de Venn, “Empowering industry 4.0 with generative
+and model-driven sdk development,” in IECON 2023- 49th Annual
+Conference of the IEEE Industrial Electronics Society , 2023, pp. 1–6.
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 12:32:10 UTC from IEEE Xplore.  Restrictions apply. 

@@ -1,0 +1,316 @@
+Page 1
+Typische SNMP-MIB-Objekte für industrielle
+Anwendungen
+Überwachung von Messdaten (Sensorwerte)
+In  industriellen  Umgebungen  werden  SNMP-MIB-Objekte  genutzt,  um  verschiedenste  Messdaten
+auszulesen – von Umweltparametern bis hin zu Prozesswerten. Wichtige OID-Gruppen und MIBs sind u.a.:
+ENTITY-SENSOR-MIB  (1.3.6.1.2.1.99 ): Standard-MIB (RFC 3433) zur Überwachung physischer
+Sensoren  eines  Geräts.  Sie  bietet  für  Temperatur ,  Spannung ,  Strom ,  Lüfterdrehzahl  usw.
+entsprechende  OIDs.  Ein  Sensorwert  wird  dabei  als  Integer  mit  zugehörigem  Einheitentyp  (z.B.
+celsius(8)  für °C) und Skalierung dargestellt . Beispiel: Ein Temperatursensor 0–100 °C mit 0,1°
+Auflösung  würde  einen  Wert  0–1000  liefern,  mit  SensorPrecision  1  und  SensorDataScale
+„units“ (entspricht Wert ×10) . Diese MIB wird von Netzwerkgeräten  (Router , Switches, Firewalls)
+genutzt, um Umgebungsbedingungen wie Gerätekühlung und -temperatur zu überwachen . In
+industriellen Steuerungen kann sie ähnlich verwendet werden, etwa um Gehäusetemperaturen oder
+Versorgungsspannungen auszulesen.
+HOST-RESOURCES-MIB  (RFC 2790): Standard-MIB zur Überwachung von  Systemressourcen  eines
+Geräts.  Sie  enthält  z.B.  hrProcessorLoad  (OID  .1.3.6.1.2.1.25.3.3.1.2 )  für  die  CPU-
+Auslastung  in % ,  hrMemorySize /hrMemoryUsed  für Speichergröße und -verbrauch, sowie
+hrDevice -Einträge für Gerätehardware. Datentypen sind typischerweise Integer32  (etwa 0–100
+für CPU-Last ) oder  Gauge32  für Größenzähler . In  Edge-Controllern  oder  Industrie-PCs  (z.B.
+Beckhoff CX, Siemens IPC) ermöglicht diese MIB die Überwachung der Systemauslastung (CPU, RAM)
+und damit präventive Wartung (z.B. Überhitzung durch CPU-Stress erkennen).
+IF-MIB  (1.3.6.1.2.1.2 ):  Standard-MIB  für  Netzwerkschnittstellen .  Hierüber  lassen  sich
+Messdaten  wie Schnittstellengeschwindigkeit ( ifSpeed ), aktuelle Bandbreite ( ifHighSpeed  für
+>2 Gb/s)  und  übertragenes  Datenvolumen  ( ifInOctets ,  ifHCInOctets  für  64-Bit-Zähler)
+auslesen .  Datentypen  sind  Counter32/64  für  kontinuierlich  hochzählende  Werte  (Bytes,
+Pakete) und  Gauge32 /Integer  für Zustände (z.B.  ifOperStatus ). In  industriellen Switches
+(etwa  Cisco  IE,  Hirschmann)  oder  Steuerungen  mit  Ethernet  dient  IF-MIB  zur  Messung  von
+Netzwerkverkehr und -qualität, was etwa bei IIoT-Gateways  relevant ist (z.B. Überwachung der Link-
+Auslastung einer Anbindung).
+Beispiel:  Hirschmann-Geräte  (Private  MIB)  –  Hirschmann  Industrial  Ethernet  Switches
+implementieren eigene MIBs (Enterprise-ID 248). Darin findet sich z.B. hmTemperature  als OID für
+die  Gerätetemperatur  in  °C  (Datentyp  Integer32 ) .  Zusätzlich  gibt  es  Schwellwerte
+hmTempUprLimit /hmTempLwrLimit  zur  Alarmierung  und  einen  Trap  hmTemperatureTrap ,
+falls die Temperatur außerhalb des zulässigen Bereichs liegt . Solche OIDs sind  typisch in• 
+12
+2
+3
+• 
+4
+5
+• 
+6
+• 
+7
+89
+1
+
+Page 2
+Industrie-Switches  mit erweiterten Umweltüberwachungen, um z.B. Überhitzung im Schaltschrank
+frühzeitig zu erkennen.
+Beispiel: Cisco Environmental MIB  –  Cisco  verwendet neben dem Standard-Entity-Sensor-MIB oft
+die  CISCO-ENVMON-MIB ,  die  Sensoren  für  Temperatur ,  Lüfter  und  Spannungen  bereitstellt.
+Beispielsweise  liefert  ciscoEnvMonTemperatureStatusTable  mehrere  Temperaturwerte  und
+Zustände (mit Datentypen INTEGER  für Grad Celsius und Status-Enums) und sendet automatisch
+Traps  bei  Übertemperatur .  Cisco  Industrial  Ethernet  (IE)  Switches  und  Router  stellen  darüber
+sicher ,  dass  Umgebungsdaten  wie  Schaltschranktemperatur  oder  Lüfterdrehzahl  per  SNMP
+überwacht werden können .
+Herstellerspezifische  I/O-MIBs  –  Viele  Remote-I/O -Module  und  SPS-Steuerungen  bieten  private
+MIBs für Prozessdaten. Beispielsweise stellt  WAGO  für seine Ethernet-Koppler neben MIB‑II eine
+WAGO-MIB  bereit .  Darüber  können  analoge  Eingänge  (z.B.  Strom/Spannungswerte)  als
+Gauge32  oder  skalierte  Integer  gelesen  werden  und  digitale  Eingänge  entweder  als  einzelne
+boole’sche INTEGER  (0/1) oder als Bitfeld (z.B. 16 Kanäle in einem 16‑Bit-Integer). Moxa ioLogik -
+Module bieten ähnlich eine SNMP-I/O-MIB , worin jede Klemme als OID abgebildet ist (Analoge Werte
+als Integer , Digitale als 0/1), sodass z.B. Sensordaten von Temperaturfühlern oder Drucktransmittern
+direkt  per  SNMP  abgefragt  werden  können.  Solche  MIBs  sind  branchenspezifisch,  aber  weit
+verbreitet in IIoT-Gateways  und Edge-Devices , um feldbusunabhängig Messdaten bereitzustellen.
+Steuerungsinformationen (Sollwerte, Betriebszustände)
+SNMP  wird  in  der  Industrie  nicht  nur  passiv  zum  Messen,  sondern  auch  begrenzt  zum  Steuern  und
+Konfigurieren  eingesetzt. Über bestimmte beschreibbare OIDs können Sollwerte  oder Modus-Einstellungen
+vorgegeben werden. Wichtige MIB-Objekte und Beispiele:
+IF-MIB  –  ifAdminStatus :  Neben  Monitoring  erlaubt  SNMP  auch  Eingriffe,  z.B.  über
+ifAdminStatus  (OID  .1.3.6.1.2.1.2.2.1.7 ).  Diese  Integer-OID  (Enum)  setzt  den
+administrativen Status  einer Netzwerkschnittstelle auf  up(1)  oder  down(2) . Dadurch kann man etwa
+einen  Port  eines  Managed  Switches  via  SNMP  abschalten  oder  einschalten .  Typische
+Anwendung: ferngesteuertes Deaktivieren eines Ports bei Fehlerzuständen oder Umschaltung von
+Netzwerktopologien. (Der aktuelle physische Status wird separat durch ifOperStatus  angezeigt.)
+Konfigurationsparameter  via  SNMP :  Viele  industrielle  Geräte  stellen  SNMP-Objekte  bereit,  um
+Betriebsmodi oder Einstellungen  remote zu ändern. Beispielsweise können bei  WAGO -Ethernet-
+Kopplern Parameter , die sonst in der Weboberfläche gesetzt werden, auch über SNMP verändert
+werden .  Dies  umfasst  etwa  IP-Adress-Einstellungen,  Watchdog-Zeiten  oder  Timeout-Werte
+(Datentyp meist  INTEGER  oder  OCTET STRING  für Texte). So kann ein zentrales Management-
+System Geräte konfigurieren, ohne jedes Web-Interface einzeln aufzurufen.
+Steuerungs-Sollwerte  in  SPS-MIBs :  Einige  SPS-Hersteller  haben  proprietäre  MIBs,  um  Prozess-
+Sollwerte  oder  Betriebsarten  abzubilden.  Zum  Beispiel  bietet  die  Siemens  Automations-MIB
+(1.3.6.1.4.1.4329.… )  OIDs,  die  den  RUN/STOP-Status  einer  SIMATIC-CPU  als  Enum
+bereitstellen oder die  Aktivierung von Diagnostikfunktionen  erlauben (etwa Schalten der Remanenz
+oder des Betriebsmodus). Ähnlich könnte ein Beckhoff  CX-Steuerungs-PC via SNMP einen „Operating• 
+10
+• 
+11
+• 
+12
+• 
+13
+• 
+2
+
+Page 3
+Mode“ OID haben, der zwischen  Auto ,  Manual  etc. umgeschaltet wird (Integer mit vordefinierten
+Werten). Solche OIDs sind typischerweise als  INTEGER  (mit Enums) oder  BITS definiert, um
+diskrete Zustände zu repräsentieren.
+Herstellerbeispiel: Hirschmann  – In den Hirschmann-Privat-MIBs gibt es viele steuerbare Objekte .
+Z.B.  hmIfaceFlowControl  erlaubt  pro  Port  das  Flusskontroll-Feature  zu  aktivieren  (1)  oder
+deaktivieren (2) . Ebenso lassen sich VLAN- oder QoS-Einstellungen über OIDs wie hmIfaceName
+(Portbeschreibung  setzen)  oder  hmIfaceTrunkID  konfigurieren .  Datentypen  sind  hier
+INTEGER  (Enums)  oder  DisplayString .  Typische  Geräte:  Managed  Industrial  Ethernet
+Switches  (Hirschmann, Cisco IE), bei denen SNMP zur Massenkonfiguration (z.B. via Skript) genutzt
+wird – etwa alle Ports 5–8 auf disable  setzen, indem die entsprechenden OIDs geschrieben werden.
+Beispiel: Systemnamen und Texte  – Selbst Standard-MIBs  enthalten steuerbare Infos: sysName.0
+(aus MIB-II) ist ein  OCTET STRING , der den  Gerätenamen  hält. Dieser kann via SNMP  GET/SET
+gelesen  und  geändert  werden.  Im  Beckhoff-SNMP-Beispiel  wird  auf  eine  Abfrage  von  .
+1.3.6.1.2.1.1.5.0  (sysName)  der  Wert  "BECKHOFF_DEVICE"  zurückgegeben .  Ähnlich
+lassen sich Standort ( sysLocation.0 ) oder Kontaktinfo ( sysContact.0 ) setzen. Datentyp ist
+hier  eine  Zeichenkette.  Dies  ist  zwar  kein  direkter  Steuerungswert  für  den  Prozess,  aber  eine
+verwaltende Information , die oft über SNMP angepasst wird (z.B. um den Schaltschrank oder die
+Liniennummer im Gerätenamen zu hinterlegen).
+Digitalausgänge schalten  – Einige I/O-Geräte erlauben das Setzen digitaler Ausgänge  via SNMP.
+Etwa könnte ein OID  .1.3.6.1.4.1.{Hersteller}.…  den Zustand eines Relais als  INTEGER 
+(0=Aus,1=Ein)  repräsentieren.  Durch  SNMP-Set  auf  1  kann  ein  Aktor  aktiviert  werden.  Moxa
+ioLogik -Module bspw. bieten pro DO-Kanal eine OID, die man auf 1 setzen kann, um den Ausgang
+zu schließen. Das eignet sich für einfaches Fernwirken  (z.B. Reset eines Geräts über einen SNMP-
+gesteuerten Relaisausgang). Aufgrund von Sicherheit und zeitkritischer Deterministik wird SNMP
+hierfür aber nur in begrenzten Fällen eingesetzt (meist bei nicht-sicherheitskritischen Aktionen oder
+wenn kein anderes Protokoll verfügbar ist).
+Fehler- und Alarmmeldungen (Störungen, Alarme)
+Für Störungsmeldungen und Alarme  stellen SNMP-Agenten spezielle OIDs und Mechanismen bereit. Dies
+umfasst  sowohl  Statusobjekte ,  die  angeben,  ob  ein  Fehler  vorliegt,  als  auch  Trap-Nachrichten
+(Notifications), die aktiv versendet werden. Wichtige Konzepte und MIBs:
+SNMP  Traps  (Notifications) :  Traps  sind  spontane  Meldungen  vom  Agent  an  den  Manager  bei
+bestimmten Ereignissen. Standard-Traps nach RFC 1157 sind z.B.  coldStart  /  warmStart  (Neustart
+eines  Geräts)  und  linkDown/linkUp  bei  Schnittstellen .  In  industriellen  Geräten  werden  diese
+genutzt,  um  Kommunikationsfehler  (z.B.  Link-Ausfall  an  einem  SCALANCE-Switch)  sofort  zu
+melden. Viele Geräte senden auch einen Trap bei SNMP-Authentifizierungsfehlern  (unbefugter Zugriff)
+. Produkt-spezifische Traps  erweitern das: Ein Redundanz-Manager  (Ringmanager) sendet Trap,
+wenn  er  einen  Ring  offen  oder  wieder  geschlossen  hat;  bei  Umschalten  von  Primär-  auf
+Reserveleitung wird ein Trap erzeugt; ein Trap kommt, wenn sich ein Geräte- Fehlerstatus  ändert
+(z.B. Fehler-LED an/aus) oder wenn die Stromversorgung  ausfällt bzw. zurückkehrt . Diese traps
+informieren zentral, ohne dass der Manager ständig abfragen muss.• 
+14
+15
+• 
+16
+• 
+• 
+17
+17
+18
+3
+
+Page 4
+DISMAN-EVENT-MIB  /  RMON-Alarm :  Für  Schwellwertüberwachung  definieren  die  Distributed
+Management  MIBs  (DISMAN)  und  RMON  MIB  Mechanismen,  mit  denen  der  Agent  selbst  OIDs
+beobachten kann. Beispielsweise kann per RMON Alarm-Tabelle  ein Grenzwert für eine OID (etwa
+Temperatur) konfiguriert werden; überschreitet der Wert den Grenzwert, generiert der Agent einen
+vordefinierten Alarm-Trap . Die DISMAN-EVENT-MIB  (OID-Bereich .1.3.6.1.2.1.88 ) bietet ein
+allgemeines  Framework:  Man  kann  im  Agent  sog.  mteTrigger  definieren  –  z.B.  “wenn
+entPhySensorValue > 70°C , führe Event aus” – und als Event entweder einen Trap senden oder
+eine  OID  setzen .  Dadurch  können  Übertemperaturen,  Grenzwertverletzungen  oder
+Ausfälle  autonom gemeldet werden, ohne dass die Leitwarte ständig pollen muss. Datentypen hier
+sind  Konfigurationstabellen  (Integer  für  Intervall,  Vergleichsoperator  etc.).  –  Hinweis:  Siemens
+empfiehlt dennoch, SNMP-Traps nur ergänzend zu verwenden und kritische OIDs regelmäßig per
+Polling zu überwachen, da Traps via UDP unbestätigt sind .
+ALARM-MIB (RFC 3877) : Diese standardisierte MIB modelliert aktive Alarme  in Tabellenform. In der
+alarmActiveTable  steht  pro  aktivem  Alarm  ein  Eintrag  mit  Details  wie  Alarm-ID,  Schweregrad,
+Beschreibung  usw. .  Geräte,  die  viele  gleichzeitige  Störmeldungen  haben  können  (z.B.
+Telekommunikationssysteme,  aber  auch  Leitsysteme),  nutzen  dies,  um  dem  SNMP-Manager  alle
+anstehenden  Störungen  mit  Prioritäten  bereitzustellen.  Ein  industrielles  Beispiel  wäre  ein
+Energiemanagement-System,  das  Überstrom,  Übertemperatur  und  Kommunikationsfehler
+gleichzeitig  als  separate  Alarme  führt.  Datentypen  sind  hier  z.B.  Integer32  für  Schweregrad
+(Mapping  auf  Severity  like  minor=10,  major=20,  critical=30)  und  OCTET STRING  für  die
+Alarmbeschreibung. Die ALARM-MIB ermöglicht es dem Manager , Alarme ähnlich einer Alarmliste in
+der SCADA zu behandeln (Quittierung, Historie in alarmHistoryTable etc.).
+Bitfeld-Indikatoren  für  Störungen :  Oft  fassen  Hersteller  mehrere  Binär-Zustände  in  einem
+einzigen  OID  zusammen,  als  Bitmaske .  Beispiel  aus  der  Standardwelt:
+hrPrinterDetectedErrorState  (aus  Printer-MIB)  codiert  Druckerfehler  (Papier  leer ,  Toner
+niedrig,  Tür  offen  etc.)  als  Bits  in  einem  Octet-String .  Jeder  Bitwert  1  signalisiert  einen
+bestimmten  Fehlerzustand.  Ähnlich  verfahren  industrielle  Controller:  Eine  SPS  könnte  ein
+Fehlerregister als Integer bereitstellen, wobei z.B. Bit0=Not-Halt aktiv, Bit1=Thermische Überlast,
+Bit2=Kommunikationsfehler usw. Der  Datentyp  ist meist  OCTET STRING  mit Bitfeld (SNMP BITS
+Syntax) oder ein unsigniertes Integer , das binär auszuwerten ist. Vorteil: Viele Statusmeldungen in
+einem OID  (spart Bandbreite und OID-Abfragen). Nachteil: Der Manager muss die Bits dekodieren,
+idealerweise  mit  passender  MIB-Beschreibung.  –  Bitmuster-OIDs  eignen  sich  besonders,  um
+kompakte Störmeldungen  zu gestalten, etwa ein 16-Bit-Wort für 16 digitale Fehler-Eingänge an
+einer Maschine. 
+Hersteller-Traps und -OIDs : Über die bereits genannten hinaus definieren Hersteller oft eigene
+Alarm-OIDs.  Hirschmann  etwa  besitzt  in  HM2-DIAGNOSTIC-MIB  Objekte  für  Fehlersignale  und
+zugehörige  Traps  (z.B.  hmPowerSupplyTrap  für  Ausfall  einer  redundanten  Versorgung).  Cisco
+Switches  senden  über  CISCO-ENVMON-MIB  eigene  Traps,  z.B.
+ciscoEnvMonTemperatureNotification  bei  Übertemperatur ,  oder
+ciscoEnvMonFanNotification  bei Lüfterausfall – dabei werden in der Trap-Nachricht OID-Werte
+mitgesendet,  die  angeben  welcher  Sensor  ausgefallen  ist .  Siemens  Scalance -Switches
+unterstützen  PROFINET -Alarmintegration:  Sie  setzen  interne  SNMP-Traps  ab,  wenn  z.B.  ein
+PROFINET-Nachbar ausfällt (entsprechend dem LLDP-basierten Neighborhood-Alarm). Diese traps
+können von entsprechenden Netzwerkmanagement-Tools (z.B. SINEMA) ausgewertet werden. Kurz:• 
+19
+2021
+2223
+• 
+24
+• 
+2526
+• 
+10
+4
+
+Page 5
+Jedes Ökosystem hat spezifische Alarm-OIDs, aber alle folgen ähnlichen Mustern –  Zustands-Flags , 
+Zähler für Fehlerereignisse  oder Ereignistabellen .
+Empfehlungen für OID-Typen und Einsatz
+Abschließend einige Empfehlungen, welche SNMP-OID-Typen sich wofür eignen :
+Gauges für kontinuierliche Werte : Analoge Messgrößen wie Temperatur, Druck, Füllstand  sollten als
+Gauge32/Integer32  dargestellt werden, da diese Werte auf und ab gehen  können. Gauges (nicht-
+monotone Zähler) erlauben direkten Abgriff des aktuellen Werts. Beispiel: Temperatur über ENTITY-
+SENSOR-MIB – hier liefert  entPhySensorValue  direkt den momentanen Temperaturwert, ggf.
+skaliert . Gauges eignen sich auch für Prozentwerte (0–100%) wie CPU-Last  oder Tankfüllstand .
+Für höhere Auflösung oder Bereiche >4 Mrd. kann  Gauge64  (Counter64 ohne Wrap) verwendet
+werden, wird aber seltener unterstützt.
+Counter  für  summierende  Größen :  Laufende  Zähler  ( Counter32/64 )  sind  ideal  für
+Ereigniszählungen  oder Durchsatzmessung. Netzwerkbytes, Anzahl gefertigter Teile, Laufzeitzähler
+etc. können so erfasst werden. Ein Counter läuft monoton hoch (bis Overflow) – z.B. ifInOctets
+zählt  empfangene  Bytes  seit  Start.  Der  Manager  ermittelt  Differenzen  über  die  Zeit,  um  z.B.
+Durchsatz zu berechnen. Für Trendverläufe  (z.B. Gesamt-Stückzahl pro Stunde) sind Counter robust,
+da Zwischenausfälle nur einen Stillstand des Zählers bewirken.
+Bits/Bitfelder  für  multiple  Status :  Wenn  viele  binäre  Zustände  gleichzeitig  vorliegen  können
+(verschiedene  Alarmleuchten,  digitale  Eingänge),  ist  ein  Bitfeld  in  einer  OID  effizient.  Statt  32
+einzelne OIDs für 32 Fehler nutzt man z.B. einen 32-Bit-Integer . Dieses Bitmuster  lässt sich per MIB
+eindeutig definieren – etwa „Bit0 = Fehler A, Bit1 = Fehler B, …“ . Managersoftware kann mittels
+MIB diese Bits zu lesbaren Alarmen auflösen. Diese Technik wird insbesondere bei  Alarm- und
+Störmeldungen  empfohlen, um kompakt zu bleiben. Beispiel: Ein SPS-Statuswort  als SNMP-OID, in
+dem  jedes  Bit  einen  Hardware-Status  der  Steuerung  codiert  (wie  bei  vielen  Siemens/Beckhoff
+Steuerungen üblich).
+Enumerations für Modi/Zustände : Betriebsarten, Sollwertstufen oder logische Zustände sollten als
+ENUM-Integer  abgebildet werden. Das erleichtert Lesbarkeit (“1 = Auto, 2 = Hand, 3 = Service” in der
+MIB-Dokumentation).  SNMP  unterstützt  dies  nativ  durch  INTEGER  mit  Aufzählungen.  Z.B.
+ifAdminStatus  nutzt  1=up, 2=down ; eine SPS könnte  1=Run, 2=Stop  verwenden. Wichtig ist,
+dass die möglichen Werte und ihre Bedeutung in der MIB klar beschrieben sind, sodass SCADA/
+Monitoring-Tools die Zustände direkt benennen können. Setzbar  sollten solche OIDs nur gemacht
+werden, wenn ferngesteuertes Umschalten sicher und gewollt ist.
+Traps vs. Polling : Für zeitkritische  Fehleralarme  empfehlen sich SNMP-Traps, damit das Ereignis
+ohne  Verzögerung  gemeldet  wird  (z.B.  Netzwerkverbindung  ausgefallen  –  sofort  linkDown-Trap
+senden). Allerdings müssen Trap-Empfänger eingerichtet und UDP-Verluste bedacht werden .
+Daher gilt: Traps für unmittelbare Benachrichtigung, Polling für robuste Erfassung.  Ein Mix ist ideal – z.B.
+sendet ein Industrie-Switch Trap bei Ringbruch, und das NMS überprüft im 60s-Takt dennoch den
+Ring-Status per OID, um Verlorengegangenes aufzufangen.• 
+2 4
+• 
+• 
+25
+• 
+12
+• 
+22
+5
+
+Page 6
+Zusammenfassung : SNMP bietet eine Fülle an MIB-Objekten für industrielle Zwecke. Umwelt- und
+Sensordaten  nutzt  man  über  Gauge/Integer-OIDs  (ggf.  ENTITY-SENSOR-MIB)  für
+Verlaufsüberwachung.  Steuerungs-  und  Konfigurationswerte  setzt  man  per  beschreibbaren
+Enums oder Integer (vorsichtig eingesetzt, oft herstellerspezifisch). Störungen und Alarme  meldet
+man  effizient  über  bitkodierte  Status-OIDs  und  Traps  bei  Änderungen.  Diese  Kombination  –
+regelmäßiges  Auslesen  wichtiger  OIDs  plus  definierte  Alarm-Traps  –  gewährleistet  eine  robuste
+Überwachung von Temperatur , Strom, Druck etc., die Integration von  Steuerungsinformationen
+(wie  Betriebsmodi  oder  Sollwerte)  und  das  rechtzeitige  Erkennen  von  Fehlerzuständen  im
+Industrieumfeld.
+Quellen:  SNMP-Standard-MIBs (RFC 3433, 2790, 2863, 3877, 2981), Hersteller-MIB-Dokumentationen (Cisco,
+Hirschmann, WAGO, Beckhoff), sowie Praxisleitfäden 等. • 
+2718
+341725
+6
+
+Page 7
+NetconfCentral: 
+https://www.netconfcentral.org/modules/CISCO-ENTITY-SENSOR-MIB/2015-01-15/typedefs/
+ENTITY-SENSOR-MIB
+https://docs.paloaltonetworks.com/pan-os/11-1/pan-os-admin/monitoring/snmp-monitoring-and-traps/supported-mibs/entity-
+sensor-mib
+HOST-RESOURCES-MIB
+https://docs.paloaltonetworks.com/pan-os/11-1/pan-os-admin/monitoring/snmp-monitoring-and-traps/supported-mibs/host-
+resources-mib
+OID 1.3.6.1.2.1.25.3.3.1.2 hrProcessorLoad reference info
+https://oidref.com/1.3.6.1.2.1.25.3.3.1.2
+IF-MIB
+https://docs.paloaltonetworks.com/pan-os/11-1/pan-os-admin/monitoring/snmp-monitoring-and-traps/supported-mibs/if-mib
+Free Mib Browser Online
+https://mibbrowser .online/mibdb_search.php?mib=HMPRIV-MGMT-SNMP-MIB
+How To Get the Environment Temperature on a Catalyst 6500/6000 ...
+https://www.cisco.com/c/en/us/support/docs/ip/simple-network-management-protocol-snmp/13505-show-env-temp-c6500.html
+Handbuch 750-352
+https://www.farnell.com/datasheets/1788122.pdf
+Sample: SNMP Get request
+https://infosys.beckhoff.com/content/1033/tcpipserver/11383872651.html?id=6445338876242597770
+Diagnostics and configuration with SNMP
+https://support.industry.siemens.com/cs/attachments/103949062/DH_SNMP_76.pdf
+Manager settings - ReversingLabs Product Documentation
+https://docs.reversinglabs.com/SpectraDetect/5.2.1/Admin/ManagerSettings/
+DisMan Event MIB - SNMP-AGENTS V1.1 (en)
+https://bs2manuals.ts.fujitsu.com/psSNMPAGENTSV11en/disman-event-mib-snmp_en-2024-06-51-5305090.html
+alarm-mib - Observium MIB Database
+https://mibs.observium.org/mib/ALARM-MIB/
+powershell - How to read SNMP OID Output (bits) (hrPrinterDetectedErrorState) - Stack Overflow
+https://stackoverflow.com/questions/27054622/how-to-read-snmp-oid-output-bits-hrprinterdetectederrorstate1 2
+3
+4
+5
+6
+7 8 912 14 15
+10
+11 13
+16
+17 18 19 22 23 27
+20
+21
+24
+25 26
+7

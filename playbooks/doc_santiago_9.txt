@@ -1,0 +1,403 @@
+Page 1
+ 
+978-1-7281 -1268 -8/19/$31.00 ©2019 IEEE  The role of comprehensive function models in the 
+managem ent of heterogeneous industrial  networks  
+ 
+Santiago Soler Perez Olaya , Martin Wollschlaeger  
+Chair of Industrial Communications  
+Institute of Applied Computer Science  
+Technische Universität Dresden  
+Dresden, Germany  
+{santiago.soler , martin.wollschlaeger} @tu-dresden.de  
+ 
+Abstract  — The current tren ds in i ndustry  require more 
+interconnectivity, interoperability and flexibility to adapt to 
+continuous optimizat ion of the production processes . In this 
+landscape , industrial evolution prompts the need for a 
+management concept capable of dealing with the heterogeneity . In 
+the future with the incoming Industrial Internet of Things and 
+other disruptive approaches , this demand will grow dramatically . 
+The comprehensive function models for the management of 
+heterogeneous industrial networks represent a domain specific 
+abstraction . This abstraction  enable s the development of holistic 
+management approaches that can deal with the heterogeneity  in 
+the management plane.  In thi s way , they offer  a solution for the 
+future problems of the management of industrial network s 
+regarding of the enhancement  needed to perform the new trends 
+driven by the Factories of the Future and the “Industrie 4.0 ”. 
+Keywords —network management, industrial heterogeneous 
+networks, comprehensive management function models , meta -model  
+I. INTRODUCTION  
+Nowadays there is a big effort ongoing towards the evolution 
+of the  industrial value chains and productive environments. In 
+Europe,  it is founded by the investments in Horizon 2020 
+including the Factories of the Future  (FoF)  Public -Private 
+Partnership  [1] of the EU Commission and by the “Industrie 
+4.0” (I40)  [2] of the Federal Mi nistry of Education and Research  
+in Germany . 
+Another evolution trend in i ndustry is the use  of the Internet 
+of Things approach in the so-called  Industrial Internet of Things 
+(IIoT)  [3] [4]. The basic idea of IIoT is to deploy a parallel 
+network of sensors  [5] through the production facilities, ma inly 
+with the purpose of getting  information in real time with a 
+flexible degree of precision  and diversity. For example, 
+temperature and motion sensor s can be used to gather decisive 
+information relativ e to maintenance and process optimization. 
+This approach is very promising but it also represents a 
+challenge to the management of the network in the production 
+facility, as it  increase s the amount of active nodes in the network 
+significantly.  
+This paper explains the role of the comprehensive  
+management  function models  (CMFM)  in the management of 
+heterogeneous industrial networks  (HetIndNets) . These CMFM s are a domain specific abstraction of the management tasks . They  
+are a key enabler for the management of HetIndNets  by aiming 
+to enhance the interoperability in the management plane.  This 
+interoperability is indispensable to have a future ready network 
+management . 
+This paper is s tructured in five sections. Section II gives an 
+overview of the state of the art focusing on the different aspects 
+relevant for the network m anagement in industrial domain . 
+Section III elaborates the main concept of the CMFMs  as well 
+as their meta -model  and relevance in the man agement of 
+HetIndNet s. Section IV offers a practical use-case taking 
+advantage of the CMFM s approach. Section V closes the 
+document with the conclusions and further steps of this research.   
+II. STATE OF THE ART 
+Today’s industrial systems grow with further digitalization 
+and face the problem of increasing  heterogeneity . The fieldbuses 
+were developed to address the needs of information exchange 
+inside a closed domain. There are two main reasons for this 
+closeness  that nowadays persist: firstly, the optimization of the 
+communication resources , and secondly, the security issues of 
+an unencrypted standardized  sensible data transfer.  
+The approach of IIoT avoids the restrictions of the legacy 
+industrial communication systems  by deploying new sensor 
+networks that take advantage of state of the art communication 
+technologies and deliver real time measurements  of the 
+production process in parallel to the fieldbus, thus not interfering 
+with the functioning of the productive facility  (given 
+electromagnetic compatibility is provisioned ). This circumvents 
+the interoperability prob lem and allows the use of predictive 
+maintenance and optimization techniques  at the business level . 
+However, it also increases the heterogeneity  of the system and it 
+does not solve the management problem.  
+A. Network Management in Industry  
+The network management in industry is in most cases an 
+integrated part of the system management.  The separation of 
+data, control, and management plane – nowadays state of the art 
+in the IT communication systems – is inexistent  in the  
+implementation of legacy industrial systems . In addition, the 
+management interfaces used in the industrial domain  are usually 
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:31:35 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 2
+ 
+ proprietary and remain exclusively for the use of own tools of 
+the manufacturer/provider of the hardware . 
+Besides exchange of pro cess data, t he communication is also 
+used for example for synchronization or as heartbeat of the 
+industrial application. Some timing decisions about the 
+communication are  often  related to the control cycle of the 
+control  applications – motion, temperature, etc.  By doing so, the 
+field devices can remain simple and the intelligence is kept in a 
+central node  of the industrial application, the Programmable 
+Logic Controller ( PLC). It is responsible for  the correct timing 
+of th e signals and actions while some simple  field devices just 
+react to the communication without caring about further 
+synchronization or correctness.  As t he boundary between 
+application and network is inexistent,  the abstraction or 
+substitution of the communi cation technology is a challenge in 
+the best cases.  
+Furthermore, t o ensure the correct functioning and timing of 
+the industrial application, the network configuration is designed 
+in the engineering phase  of the production facility and remains 
+largely uncha nged until the next modification of the system in a 
+further engineering phase. This provides some level of 
+robustness very appreciated in i ndustry. However, it also keeps 
+the system away from the flexib ility desired by the new 
+industrial trends . The interc hange of modules in a productive 
+system in runtime is something unthinkable without huge 
+previous efforts in the engineering phase. Only what is 
+previously planned up to the last detail can be achieved with the 
+current legacy industrial technologies. The m anagement of the 
+network in runtime is performed by the PLC in the role of master  
+of the fieldbus, following  the preprogrammed configuration . 
+This fact also represents an issue for the separation of network 
+and system management.   
+A big effort of I40 is to harmonize the access to management 
+and engineering -related data and functions in industry. Every 
+valuable thing for the value chain is an “Asset” in I40. An Asset 
+shall have an Asset Administration Shell  (AAS)  [6] that 
+accompanies  it at least for a given period of its life cycle. An 
+Asset can/should have many AAS that contain and manage the 
+information relevant to it and are responsible of aiding in the 
+interaction between the asset and its environment.  The AAS 
+shall manage this interaction using an I40 yet -to-standardize 
+communication service and still-not-listed partial models that 
+describe the capabilities and requirements of the asset. The list 
+of management functions or services offered by the AAS 
+approach is a lso yet to define.  
+B.  Network Management Systems  
+There are many network management systems. Most  of 
+them, like the Management framework for Open Systems 
+Interconnection  (OSI Management) [7], are standards coming 
+from the IT branch. Other s, like Fieldbus Management in 
+PROFIBUS  [8], are integral part of industrial systems.  
+Regarding their diversity, the majority of the  network 
+management systems have in common that they define 
+functions, operations,  or methods.  Some of these  are listed  in 
+Table  1. Another common point of the  netwo rk management 
+systems is the use  of managed objects to repres ent the 
+management information. Many of these functions  were designed to operate  the managed objects  that represent with 
+some level of abstraction the real devices or part of the real 
+devices that they are intended to manage.  
+The managed objects represent another issue  for the 
+interoperability between different systems . Even when the 
+management functions were the same, the managed objects are 
+in many cases  differ ent from one system to another, also  from 
+one vendor to another in the same type of devices . The  
+communication systems are no exception to this.  One of the most 
+widespread  management protocols  is the Simple Network 
+Management Protocol (SNMP). Its acceptance relies on its 
+simplicity. Nevertheless , even with SNMP compatible devices, 
+the interoperability  in the management plane  depends on the 
+compatibility of the managed information base implemented  in 
+the different devices.  
+III. COMPREHENSIVE MANAGEMENT FUNCTION MODELS  
+As already explained in the previous section, the 
+heterogeneity in the mana gement plane is present and will grow 
+in the future. To master this heterogeneity , we propose the use 
+of a meta -model capable of representing the knowledge needed 
+to perform management tasks in a specific domain. This paper 
+focuses on the industrial automation domain.  
+ 
+Fig. 1 Human -centered concept of comprehensive  management  function 
+models. The network manager knows what functions and information  are 
+needed in each network to perform a given management operation.  
+The CMFM  – briefly introduced in  [9] – is a human centered 
+concept. For a visual concept of it, see Fig. 1. The main idea is 
+that the person r esponsible of the network management knows 
+what management operations are required in a given context.  
+This person thinks about the management operations in an 
+abstract way  – represented by the arrow blocks in the think 
+bubble in the picture . With some experience and knowledge 
+about different network management systems, the network 
+manager  is able to translate his  abstract concept of management 
+to the different known network management systems in order to 
+execute them.   
+A very simple example would be to set the network address 
+of a device. In a  PROFIBUS,  it just would be required to know 
+which variable to set via a set command. In a network with Web 
+Based Enterprise Management ( WBEM ) [10], it would be as 
+easy as to set the correct property of the correct objec t in the 
+object tree.  On the other hand, with SNMP the network address 
+is read -only in the standard community Management 
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:31:35 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 3
+ 
+ Information Base (MIB) and can only be changed if the 
+enterprise MIB of the manufacturer offers this functionality  and 
+if it is known where /how . 
+This abstract understanding of the management operations is 
+the core of the  “Comprehensive Management Function Models” 
+(CMFM). From the point of view of the network manager, the 
+goal of the management operations is decisive. It is likewise 
+important to kno w what information is required to execute the 
+management operations, as well as, the output information 
+expected. In a first draft, the C MFMs consist of – at least – a 
+goal, the required information, and the expected output 
+information.  The management func tions, operations, and 
+methods  presented in Table  1 are the basis for the different 
+management systems. Actually, all of them perform the 
+management operations needed by the corresponding network. 
+If the goal of a group of  function s is the same, i.e. management, 
+then it has to be possible to find equivalences between the 
+different groups . In a closer look, i t is easy to realize that 
+“InvokeMethod” [11] from WBEM  and “invocation of stateless 
+and/or state -oriented functions” of PROFIBUS [8] follow t he 
+same goal.  SNMP pres ents no direct equivalent , but it is also 
+capable of triggering a function in a node. This is , in a very 
+simple example,  where the CMFM  can help to deal with the 
+heterogeneity in the management plane.  
+To achieve a given goal a set of management functions w ill 
+be required. This set of management functions depends on the 
+actual network management system used. For example, to 
+trigger a reset in a field device using WBEM a procedure call 
+will suf fice, while in a field device using SNMP a value has to 
+be written  in the correct variable of the Management Information 
+Base (MIB). For the network manager , it remains the same goal 
+of resetting a field device regarding of the management system.  
+The required information is, following the example of resetting 
+a field dev ice, for instance the identifier or address of the 
+targeted field device. Other possibly required information for 
+this example could be the accreditation information in case of 
+implemented security countermeasures. The expected output 
+information would be in this example a confirmation of the reset 
+or rather a notification of the failed operation.  
+The management of heterogeneous industrial networks can 
+be abstracted to the management of a network of networks. An 
+industrial production facility normally  presents many different 
+networks. The office uses standard IT networks while the shop floor can usually consist of different  legacy industrial 
+communication systems. Connecting all of them together will 
+result in a network of networks.  However, there is th e handicap 
+that some of these networks – the legacy industrial communic -
+ation systems – were not designed to interoperate with other 
+technologies . They  remain robust systems far away from the 
+flexibility required by the curren t trends in i ndustry  [12]. In this 
+constellation of new and old working together, the network 
+management will play a central role that has been relegat ed to 
+the engineering tools in i ndustry for too long. The concept of the 
+management of a network of network s relies on the possibility 
+of access the different network management syst ems with a 
+seamless integration, enabling it to become a holistic 
+management approach. The goal is to manage the network of 
+networks , as it was a single network . To achieve this goa l, it is 
+imperative to reach a sufficient level of abstraction that will 
+enable a network manager functionality to perform the required 
+orchestration throughout the network of networks.  The approach 
+of the C MFM aligns very well with the idea of interpreter 
+presented in [13] but focusing on the management plane . 
+Identifying the equivalences from each management system to 
+the core of C MFM will ease and accelerate the development of 
+holistic management systems  for specific domains . 
+IV. USE-CASE  
+A very probable situation in the future industrial 
+development will be that a facility based on a legacy industrial 
+communication system will be expanded with an IIoT sensor 
+network for predictive ma intenance and early error recognition. 
+This IIoT network is connected to the main IT network, e.g. 
+TCP/IP over Ethernet, used in the office. Assuming that the 
+legacy industrial communication system is a PROFIBUS, the 
+only connection to the upper levels of the automation pyramid is 
+the Ethernet port of the PLC for programming and debugging 
+purposes, if it exists.  
+Under the assumption that a  company builds many  
+production facilities with the same blueprint  for economic 
+reasons , they could be connected to a management and 
+maintenance central office – operations office  – see Fig. 2.  
+The operations office has to deal with three different 
+management systems, i.e. the WBEM or SNMP of the IT 
+network of the office, the IIoT management system that could be 
+for example NETCONF, and the Fieldbus Management of the TABLE  1 NETWORK MANAGEMENT SY STEMS AND THEIR FUNC TIONS , OPERATIONS , AND/OR METHODS  
+Network  Management  
+System  Functions/Operations/Methods  
+OSI Management  M-Create, M -Delete, M -Action, M -Set, M -Get, M -Event_Report  
+WBEM  GetInstance, DeleteInstance, ModifyInstance, CreateInstance, OpenEnumerateInstances, OpenAssociators, OpenReferences, 
+OpenQueryInstances, PullInstancesWithPath, PullInstances, CloseEnumeration, InvokeMethod, InvokeStaticMethod, GetClass, 
+DeleteClass, ModifyClass, CreateClass, EnumerateClasses, AssociatorClasses, ReferenceClasses, GetQualifierType, 
+DeleteQualifierType, Mod ifyQualifierType, CreateQualifierType, EnumerateQualifierTypes  
+SNMP  GetRequest, GetNextRequest, GetBulkRequest, Response, SetRequest, InformRequest, SNMPv2 -Trap, Report  
+PROFIBUS  FMA1/2: Reset, Set -Value, Read -Value, Event , Ident -Loc, SAP -Activate, RSAP -Activate, SAP -Deactivate, LSAP -Status, Live -List, 
+Ident , LSAP -Status  
+MS2: acyclic read and write of variables, up - and/or download of LR Data, invocation of stateless and/or state -oriented functions  
+MM1: upload and download for configuration information, upload of diagnosis information, activation of the previously transferred 
+configuration  
+ 
+ 
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:31:35 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 4
+ 
+ PROFIBUS. The C MFMs encapsulate the expertise of the 
+network /system engineers  for this specific domain , enabling the 
+development and integration of future communication systems 
+with reduced effort.  
+ 
+Fig. 2 Network structure described in the Use -Case section of this paper.  
+We assume that a t some point in time, the IIoT sensor 
+network  will show a better accuracy than the sensors connected 
+to the PROFIBUS. Using a proxy  or gateway , the IIoT network 
+can deliver more accurate information than that  preform  
+provided by the old sensors to the control loops  in the  PLC. An 
+illustrating example  in this use -case is the monitoring of the 
+communication jitter or end-to-end (E2E) delay, from the IIoT 
+sensor network to the PLC in the legacy industrial 
+communication system. This monitoring would be only possible 
+by accessing the management of the industrial network to  follow 
+up the delivery of the information. To calculate the total delay it 
+is imperative to gather monitoring information of both networks . 
+Here is where a CMFM monitor E2E delay would help by 
+gathering the knowledge and information necessary to monitor 
+the corresponding delay in both management systems. With this 
+knowledge properly modeled and represented, a management 
+system could automatically gather the required information and 
+perform the required operations to get the total E2E delay of 
+concern.  Othe r motivation to make use of a holistic management 
+is the possibility of expanding the flexibility of the industrial 
+system with the help of proxies to encapsulate and digest the 
+changes that the industrial system is not able to realize without 
+exhaustive e ngineering.  
+V. CONCLUSIO N 
+The steady developments of Ethernet with the Time 
+Sensitive Networking task force promise a seamless coexistence 
+of all communication requirements in the same network. The 
+implementation of this new technology  in the industrial facil ities 
+is however a very complex task. The existence of still running 
+facilities with legacy industrial communication systems explains 
+the need of interoperability in a brown field situation . This 
+integration will require also a roadmap to ensure the viabil ity and 
+secure the success of such evolution. The interoperability in the 
+data plane  can achieve a seamless communication as well 
+vertically as also horizontally in the whole automation pyramid.  
+Nevertheless, the challenge of the management of heterogeneou s 
+industrial networks  remains . In this topic,  the CMFM s represent a simple but powerful solution to guarantee not only the 
+manageability of the current systems but also the seamless 
+integration of future communication technologies and concepts 
+yet to come.  
+Further investigation will be required to establish the 
+approach of the CMFMs . Under the next steps,  follow the listing 
+of domain specific required and optional CMFMs.  The use of 
+semantics and ontologies, in combination with interoperability 
+approaches, is the most probable way to the successfully 
+implementation of holistic managements systems w here the 
+CMFMs play a central role.  
+ACKNOWLEDGMENT  
+This work was partially fu nded by the German Federal 
+Ministry of Education and Research as part of the research 
+project “Future Industrial Network Architecture “(FIND).  
+REFERENCES  
+[1]  European Commission, "FACTORIES OF THE FUTURE - 
+Multi -annual roadmap for the contractual PPP under Horizon 2020," 
+Publications Office of the European Union, Luxembourg, 2013.  
+[2]  BMWi, "Industrie 4.0 und Digitale Wirtschaft," 2015. [Online]. 
+Available: http://www.bmwi.de/. [Accessed 2015].  
+[3]  M. Wollschlaeger, T. Sauter and J. Jasperneite, "The Future of 
+Industrial Communication: Automation Networks in the Era of the 
+Internet of  Things and Industry 4.0," IEEE Industrial Electronics 
+Magazine, pp. 17 -27, 1 11 2017.  
+[4]  Klettner, Christian et. al., „Namur Open Architecture,“ atp magazin, 
+pp. 20 -37, 09 03 2017.  
+[5]  NAMUR, NE 133 - Wireless Sensor Netzwerke: Anforderungen an 
+die Konvergenz der verfügbaren Standards, 2010.  
+[6]  Platform Industrie 4.0, "Structure of the Administration Shell," 2016. 
+[Online]. Available: https://www.plattform -
+i40.de/I40/Redaktion/EN/Downloads/Publikation/structure -of-the-
+administration -shell.html. [Accessed 30 04 2018].  
+[7]  ISO/IEC JTC 1, ISO/IEC 10040: Information technology - Open 
+systems interconnection - Systems management overview, 
+International Electrotecnichal Commission, 1998.  
+[8]  TC 65/SC 65C - Industrial networks, IEC 61158 -1:2014: Industrial 
+communication networks - Fieldbus specifications - Part 1: Overview 
+and guidance for the IEC 61158 and IEC 61784 series, International 
+Electrotechnical Commission, 2014.  
+[9]  S. Soler Perez  Olaya, "Comprehensive function models for the 
+management of heterogeneous industrial networks as enabler for 
+interoperability," I-ESA 2018 Berlin, Mar 2018.  
+[10]  Distributed Management Task Force, Inc., "DSP0198: WBEM 
+Glossary," 2014. [Online]. Availab le: 
+https://www.dmtf.org/sites/default/files/standards/documents/DSP019
+8_1.0.0.pdf. [Accessed 2018].  
+[11]  Distributed Management Task Force, Inc., "DSP0223 Generic 
+Operations Specification v2.0.0," 2015. [Online]. Available: 
+https://www.dmtf.org/sites/de fault/files/standards/documents/DSP022
+3_2.0.0.pdf. [Accessed 2018].  
+[12]  Arbeitskreises Systemaspekte im Fachverband Automation, 
+Kommunikation im Industrie -4.0-Umfeld, Frankfurt am Main: ZVEI 
+Fachverband Automation, 2018.  
+[13]  H. Derhamy , J. Eliasson  and J. Delsing, "IoT Interoperability - On-
+Demand and Low Latency Transparent Multiprotocol Translator," 
+IEEE Internet of Things Journal, pp. 1754 -1763, Oct 2017.  
+ 
+ 
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 17:31:35 UTC from IEEE Xplore.  Restrictions apply. 

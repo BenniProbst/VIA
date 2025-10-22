@@ -1,0 +1,509 @@
+Page 1
+SNMP in der Industrie 4.0 – Überwachung und
+Diagnose in der Prozesskommunikation
+Zusammenfassung:  Das Simple Network Management Protocol (SNMP) hat sich seit Ende der 1980er Jahre
+als  de-facto -Standard  zur  Überwachung  von  Netzwerkgeräten  etabliert .  In  modernen  Industrie   4.0 -
+Umgebungen dient SNMP als leichtgewichtiges, plattformübergreifendes Werkzeug, um  Gerätezustände
+und  Netzwerkkomponenten  – von IIoT-Gateways über industrielle Switches bis zu Servern – zentral zu
+überwachen und Diagnosedaten auszulesen . SNMP folgt einem einfachen Manager-Agent-Modell ,
+bei dem ein zentraler Manager zyklisch Statusinformationen von verteilten Agenten abfragt ( Polling ) und
+Geräte bei Störungen eigenständig Alarmmeldungen ( Traps ) an das Management senden können . Trotz
+seines Alters bleibt SNMP aufgrund seiner Standardisierung und breiten Unterstützung in heterogenen
+Umgebungen  relevant  –  insbesondere  für  die  Zustandsüberwachung  kritischer  IIoT-Geräte  und
+Netzwerkinfrastruktur  in der Produktion. Gleichzeitig sind sich Anwender der Grenzen bewusst: SNMP ist
+primär pull-basiert, verfügt über kein hochstrukturiertes Datenmodell und bietet semantisch weniger Tiefe
+als moderne Industrial-IoT -Protokolle wie OPC UA oder MQTT. Im Folgenden werden die Architektur von
+SNMP ,  typische  Einsatzszenarien  in  Industrie   4.0 ,  relevante  MIB-Beispiele ,  praktische
+Implementierungsansätze ,  Sicherheitsaspekte  sowie  die  Grenzen  des  Protokolls  beschrieben.
+Abschließend geben wir Empfehlungen, wann SNMP ein sinnvolles Werkzeug bleibt und wann neuere
+Alternativen vorzuziehen sind.
+Architektur von SNMP in industriellen Netzwerken
+Abb. 1: Prinzip der SNMP-Interaktion in einem Industrie 4.0-Netzwerk. SNMP-Manager  (z.B. ein Leitsystem oder
+NMS) senden periodisch Anfragen an  SNMP-Agenten  auf Geräten, um Zustandswerte abzurufen (Polling
+über UDP Port 161). Jeder Agent verwaltet eine Management Information Base (MIB)  – eine hierarchische
+Sammlung  von  messbaren  Parametern,  identifiziert  durch  eindeutige  Objekt-IDs  (OIDs) .  Die
+abgefragten  SNMP-Variablen  repräsentieren  z. B.  Systemzustände  (Uptime,  CPU-Last),
+Netzwerkschnittstellen  (Status,  Durchsatz)  oder  Sensorsignale .  Die  Kommunikation  folgt  einem
+einfachen Request/Response-Muster: Der Manager stellt GET-Anfragen für bestimmte OIDs und der Agent
+antwortet  mit  dem  aktuellen  Wert  ( GET-RESPONSE ).  Neben  dem  Polling  unterstützt  SNMP  auch
+ereignisgesteuerte Meldungen: SNMP-Traps  sind vom Agent initiiere Alarm-Nachrichten (UDP Port 162), die
+unaufgefordert  an den Manager geschickt werden, sobald definierte Ereignisse oder Grenzwerte eintreten
+(z. B.  Temperaturüberhitzung,  Link-Ausfall) .  Dadurch  können  Geräte  kritische  Zustände  proaktiv
+melden , ohne auf das nächste Polling zu warten . SNMP-Agenten sind in nahezu allen netzwerkfähigen
+Industriegeräten anzutreffen – von TSN-Switches  über Router und Gateways  bis hin zu SPS-Steuerungen
+oder Industrie-PCs – sofern der Hersteller SNMP-Unterstützung integriert hat. Die Topologie in einer Fabrik
+sieht typischerweise einen zentralen SNMP-Manager (etwa in der Leitwarte oder im IT-Netz) vor , der über
+segmentierte  Netzwerke  auf  die  Agenten  in  der  OT-Ebene  zugreift.  Dieses  Manager-Agent-Prinzip
+ermöglicht eine einheitliche Überwachung  selbst heterogener Geräteparks auf einer einzigen Plattform ,
+da jedes SNMP-fähige Device (unabhängig vom Hersteller) grundlegende Statusdaten nach dem gleichen
+Protokollschema liefert.1
+23
+4
+5
+5
+6
+6
+3
+1
+
+Page 2
+SNMP-MIB:  Die  Management  Information  Base  definiert  den  Datenumfang ,  den  ein  Agent  bereitstellt.
+Standardisierte  MIBs  (z. B.  die  MIB-II  gemäß  RFC   1213  oder  das  IF-MIB  für  Schnittstellen)  stellen
+Basisinformationen bereit – etwa Gerätestammdaten, Schnittstellen-Statistiken, IP-Routing-Tabellen etc. In
+industriellen Geräten kommen oft zusätzliche (private) MIB-Module hinzu, um domänenspezifische Werte
+abzubilden.  Jeder  verwaltete  Parameter  erhält  einen  eindeutigen  OID-Pfad  in  der  hierarchischen  MIB-
+Baumstruktur .  Beispiele:  Eine  Netzwerkschnittstelle  könnte  im  IF-MIB  unter  .
+1.3.6.1.2.1.2.2.1.8.X  (ifOperStatus)  ihren  aktuellen  Up/Down-Status  liefern;  ein  Sensorwert  wie
+Temperatur  könnte  über  einen  herstellerspezifischen  OID  (unter  einem  Private-Enterprise-Zweig  .
+1.3.6.1.4.1.x )  abgefragt  werden.  Viele  Industrial-IoT-Geräte  erlauben  sogar  das  Erweitern  der  MIB
+durch benutzerdefinierte OIDs: So kann etwa ein IIoT-Gateway  interne Feldbus-Daten in SNMP verfügbar
+machen, indem es z. B. einen Modbus-Registerwert (Adresse 40001) auf einen privaten SNMP-OID abbildet
+. Solche OID-Mappings ermöglichen es,  Prozessdaten  aus der Fertigung (z. B. Sensordaten oder SPS-
+Zustände) indirekt via SNMP zu überwachen, selbst wenn die Geräte ursprünglich kein SNMP sprechen.
+SNMP-Polling  vs.  Traps:  In  der  industriellen  Praxis  wird  häufig  ein  Kombinationsansatz  genutzt:
+Regelmäßiges Polling der wichtigsten Kennzahlen stellt sicher , dass der Manager stets ein aktuelles Bild der
+Anlagenzustände  hat.  Kritische  Grenzwerte  können  im  Agent  vorkonfiguriert  werden,  sodass  bei
+Überschreitung sofort ein Trap gesendet wird. Dies ermöglicht Echtzeit-Warnungen  bei Störungen – z. B.
+eine  SNMP-Trap  bei  Übertemperatur  eines  Schaltschrankgeräts  oder  beim  Ausfall  einer
+Netzwerkverbindung . Allerdings sind Traps unbestätigte  UDP-Meldungen; in hochverfügbaren Systemen
+wird daher teils auf  Inform -Nachrichten (SNMPv2) zurückgegriffen, die vom Manager bestätigt werden
+müssen, um Trap-Verluste zu vermeiden. Zusammenfassend bildet SNMP mit seinem einfachen Modell ein
+„Nervensystem “  der  industriellen  Kommunikation:  Viele  verteilte  „Sensoren“  (Agenten)  liefern
+Statusinformationen an ein zentralisiertes „Gehirn“ (Manager) , das diese Daten auswertet und z. B.
+visualisiert oder in Leitsysteme integriert.
+Typische Einsatzszenarien in Industrie 4.0-Anlagen
+In  modernen  Smart  Factories  und  Anlagen  der  Industrie   4.0  wird  SNMP  vor  allem  zur
+Zustandsüberwachung  und  Diagnose  von  Infrastrukturkomponenten  eingesetzt.  Einige  praxisnahe
+Szenarien sind:
+Zustandsüberwachung von IIoT-Gateways und Knoten:  Industrielle Edge- und Gateway-Geräte
+verbinden die OT-Ebene mit der IT/Cloud – ihr einwandfreier Betrieb ist kritisch. SNMP erlaubt,
+solche IIoT-Knoten laufend auf Ressourcenverbrauch und Verfügbarkeit zu prüfen. Beispiel:  In einer
+Automobilfertigung wurden über 100 Schweißroboter-Gateways per SNMP überwacht; dabei griff
+der Manager u.a. Temperatur- und Spannungswerte  der Roboter ab und speiste sie in ein ML-Modell
+zur vorausschauenden Wartung  ein. Das Ergebnis waren 60 % weniger ungeplante Stillstände .
+Typische SNMP-Metriken für Gateways sind  CPU- und Speicherlast ,  Temperatur der Elektronik , 
+Netzwerk-Traffic  sowie  Protokoll-spezifische  Zähler  (z. B.  Anzahl  aktiver  Feldbus-Verbindungen,
+Fehlerraten) . Treten Anomalien auf – etwa CPU-Überlast  oder anhaltend hohe Fehlerraten  auf einer
+Modbus-TCP-Verbindung  –  kann  das  System  automatisch  einen  Alarm  absetzen  (Trap)  und  so
+frühzeitig eingreifen.
+Überwachung industrieller Netzwerkkomponenten (Switches, Router):  In konvergenten  IT/OT-
+Netzwerken  der  Industrie  sorgen  Ethernet-Switches  –  zunehmend  TSN-fähig  (Time-Sensitive
+Networking) – für die Kommunikation. Solche Geräte unterstützen fast immer SNMP und liefern5
+7
+6
+8
+• 
+9
+10
+• 
+2
+
+Page 3
+umfangreiche  Netzwerkdiagnosedaten .  Über  MIB-Objekte  wie  das  IF-MIB  lassen  sich
+Portzustände  (Link  up/down),  Bandbreitenauslastung ,  Fehlerraten  und  Packet-Statistiken
+auslesen. In TSN- oder Profinet-Switches kommen teils noch spezifische MIBs hinzu, um etwa die
+Synchronisationsqualität  (gPTP-Status)  oder  QoS-Pufferzustände  zu  überwachen.  Ein  SNMP-
+Manager  kann  so  die  gesamte  industrielle  Kommunikationsinfrastruktur  überwachen  –  von  der
+Zentrale bis zur Maschinenzelle – und bei Netzausfällen oder Engpässen sofort Alarm schlagen.
+Zudem lässt sich SNMP zur automatischen Topologie-Erkennung  nutzen: Durch Auslesen von ARP-
+Tabellen  oder  LLDP-Informationen  (via  MIB)  können  Management-Tools  die  Netzwerkstruktur
+kartieren  und  grafisch  darstellen ,  was  in  dynamischen  Umgebungen  die  Dokumentation
+erleichtert.
+Überwachung von Servern und Steuerungen (z. B. OPC UA-Servern):  Viele industrielle PC-basierte
+Systeme (SCADA-Server , MES-Server , OPC UA Server , Datenbank-Server etc.) unterstützen ebenfalls
+SNMP – entweder über das Betriebssystem (z. B. Windows SNMP-Dienst oder Net-SNMP auf Linux)
+oder über herstellerspezifische Agents. Dadurch können  IT und OT  in der Leitwarte über dasselbe
+Protokoll  überwacht  werden.  Ein  OPC   UA-Server  etwa  liefert  seine  Prozessdaten  an  Clients  via
+OPC   UA,  doch  die  Hardware-Zustände  des  Server-PCs  (CPU-Load,  Arbeitsspeicher ,  Netzwerk-
+Interface,  Temperatur)  lassen  sich  parallel  via  SNMP  überwachen.  So  entsteht  ein  umfassendes
+Monitoring: Läuft der OPC UA-Dienst langsam, kann SNMP eventuell eine überhöhte CPU-Last oder
+Netzlast  als  Ursache  offenbaren.  Allerdings  zeichnet  sich  ein  Trend  ab,  dass  moderne
+Automatisierungsgeräte  SNMP  teilweise  ersetzen:  Führende  Hersteller  wie  Beckhoff  oder  Bosch
+Rexroth statten ihre Steuerungen heute mit nativen OPC UA-Servern für Diagnosedaten aus, anstatt
+SNMP  zu  verwenden .  SNMP  bleibt  jedoch  für  Geräte  ohne  OPC   UA  (oder  als  zusätzliche
+Absicherung)  relevant  –  vor  allem  ältere  Anlagen  oder  simple  Geräte  (z. B.  Klimasensoren,  USVs,
+Embedded Controller ), die nur SNMP als Monitoring-Schnittstelle bieten.
+Umgebungs- und Energie-Monitoring:  Im Sinne von Industrial IoT  und Energieeffizienz kann SNMP
+auch zur Überwachung von Energiedaten  und Umgebungsparametern  dienen. Viele Smart Meter ,
+USV-Anlagen  oder  Klimakontroller  in  Rechenzentren/Schaltschränken  sind  SNMP-fähig.  Darüber
+lassen  sich  z. B.  Netzteilstatus,  Batteriespannungen,  Leistungsaufnahme  oder  Temperatur-/
+Feuchtigkeitswerte auslesen.  Beispiel:  Ein Elektronikwerk koppelte  SNMP-fähige Stromzähler  an
+sein Produktionsleitsystem und konnte durch dynamische Laststeuerung (basierend auf Echtzeit-
+Leistungswerten  via  SNMP)  eine  jährliche  Energieeinsparung  von  15 %  erzielen .  Auch  der
+Zustand von USV-Batterien  oder Klimaanlagen  wird häufig über SNMP abgefragt, um im Störfall
+(Stromausfall,  Überhitzung)  sofort  Eingriffe  vorzunehmen.  In  Gebäudemanagement  und  Facility
+Monitoring  können Gateways SNMP sogar als Vermittler einsetzen – etwa SNMP-Traps in BACnet-
+Meldungen  umwandeln  –  um  eine  Brücke  zwischen  IT-Monitoring  und  Gebäudeleittechnik  zu
+schlagen .
+Diese Szenarien zeigen, dass SNMP in der Industrie 4.0 primär als  Monitoring- und Frühwarnsystem
+dient.  Es  liefert  einen  konsolidierten  Blick  auf  Zustandsdaten  von  vielfältigen  Geräten  –  sei  es
+Produktionsequipment, Netzwerk, oder Infrastruktur – und unterstützt damit zustandsbasierte Wartung,
+Ausfallvermeidung und effizienteren Betrieb.11
+• 
+12
+• 
+13
+14
+3
+
+Page 4
+Wichtige MIB-Module und Parameter
+SNMP liefert seine Daten in Form von MIB-Objekten, die jeweils bestimmte Betriebsgrößen  repräsentieren.
+In industriellen Umgebungen sind insbesondere folgende MIB-Bereiche von Bedeutung:
+System- und Ressourcen-MIBs:  Hierzu zählen Standardmodule wie  SNMPv2-MIB  (Systemgruppe)
+und HOST-RESOURCES-MIB . Sie stellen allgemeine Informationen zum Gerät bereit: Systemkennung,
+Betriebszeit  (SysUpTime),  CPU-  und  Speicher-Auslastung,  laufende  Prozesse  etc.  Beispielsweise
+enthält die Host-Resources-MIB Objekte wie hrProcessorLoad , hrMemorySize  usw., die Auskunft über
+CPU-Lasten  und  RAM  geben  –  sofern  der  Agent  dies  implementiert.  Industrie-PCs  oder  Linux-
+basierte IIoT-Knoten mit einem Net-SNMP-Agent liefern hiermit grundlegende  Gesundheitsdaten
+der Hardware (ähnlich einem IT-Monitoring).
+Netzwerk-Schnittstellen  MIB  (IF-MIB):  Dieser  standardisierte  MIB-Bereich  (Interface  MIB  nach
+RFC 2863) ist zentral für die Überwachung von Netzwerkports  an Switches, Routern, Gateways oder
+Steuerungen.  Jedes  physische  oder  logische  Interface  hat  einen  Index  und  stellt  u.a.  folgende
+Parameter  bereit:  ifDescr  (Name/Beschreibung),  ifOperStatus  (aktueller  Status:  up/down),  ifSpeed
+(Bandbreite), ifInOctets/ifOutOctets  (eingehende/ausgehende Bytes, als Zähler) sowie Fehlerzähler wie
+ifInErrors/ifOutErrors . Daraus lassen sich Link-Zustände , Auslastungen und Übertragungsfehler pro
+Port ablesen – essenziell für die Diagnose von Netzwerkproblemen in industriellen Anlagen. Ein
+Beispiel ist ein TSN-Switch, der über IF-MIB meldet, ob ein deterministischer Datenstrom an einem
+Port aktiv ist und ob Frames verloren gehen (steigende Error-Counter).
+Umgebungs-  und  Hardware-MIBs:  Viele  industrielle  Geräte  besitzen  Sensoren  (Temperatur ,
+Lüfterdrehzahl, Spannung etc.), die über SNMP abgefragt werden können. Es gibt RFC-Standard-
+MIBs wie  ENTITY-SENSOR-MIB  oder herstellerspezifische MIBs für  Temperatur- und Lüfterwerte .
+Beispielsweise stellen Cisco-Geräte interne Temperatur über OIDs im CISCO-ENVMON-MIB bereit;
+WLAN-Access-Points liefern Signalstärken/Linkqualität je Client über vendor-spezifische WLAN-MIBs.
+In  Fertigungszellen  mit  Wireless-Sensoren  kann  ein  SNMP-fähiges  Gateway  z. B.  die  RSSI-Werte
+(Signalstärken) oder  Link Quality Index  eines Sensors als OID bereitstellen. Diese Metriken geben
+Hinweise  auf  die  Kommunikationsqualität  (Funkstrecken,  Feldbus)  und  erlauben  frühzeitiges
+Erkennen von Verschlechterungen (z. B. Signalabfall durch Störungen).
+Protokoll- und Applikations-MIBs:  In industriellen Gateways oder Steuerungen findet man oft MIB-
+Erweiterungen, die den Status von Industrieprotokollen oder Anwendungen abbilden. Ein OPC UA-
+fähiges  Gateway könnte z. B. die Zahl aktiver OPC-UA-Sessions oder die letzten Fehlercodes über
+SNMP publizieren. Feldbus-Gateways mit Modbus/TCP- oder PROFINET-Schnittstelle haben teils OIDs
+für die Anzahl verbundener Slaves oder die Rate ungültiger Telegramme . So wurde im oben
+genannten Beispiel der Schweißroboter-Überwachung neben Temperaturen auch die  Modbus-TCP
+Fehlerrahmenrate  jedes  Roboters  über  SNMP  gemessen .  Durch  solche  Custom-MIBs  können
+sehr spezifische Diagnosedaten  zentral erfasst werden, ohne proprietäre Protokolle beherrschen zu
+müssen – solange der Hersteller entsprechende OIDs bereitstellt.
+Zusammengefasst  bieten  MIBs  einen  Baukasten  von  Kennzahlen ,  der  von  Basis-Hardwarezuständen
+(Spannung,  Temperatur ,  CPU)  über  Netzwerk-  und  Verbindungsdaten  (Bandbreite,  Fehler)  bis  zu
+applikationsspezifischen Zählern  reicht . Für eine erfolgreiche Implementierung ist es wichtig, die
+richtigen  OIDs  auszuwählen  und  zu  interpretieren  –  oft  hilft  das  Einspielen  der  entsprechenden  MIB-• 
+• 
+• 
+• 
+15
+15
+16
+4
+
+Page 5
+Dateien ins Management-Tool, um Klartextnamen und Skalierungen zu erhalten. Eine Auswahl relevanter
+OIDs  sollte  sich  an  den  betrieblichen  Anforderungen  orientieren  (z. B.  Überwachung  von
+Gerätetemperaturen  in einer Gießerei, Luftfeuchtigkeit  in einem Reinraum, Schnittstellenverfügbarkeit  in einem
+Netzwerkverbund  etc.).  Die  wichtigsten  Standard-MIBs  sind  in  praktisch  allen  SNMP-Agents  integriert,
+während weitergehende MIBs in den Handbüchern der Gerätehersteller dokumentiert sind.
+Praktische Implementierung und Integration
+SNMP-Agents in der Praxis:  Die meisten industriellen Netzwerkgeräte bringen einen eingebetteten SNMP-
+Agenten  ab Werk mit – dieser muss oft nur aktiviert und konfiguriert werden. Bei  Linux-basierten IIoT-
+Knoten  (wie Raspberry Pi in Industrieausführung, Edge Computer , Steuerungs-PCs) kann man den Open-
+Source-Agent Net-SNMP  (snmpd) einsetzen. Die Einrichtung erfolgt über eine Konfigurationsdatei, in der
+z. B. Community-Strings oder SNMPv3-User , zugelassene Netzbereiche und freizugebende MIB-Bereiche
+definiert  werden.  Typischerweise  wird  auf  solchen  Knoten  SNMP  so  konfiguriert,  dass  grundlegende
+Systemwerte (CPU, RAM, Netzwerk) abrufbar sind; bei Bedarf lässt sich der Agent um  benutzerdefinierte
+Skripte  erweitern, die eigene Messwerte (etwa aus Sensoren oder Datenbanken) an OIDs binden. Viele
+kommerzielle IIoT-Gateways bieten hierfür eine Weboberfläche: Der Anwender kann dort  SNMP-Service
+aktivieren , die Version wählen und Community bzw. Benutzer einrichten . Einige Gateways erlauben
+auch komfortabel das  Hinzufügen eigener OIDs  (z. B. per Modbus-Mapping wie oben beschrieben) .
+Wichtig ist bei allen Agents, die  Zugriffskontrolle  richtig zu setzen – Standard-Communities wie "public"
+sollten unbedingt geändert oder deaktiviert werden, um unbefugtes Auslesen zu verhindern .
+Open-Source-SNMP-Tools:  Zur Entwicklung und zum Test von SNMP-Setups stehen zahlreiche Tools bereit –
+etwa  snmpwalk/snmpget  (CLI-Tools  aus  dem  Net-SNMP-Paket)  für  manuelle  Abfragen,  oder  grafische
+Browser wie MIB Browser  zur Erkundung der OID-Bäume. Für die produktive Überwachung werden SNMP-
+Daten  meist  in  Monitoring-Plattformen  eingespeist.  Open-Source-Lösungen  wie  Zabbix ,  Nagios  oder
+OpenNMS  besitzen integrierte SNMP-Unterstützung: Sie können Geräte per SNMP abfragen, Schwellwerte
+überwachen und bei Überschreitungen Alarme generieren. Ein populärer moderner Ansatz ist die Nutzung
+von  Prometheus  (zeitserienbasierter  Monitoring-Stack)  in  Verbindung  mit  einem  SNMP  Exporter .  Der
+Prometheus SNMP Exporter  agiert als Proxy, der SNMP-Informationen sammelt und im Prometheus-
+Format bereitstellt  – so können SNMP-Metriken genauso behandelt werden wie Telemetriedaten aus
+anderen Quellen. Die gewonnenen Daten lassen sich anschließend z. B. in Grafana  visualisieren (Grafana
+bietet fertige Dashboards für gängige Netzwerkgeräte via SNMP). Ein Beispiel-Konzept: Das snmp_exporter -
+Modul führt in konfigurierten Intervallen ein SNMP-Walk auf definierte OID-Bäume (etwa IF-MIB für Ports)
+durch und stellt die Ergebnisse Prometheus als Zeitreihen zur Verfügung . Über solch eine Integration
+konnten  Benutzer  etwa  den  Traffic  auf  industriellen  Switchports  in  Echtzeit  im  Grafana-Dashboard
+verfolgen, ohne proprietäre NMS-Software einsetzen zu müssen.
+Integration in industrielle Leitsysteme:  Auch klassische SCADA- oder MES-Systeme lassen sich erweitern,
+um  SNMP-Daten  zu  verarbeiten.  Einige  moderne  SCADA-Plattformen  haben  Treiber ,  um  SNMP  als
+Datenquelle einzubinden und z. B. in einer Anlagenübersicht anzuzeigen . Alternativ kann ein Gateway
+als Brücke dienen – z. B. ein Script, das SNMP-Daten zyklisch ausliest und als OPC UA-Variableserver im
+SCADA  zur  Verfügung  stellt.  So  hat  man  die  Möglichkeit,  Infrastruktur-Monitoring  (SNMP)  und
+Prozessvisualisierung  (SCADA) in einer Oberfläche zu vereinen. Darüber hinaus nutzen manche  Cloud-
+Lösungen  SNMP-Daten: Ein IIoT-Gateway kann lokal SNMP sprechen, die Werte sammeln und dann via
+MQTT  an  eine  Cloud  senden .  Beispielsweise  könnten  Zustandsdaten  von  Pumpen  per  SNMP  im
+Gateway erfasst und dann gesammelt als MQTT-Topic an eine Cloud-Plattform geschickt werden . Auf17
+7
+18
+19
+19
+20
+21
+22
+5
+
+Page 6
+diese  Weise  bleiben  die  bewährten  SNMP-Mechanismen  im  Feld  erhalten,  während  für  übergeordnete
+Analysen moderne IoT-Protokolle zum Einsatz kommen.
+Insgesamt ist die SNMP-Implementierung  verhältnismäßig einfach und kostengünstig, da sie auf breiter
+Verfügbarkeit  aufsetzt.  Wichtig  für  den  Erfolg  sind  jedoch  saubere  Planung  und  Konfiguration :  Die
+richtige Auswahl der MIB-Objekte, passende Abfrageintervalle (nicht zu selten, aber auch nicht so häufig,
+dass die Geräte oder das Netzwerk überlastet werden) und vor allem sichere Einstellungen (siehe nächster
+Abschnitt).  Mit  diesen  Maßnahmen  lässt  sich  SNMP  in  nahezu  jede  industrielle  Monitoring-Landschaft
+integrieren – ob stand-alone zur Geräteüberwachung oder als Datenlieferant für komplexe Big-Data- und
+AI-Systeme (Predictive Maintenance).
+Sicherheitsaspekte von SNMP (v1/v2c/v3)
+Bei der Nutzung von SNMP in Industrie 4.0-Umgebungen spielen Sicherheit und Zugriffssteuerung  eine
+große Rolle. SNMP wurde ursprünglich ohne starken Fokus auf Security entworfen, doch im Laufe der Zeit
+kamen Verbesserungen hinzu:
+SNMPv1 und SNMPv2c:  Die ersten Versionen (v1 1988, v2c Mitte der 90er) nutzen ein schlichtes
+Community-String -Konzept  zur  Authentifizierung.  Eine  Community  ist  vergleichbar  mit  einem
+Kennwort,  das  der  Manager  bei  jeder  Anfrage  als  Klartext  mitsendet.  Üblich  sind  Namen  wie
+"public" (Lese-Community) oder "private" (Read/Write-Zugriff). Diese Mechanismen gelten heute als
+unsicher : Die Community-Strings sind oft herstellerweit voreingestellt (viele Geräte haben ab Werk
+"public") und werden unverschlüsselt übertragen, was das Risiko von Abhören und unberechtigtem
+Zugriff  birgt .  Zudem  kann  ein  Angreifer  mit  Kenntnis  der  Community  potenziell  SNMP- Set-
+Befehle  nutzen,  um  Einstellungen  am  Gerät  zu  verändern.  In  Industrieanlagen  sollten  daher
+SNMPv1/v2c nur in streng isolierten Netzsegmenten (reinen Intranets) oder gar nicht eingesetzt
+werden . Wenn ihr Einsatz unumgänglich ist, müssen die Community-Namen unbedingt geändert
+und ausreichend komplex gewählt werden, sowie der Zugang per Access-Lists/Firewall auf legitime
+Manager  beschränkt  werden.  Allgemein  gilt:  SNMPv1/v2c  liefern  keine  Nachrichtenschutz ,  sodass
+weder Authentizität noch Vertraulichkeit gewährleistet sind.
+SNMPv3:  Diese  ab  2002  standardisierte  Version  adressiert  die  Sicherheitslücken  der  Vorgänger
+durch  ein  User-Based  Security  Model  (USM) .  Statt  einfacher  Communities  gibt  es  definierte
+Benutzerkonten  mit individuellen Rechten. SNMPv3 bietet zwei wesentliche Schutzfunktionen :
+(1)  Authentication  – die Gewissheit, dass eine Nachricht wirklich von einem berechtigten Manager
+stammt bzw. an diesen geht (erzielt durch HMAC-SHA oder HMAC-MD5 Signaturen, basierend auf
+einem Benutzer-Passwort), und (2)  Privacy (Verschlüsselung)  – die SNMP-Payload kann mittels AES
+oder DES verschlüsselt übertragen werden, sodass ein Mithören keine verwertbaren Informationen
+liefert . Diese Mechanismen lassen sich in SNMPv3 in verschiedenen  Security Levels  nutzen:
+noAuthNoPriv  (keine  Auth.,  keine  Verschl.),  authNoPriv  (mit  Authentifizierung,  aber  ohne
+Verschlüsselung) oder authPriv  (mit Authentifizierung und Verschlüsselung). Nur im höchsten Modus
+(authPriv) ist eine Kommunikation wirklich abhörsicher und integritätsgeschützt – dieser sollte für
+sensible  Industrieanwendungen  standardmäßig  gewählt  werden.  Ein  Beispiel  für  SNMPv3-
+Konfiguration: Man richtet im Agent einen User „snmpadmin“ ein, legt ein Passwort für Auth (z. B.
+SHA-256) und ein separates für Privacy (AES-128) fest. Der Manager muss mit denselben Credentials
+abgefragt  werden,  und  die  Daten  sind  dann  Ende-zu-Ende  verschlüsselt  übertragen .  Durch• 
+23
+23
+• 
+24
+24
+25
+6
+
+Page 7
+SNMPv3 wird auch der Zugriff feingranular steuerbar (View-Based Access Control Model), d.h. man
+kann festlegen, welcher User welche OIDs sehen oder setzen darf.
+Bekannte Schwachstellen und Absicherung:  Trotz SNMPv3 bleiben einige Herausforderungen.
+Zum einen ist SNMPv3 komplexer zu konfigurieren, was in der Praxis leider dazu führt, dass in vielen
+Anlagen  noch  SNMPv2c  mit  "public"  eingesetzt  wird  –  ein  erheblicher  Angriffsvektor .  Viele
+dokumentierte  Sicherheitsvorfälle  basieren  auf  falsch  konfiguriertem  SNMP:  Angreifer  nutzen
+Broadcast-Anfragen mit Community "public" aus, um massenhaft Geräteinformationen zu sammeln
+(Reconnaissance ), oder missbrauchen offene SNMP-Ports für DDoS-Amplification-Angriffe. Hersteller
+empfehlen  daher  dringend,  Default-Communities  zu  deaktivieren  oder  zu  ändern  und  nicht
+benötigte SNMP-Dienste ganz abzuschalten . Auch SNMPv3 ist nur so sicher wie seine Passwörter
+– schwache SNMPv3-User-Passwörter könnten via Wörterbuchangriffe erraten werden, sofern ein
+Angreifer  SNMP-Pakete  mitschneidet .  Daher  sind  robuste,  zufällige  Passphrasen  Pflicht.  In
+hochsensiblen Bereichen (z. B. Chemieanlagen, Kraftwerke) wird empfohlen, SNMP generell nur über
+zusätzliche Transport-Sicherungen  zu betreiben, etwa in einem IPsec-VPN oder via SSH-Tunnel .
+So kann selbst bei eventuellen Implementierungsschwachstellen (z. B. Buffer Overflows in älteren
+SNMP-Agenten, wie sie in der Vergangenheit vorkamen) das Schadensrisiko minimiert werden.
+Zugriffsverwaltung:  Neben der Protokollverschlüsselung ist die  Netzwerksegmentierung  essenziell.
+SNMP-Agents  sollten  niemals  über  das  offene  Internet  erreichbar  sein.  In  einer  typischen
+Industrie   4.0-Architektur  werden  SNMP-Daten  über  ein  sicheres  Management-Netz  oder  VPN
+übertragen, getrennt vom Produktionsdatenverkehr . Zudem können viele Geräte den SNMP-Zugriff
+auf  bestimmte  Manager-IP-Adressen  limitieren  –  eine  einfache,  aber  effektive  Maßnahme,  um
+unautorisierte  Zugriffe  abzuwehren.  Monitoring-Server  sollten  gehärtet  sein  und  regelmäßige
+Updates erhalten, da sie eine Konzentration sensibler Informationen darstellen.
+Zusammenfassend  ist  SNMPv3  mit  Authentifizierung  und  Verschlüsselung  der  einzige  Modus,  der
+heutigen Security-Anforderungen genügt . Ältere SNMP-Versionen sind in produktiven Industrie-4.0-
+Umgebungen mit Vorsicht zu genießen und nur unter starken Gegenmaßnahmen (Isolationsnetz, Read-
+Only,  Monitoring)  einsetzbar .  Wird  SNMP  jedoch  korrekt  abgesichert,  kann  es  auch  in  kritischen
+Infrastrukturen eingesetzt werden – so verlangt z. B. die nordamerikanische NERC CIP Norm für Stromnetze
+eine  Absicherung  aller  Monitoring-Zugänge,  wozu  SNMPv3-Verschlüsselung  zählt.  Moderne  industrielle
+Remote-Terminal-Units (RTUs) bieten daher SNMPv3 out-of-the-box an . Sicherheit bleibt dennoch ein
+fortlaufender  Prozess:  Zugriffslogs  und  Auditierung  der  SNMP-Nutzung  (fehlgeschlagene  Logins,
+ungewöhnlich häufige Anfragen etc.) helfen, Angriffsversuche frühzeitig zu erkennen.
+Grenzen von SNMP in modernen Architekturen
+Trotz seiner weiten Verbreitung stößt SNMP in der Industrie 4.0 -Ära auf gewisse Grenzen. Im Vergleich zu
+neueren IIoT-Protokollen weist SNMP folgende Einschränkungen auf:
+Polling-Paradigma (Pull-only):  SNMP ist primär ein abfragebasiertes  Protokoll. Der Manager muss
+die Werte aktiv abrufen, was zu einem zyklischen Polling  führt. Bei hunderten Geräten und vielen
+OIDs kann das Polling-Netzlast erzeugen und die Abfrageintervalle limitieren (z. B. alle 1 Minute).
+Eine echtzeitnahe Überwachung aller Zustände ist so kaum skalierbar , ohne entweder Abfragen
+auszulassen oder das Netzwerk zu belasten. Zwar existieren Traps  für spontane Meldungen, doch
+diese dienen v.a. Alarmzwecken und sind ungerichtet (Fire-and-Forget). Ein moderner Pub/Sub-Ansatz• 
+18
+26
+27
+• 
+2824
+28
+• 
+7
+
+Page 8
+wie bei MQTT oder OPC UA (Event Notifications) ist in SNMP nicht vorgesehen. Somit eignet sich
+SNMP weniger für  ereignisgetriebene  oder hochfrequente Datenübertragung, sondern eher für
+periodische  Statuschecks.  In  der  Praxis  bedeutet  das:  Feine  Änderungen  zwischen  den  Polling-
+Intervallen gehen evtl. verloren, und beim Auftreten einer Störung hängt die Erkennungszeit vom
+Polling-Zyklus ab (es sei denn, ein Trap wird ausgelöst).
+Keine strukturierte Datenmodellierung:  SNMP transportiert Daten als flache Liste von OID-Wert-
+Paaren.  Es  kennt  zwar  tabellarische  Strukturen  (z. B.  Interface-Tabellen),  aber  keine  komplexen
+Objekthierarchien mit Attributen  wie OPC UA. Semantische Zusammenhänge oder  Kontext  der
+Daten  sind  in  SNMP  nicht  direkt  ersichtlich  –  man  erhält  Rohwerte,  deren  Bedeutung  nur  mit
+passender MIB-Dokumentation klar wird. Moderne Industrie 4.0-Frameworks legen hingegen Wert
+auf  semantische Interoperabilität : OPC UA etwa definiert ein umfangreiches  Informationsmodell
+mit  Typdefinitionen,  Beziehungen,  Units  etc.,  was  die  Auswertung  und  systemübergreifende
+Interpretation erleichtert. SNMP bietet so etwas nicht; verschiedene Hersteller können dasselbe
+Konzept (z. B. „Temperatur“) unter unterschiedlichen OIDs mit unterschiedlichen Skalen liefern, ohne
+dass ein gemeinsamer Standard dies vereinheitlicht ( keine semantische Interoperabilität ). Zwar gibt es
+Standard-MIBs für Grundlegendes, aber sobald es in spezifischere Bereiche geht, divergieren die
+OIDs. Das erschwert die Integration von SNMP-Daten in höherwertige  Informationsmodelle  einer
+Smart  Factory.  Im  OPC   UA  vs.  SNMP -Vergleich  zeigt  sich:  SNMP  ist  leichtgewichtig  und
+standardisiert , aber mit „grobkörniger“ Datendarstellung, während OPC UA reichhaltige Semantik
+und komplexe Datentypen  unterstützt, dafür aber schwergewichtiger ist .
+Begrenzte Interaktionsmöglichkeiten:  SNMP wurde primär für Monitoring  entwickelt, nicht für die
+Steuerung . Zwar existiert der SNMP Set-Befehl , um Schreibzugriffe auf bestimmte OIDs (und damit
+Konfigurationsänderungen)  durchzuführen,  doch  wird  dies  in  industriellen  Umgebungen  selten
+verwendet  –  aus  Sorge  vor  unautorisierten  oder  fehlerhaften  Änderungen.  Zudem  fehlen
+Mechanismen für  Transaktionen  oder komplexe Kommandos. Moderne Protokolle (wie OPC UA)
+erlauben  Methodenaufrufe  auf  Objekten,  transaktionale  Schreiboperationen  und  detaillierte
+Fehlermeldungen  –  SNMP  dagegen  kennt  nur  einfache  Error-Status -Rückgaben  pro  PDU.  Für
+Konfigurationsmanagement  großer  Anlagen  wird  SNMP  somit  oft  als  zu  unflexibel  erachtet;
+spezialisierte Protokolle oder APIs treten an seine Stelle.
+Skalierbarkeit und Performance:  In kleinen bis mittleren Netzwerken funktioniert SNMP effizient,
+doch bei sehr großen Installationen (tausende Geräte, hunderttausende OIDs) stößt es an Grenzen.
+Das Polling skaliert nicht linear – Manager-Stationen müssen viele Abfragen seriell abarbeiten. Zwar
+brachte SNMPv2  Bulk-Anfragen  mit, um mehrere OIDs auf einmal abzufragen, doch bleibt die Last
+erheblich. Hinzu kommt, dass SNMP auf UDP  basiert – Paketverluste bei vollem Netzwerk können
+unbemerkt bleiben, was in kritischen Fällen (verlorener Alarm) problematisch wäre. Neuere Publish/
+Subscribe-Systeme  verteilen  die  Last  besser  (Daten  werden  nur  bei  Änderung  verteilt,  mehrere
+Empfänger können parallel lauschen). SNMP kennt kein solches verteiltes Konzept; es ist immer
+zentralisiert (ein Manager fragt, ein Agent antwortet). In verteilten Industrie-4.0-Architekturen mit
+Cloud-Anbindung und vielen Konsumenten der Daten kann dies zum Flaschenhals werden.
+Zusammengefasst  ist  SNMP  weiterhin  sehr  nützlich  für  die  Grunddiagnose  und  das  Netzwerk-
+Monitoring , jedoch erfüllt es nicht alle Anforderungen moderner IIoT-Datenintegration. Insbesondere dort,
+wo  reiche  semantische  Informationen ,  Echtzeit-Push  oder  plattformübergreifende  Datenmodelle
+gefordert  sind,  stößt  SNMP  an  konzeptionelle  Grenzen.  Dies  erklärt,  warum  in  vielen  Industrie   4.0-• 
+29
+• 
+• 
+8
+
+Page 9
+Referenzarchitekturen SNMP zwar noch vorhanden ist, aber durch zusätzliche Schichten ergänzt wird –
+etwa mittels IoT-Gateways, die SNMP-Daten in MQTT/OPC UA überführen, um sie ins größere Industrial IoT -
+Gesamtbild einzubetten .
+Fazit und Empfehlungen: SNMP vs. moderne Alternativen
+Wann  ist  SNMP  weiterhin  sinnvoll?  SNMP  spielt  seine  Stärken  überall  dort  aus,  wo  einfache,
+herstellerübergreifende Zustandsüberwachung  gefragt ist. Es ist ein ausgereiftes, schlankes Protokoll,
+das von nahezu jedem Netzwerkgerät unterstützt wird – ideal, um in heterogenen Umgebungen  schnell
+eine  Grundüberwachung  aufzusetzen .  Wenn  z. B.  in  einer  bestehenden  Fabrik  diverse  Altgeräte,
+Switches verschiedener Hersteller und einfache Sensorboxen überwacht werden sollen, kann SNMP als
+„gemeinsame Sprache“ dienen , ohne dass man für jedes Gerät proprietäre Tools benötigt. Auch in
+ressourcenbeschränkten Geräten (Sensoren, ältere Steuerungen) ist SNMP dank geringer Overhead eine
+leichte Wahl. Die Integration in bestehende NMS-Systeme (PRTG, Zabbix, etc.) geht schnell, da SNMP von
+diesen  out-of-the-box  unterstützt  wird.  Kurz:  Für  Infrastruktur-Monitoring ,  Netzwerkdiagnose  und
+Basis-Health-Checks  bleibt SNMP oft der pragmatische erste Schritt. Unternehmen können mit SNMP
+zügig  Kennzahlen  sammeln  und  so  Transparenz  über  ihre  Anlagen  gewinnen  –  etwa  Lüfterausfälle
+erkennen, Netzlasten überwachen oder einfache Condition Monitoring  betreiben – ohne gleich in komplexe
+neue Systeme investieren zu müssen. 
+Wann sind Alternativen wie OPC UA oder MQTT geeigneter?  Sobald die Anforderungen über reines
+Monitoring hinausgehen und eine  tiefere Integration von Gerätedaten  in digitale Prozesse gefragt ist,
+stoßen modernere Protokolle die Tür auf. OPC UA  ist in vielen Industrie 4.0-Konzepten unverzichtbar , da es
+plattformneutral  und  semantisch reich  ist . Muss z. B. eine Anlage mit dem MES/ERP verknüpft werden,
+Maschinenparameter mit Kontext (Typ, Einheit, Historie) ausgetauscht oder gar Steuerkommandos sicher
+übertragen  werden,  ist  OPC   UA  die  bessere  Wahl.  Es  unterstützt  Subscription  für  Echtzeit-Updates,
+komplexe Datentypen, Methodenaufrufe und hat eingebaute Security – all das würde mit SNMP gar nicht
+oder nur sehr umständlich realisierbar sein. Tatsächlich sehen wir , dass neue Gerätegenerationen (Beckhoff,
+Bosch Rexroth etc.) SNMP gar nicht mehr anbieten, sondern voll auf OPC UA setzen  – insbesondere
+dort,  wo  maschinennahe  Daten  bereitgestellt  werden  sollen.  MQTT  wiederum  glänzt  im  Bereich  IoT-
+Sensorik  und  Cloud-Anbindung :  Wenn  Daten  von  vielen  verteilten  Sensoren  gesammelt  und  effizient  an
+Cloud-Dienste  oder  mehrere  Empfänger  gesendet  werden  müssen,  ist  MQTT  als  Publish/Subscribe-
+Protokoll ideal. Es ist extrem schlank (geringer Overhead),  skalierbar  auf Millionen von Nachrichten und
+bietet  eine  lose  Kopplung  über  einen  Broker .  SNMP  hingegen  wäre  für  solche  Zwecke  (z. B.
+flächendeckendes Zustandsmonitoring von mobilen Assets ) ungeeignet – MQTT wurde genau dafür
+entwickelt (z. B. Telemetrie von Geräten in entfernten Standorten, die via Mobilfunk angebunden sind)
+. Auch für Cloud-basiertes Monitoring  (z. B. weitergeleitete Maschinendaten in eine IoT-Plattform) wird
+oft MQTT eingesetzt, da alle großen Cloudanbieter MQTT unterstützen , während SNMP eher im lokalen
+Netzwerk verbleibt.
+Koexistenz und Kombination:  In vielen Fällen besteht keine strikte Entweder-Oder -Entscheidung, sondern
+SNMP  und  neue  Protokolle  ergänzen  sich.  Ein  sinnvolles  Muster  ist  etwa:  SNMP  als  lokales
+Frühwarnsystem , OPC UA für detaillierte Prozessdaten und MQTT für die Weitermeldung an Cloud oder
+übergeordnete Dienste . So könnte ein IIoT-Gateway simultan SNMP, OPC UA und MQTT sprechen –
+SNMP  für  die  Einbindung  ins  klassisches  NMS  (z. B.  für  die  OT-Abteilung),  OPC   UA  fürs  direkte
+Zusammenspiel  mit  SCADA/MES,  und  MQTT  für  Big-Data-Analysen  in  der  Cloud.  Einige  industriellen
+Gateways unterstützen genau dieses Multitalent-Szenario bereits out-of-the-box . Wichtig ist, je nach3031
+29
+3
+32
+12
+33
+34
+35
+3031
+36
+9
+
+Page 10
+Use-Case  die  richtige  Priorität  zu  setzen:  Für  eine  schnelle  herstellerübergreifende  Integration  vieler
+Geräte  sollte  SNMP  zunächst  genutzt  (oder  weiterhin  beibehalten)  werden  –  es  liefert  schnell
+Ergebnisse.  Wenn  jedoch  Detaildaten  oder  Interoperabilität  im  Vordergrund  stehen  (z. B.  in  einer
+hochautomatisierten Linie, die nach NAMUR Open Architecture mit Backend-Systemen kommuniziert), führt
+an  OPC   UA  kaum  ein  Weg  vorbei.  Für  stark  verteilte  oder  bandbreitenkritische  Anwendungen  (z. B.
+Zustandsdaten von mobilen Anlagen  oder Energie-Monitoring  über LoRa/WiFi) ist MQTT aufgrund seiner
+Effizienz und Push-Fähigkeit oft das Mittel der Wahl .
+Empfehlung:  Behalten Sie SNMP dort bei, wo es seine Dienste zuverlässig tut – etwa zur Überwachung von
+Netzwerkkomponenten,  Gateways  und  allgemeiner  Gerätediagnose  im  Anlagenbetrieb.  Achten  Sie
+aber auf aktuelle  Security-Einstellungen  (mindestens SNMPv3 verwenden) und auf sinnvolle  Grenzwerte
+für Traps, um Alarmfluten zu vermeiden . Evaluieren Sie parallel die Einsatzmöglichkeiten von OPC UA
+insbesondere für neue Maschinen und Steuerungen, da diese Technologie in Sachen Zukunftssicherheit
+und Integrationstiefe SNMP übertrifft. In neuen Projekten der Industrie 4.0  sollte OPC UA als Backbone für
+die  Kommunikation  eingeplant  werden ,  mit  SNMP  allenfalls  als  ergänzende  Monitoring-Bridge  für
+Altsysteme. MQTT  bietet sich an, wenn Daten an Cloud-Systeme oder Dashboards geschickt werden sollen –
+hier kann SNMP via Gateway in MQTT-Messages umgewandelt werden , oder Sensoren senden gleich
+MQTT  und  umgehen  SNMP  ganz.  Letztlich  kommt  es  auf  den  Zweck  an:  SNMP  bleibt  ein  nützliches
+Werkzeug  für  Zustandsüberwachung  und  Diagnose  in  der  OT-Welt,  aber  für  höhere  Ebenen  der
+Informationsvernetzung  und  Prozessdatenkommunikation  sind  OPC UA, MQTT oder ähnliche IIoT-
+Protokolle  meist besser geeignet. Eine hybride Architektur – SNMP für die niedrige Ebene , OPC UA/MQTT für
+die höhere  – kann das Beste aus beiden Welten vereinen und so den Weg in die Zukunft (Industrie 4.0)
+ebnen, ohne bewährte Mechanismen aufzugeben .
+Quellen:  Die oben dargestellten Inhalte basieren auf einer Vielzahl von technischen Veröffentlichungen und
+Praxisberichten,  u.a.  zur  SNMP-Funktionsweise ,  zum  Einsatz  von  SNMP  in  industriellen  IoT-
+Gateways , Fallstudien aus der Fertigung , Vergleichen zwischen SNMP und neueren Protokollen
+ sowie Empfehlungen für die sichere Implementation . Diese Quellen belegen die Aussagen und
+untermauern die genannten Beispiele und Vergleiche im Kontext von Industrie 4.0.
+In-Depth Analysis of SNMP Monitoring Functionality in Industrial Gateways
+https://www.pusr .com/blog/In-Depth-Analysis-of-SNMP-Monitoring-Functionality-in-Industrial-Gateways?sw-lang=Enns&lang=de
+Digitalization has changed manufacturing – and industrial monitoring
+https://blog.paessler .com/digitalization-has-changed-manufacturing-and-industrial-monitoring
+Grafana & Prometheus SNMP: advanced network monitoring guide 
+https://grafana.com/blog/2022/02/01/an-advanced-guide-to-network-monitoring-with-grafana-and-prometheus/
+ICS Security Weaknesses 
+https://www.dpstele.com/blog/top-six-ics-security-weaknesses-and-how-to-avoid-them.php
+Simple Network Management Protocol - Wikipedia
+https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol37
+38
+18
+32
+21
+30 39
+40 2
+1 3 9
+29 41 24
+1 2 3 4 5 6 7 8 910 11 13 14 15 16 17 18 20 21 22 23 25 27 29 30 31 33 34 36 37
+38 39 41
+12 32 35
+19
+24 28
+26 40
+10

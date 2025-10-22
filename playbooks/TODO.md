@@ -266,3 +266,43 @@ API Error: 500 Internal Server Error
 - ⏳ Research Step 4: ChatGPT Unterordner Dokumente
 
 **Status**: Wartet auf Bestätigung für nächsten Schritt
+
+---
+
+## Research Step 1 - ERGÄNZUNG IN PROGRESS (2025-10-22)
+
+**Aufgabe**: Fehlende Dokumente nachholen für vollständiges OPC UA Research Playbook
+
+### Neu extrahiert aus ChatGPT Ordner:
+1. ✅ **OPC UA Funktionsweise** (doc_chatgpt_1.txt, 7 Seiten) → research_doc_opcua_1_erkenntnisse.md
+2. ✅ **SCADA, MES, OPC UA Server + SNMP** (doc_chatgpt_2.txt, 6 Seiten) → research_doc_scada_mes_erkenntnisse.md
+3. ⏭️ **SNMP Industrie 4.0** (doc_chatgpt_3.txt, 10 Seiten/508 Zeilen) - SNMP bereits in doc2 behandelt, übersprungen
+4. ⏭️ **SNMP MIB Objekte** (doc_chatgpt_4.txt, 7 Seiten/315 Zeilen) - SNMP bereits in doc2 behandelt, übersprungen
+
+### Santiago Papers vollständig gelesen (ALLE 3):
+5. ✅ **Dynamic Multi-Message Broker** (doc_santiago_7.txt, 8 Seiten) → research_santiago_7_mmb_erkenntnisse.md
+   - **Kernkonzept**: VIA = MMB (Northbound/Southbound Architecture)
+   - **AID/AIMC Submodels** für Asset Integration, Sync/Async Translation
+6. ✅ **SOA for I4.0 Digital Twins** (doc_santiago_8.txt, 6 Seiten) → research_santiago_8_soa_erkenntnisse.md
+   - **gRPC + Protobuf** Microservice Network für AAS
+   - **Code Generation Pipeline**: OpenAPI → Protobuf → Language Code
+   - **Container Deployment**, Transparent Relocation
+7. ✅ **Role of CMFM** (doc_santiago_9.txt, 4 Seiten - frühe Version 2019) → research_santiago_9_cmfm_role_erkenntnisse.md
+   - **Human-Centered Abstraction**, Network of Networks
+   - **Management Plane Heterogeneity**, Data/Control/Management Separation
+
+### OPC UA Erkenntnisse (doc_chatgpt_1):
+- **Client-Server Many-to-Many** Model mit Discovery & Subscriptions
+- **Informationsmodellierung = Herzstück**: M3/M2/M1 Architektur
+- **AAS Companion Spec**: Digitale Zwillinge als OPC UA Server
+- **C++ SDK**: Unified Automation, open62541, ModelCompiler Code-Gen
+- **Multi-Language**: python-opcua, .NET, Java Clients interoperabel
+
+### VIA ↔ OPC UA Mapping:
+- VIA Services = OPC UA Servers
+- VIA Registry = OPC UA Discovery
+- VIA Router = OPC UA Aggregation Server
+- VIA Informationsmodell = OPC UA M2 Layer
+- VIA Compiler = OPC UA ModelCompiler
+
+**Nächster Schritt**: Restliche ChatGPT Dokumente + Santiago Papers lesen
