@@ -311,54 +311,79 @@ API Error: 500 Internal Server Error
 
 ---
 
-## ⏳ PHASE 2: GitHub Repository-Analyse (NÄCHSTER SCHRITT)
-
-**Status**: BEREIT ZUM START (benötigt frische Tokens)
-**Token-Bedarf geschätzt**: 150-240K (50-80K pro Repository)
-
-### Zu analysierende Repositories:
-1. ⏳ **open62541** (https://github.com/open62541/open62541)
-2. ⏳ **UA-Nodeset** (https://github.com/OPCFoundation/UA-Nodeset)
-3. ⏳ **aas-core-works** (https://github.com/aas-core-works)
-
-### Start-Command für neuen Token-Reset:
-> "Lies playbooks/phase1_research/PHASE1_SUMMARY.md für Kontext. Starte PHASE 2: Analysiere open62541, UA-Nodeset, aas-core-works vollständig."
-
-**Nächster Schritt**: PHASE 2 mit frischen Tokens starten
-
-
-
----
-
 ## ✅ PHASE 2 ABGESCHLOSSEN: GitHub Repository-Analyse (2025-10-22)
 
 **Status**: VOLLSTÄNDIG ABGESCHLOSSEN
-**Token Usage**: ~77K / 200K (38.5%)
+**Token Usage**: ~95K / 200K (47.5%)
 **Details**: Siehe `phase2_research/PHASE2_SUMMARY.md`
 
 ### Analysierte Repositories (3/3):
-1. ✅ **aas-core-works** → Research_AAS_MERGED.md (660 Zeilen, 13 Kapitel)
-2. ✅ **open62541** → Research_open62541.md (550 Zeilen, 12 Kapitel)
-3. ✅ **UA-Nodeset** → Research_UA_Nodeset.md (700 Zeilen, 9 Kapitel)
+1. ✅ **aas-core-works** (https://github.com/aas-core-works)
+   - Research_AAS_MERGED.md (660 Zeilen, 13 Kapitel)
+   - M3 Metamodel (Python DSL), Code-Generator (6 Languages + 5 Schemas)
+   - Community: 2.9K Stars, 307 Contributors, MPL 2.0
 
-### Erkenntnisse für VIA:
-- **Code-Gen Pipeline**: VIA M3 → VIA-M2-SDK-C++ + OPC UA NodeSet XML → open62541 → Embedded Server
+2. ✅ **open62541** (https://github.com/open62541/open62541)
+   - Research_open62541.md (550 Zeilen, 12 Kapitel)
+   - C99 OPC UA Stack, Plugin Architecture, Nodeset Compiler (XML→C)
+   - Embedded-friendly: ~250KB footprint, certified "Micro Embedded Device Server"
+
+3. ✅ **UA-Nodeset** (https://github.com/OPCFoundation/UA-Nodeset)
+   - Research_UA_Nodeset.md (700 Zeilen, 9 Kapitel)
+   - 76+ Companion Specifications (DI, I4AAS, PLCopen, Robotics, etc.)
+   - VIA Custom Companion Spec Design (VIAProcessType hierarchy)
+
+### Kernerkenntnisse für VIA:
+**Code-Gen Pipeline**:
+```
+VIA M3 Metamodel (Protobuf-based DSL)
+    ↓
+VIA-M3-Compiler (analog aas-core-codegen)
+    ├→ VIA-M2-SDK-C++ (gRPC + IPC Services)
+    ├→ OPC UA NodeSet XML (Opc.Ua.VIA.NodeSet2.xml)
+    └→ Protobuf Messages
+        ↓
+open62541 nodeset_compiler (XML → C code)
+    ↓
+VIA Process mit embedded OPC UA Server
+    ↓
+VIA-M1-System-Deploy (Kubernetes + Edge Modules)
+```
+
+**VIA-Spezifische Extensions**:
+- **Sub-Protocols unter OPC UA**: Edge-Group-Protocol, Deploy-Protocol, Process-Group-Protocol
 - **VIA Companion Spec**: VIAProcessType, VIARouterType, VIASchedulerType, VIARegistryType
-- **Sub-Protocols**: Edge-Group-Protocol, Deploy-Protocol, Process-Group-Protocol (unter OPC UA)
+- **Horse-Rider Deployment**: C++23 Modules, Hot-Reload, Canary Deployment
+- **IPC Mechanisms**: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging
+
+### Git Commits (Phase 2):
+- c382971: Phase 2 setup - AAS analysis
+- 417ea31: Progress documentation
+- d0ddccd: open62541 analysis
+- f7e5481: Merge status documents
+- bda9acb: UA-Nodeset analysis
+- 02d26f0: Phase 2 summary & completion
 
 ---
 
 ## ⏳ PHASE 3: Implementation Playbooks (NÄCHSTE PHASE)
 
 **Status**: BEREIT ZUM START
-**Token verfügbar**: ~123K / 200K (61.5%)
+**Token verfügbar**: ~105K / 200K (52.5%)
 
-### Zu erstellen:
-1. ⏳ Main_System_playbook_DAY01.md
-2. ⏳ VIA-M3-Compiler/implementation/M3_compiler_playbook.md
-3. ⏳ VIA-M2-SDK/implementation/M2_sdk_playbook.md  
-4. ⏳ VIA-M1-System-Deploy/implementation/M1_deploy_playbook.md
-5. ⏳ Test Playbooks für M3/M2/M1
+### Zu erstellen (7 Playbooks):
+1. ⏳ `Main_System_playbook_DAY01.md` (orchestriert M3→M2→M1)
+2. ⏳ `VIA-M3-Compiler/implementation/M3_compiler_playbook.md`
+3. ⏳ `VIA-M3-Compiler/tests/M3_tests_playbook.md`
+4. ⏳ `VIA-M2-SDK/implementation/M2_sdk_playbook.md`
+5. ⏳ `VIA-M2-SDK/tests/M2_tests_playbook.md`
+6. ⏳ `VIA-M1-System-Deploy/implementation/M1_deploy_playbook.md`
+7. ⏳ `VIA-M1-System-Deploy/tests/M1_tests_playbook.md`
 
-**Start-Command**: Lies phase1/phase2 SUMMARY.md, starte PHASE 3 Implementation Playbooks
+### Nach Phase 3:
+- 📋 PHASE 4: Exposé nach CELM-Vorlage
+- 📋 PHASE 5: Forschungsantrag 1-Seite Summary
+
+**Start-Command für Phase 3**:
+> "Lies `phase1_research/PHASE1_SUMMARY.md` und `phase2_research/PHASE2_SUMMARY.md` für vollständigen Kontext. Starte PHASE 3: Erstelle Implementation Playbooks für Main System, M3-Compiler, M2-SDK, M1-Deploy mit jeweiligen Test-Playbooks."
 
