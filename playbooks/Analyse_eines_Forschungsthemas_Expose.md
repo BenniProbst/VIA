@@ -12,51 +12,59 @@
 ## 1. Einleitung und Motivation
 
 ### 1.1 Ausgangssituation
-- AAS (Asset Administration Shell) Repository von Dr. Santiago Soler Perez Olaya offenbart vollständige Compiler-Architektur
-- M3/M2/M1 Metamodell-Struktur analog zu Prof. Castrillon (TU Dresden)
-- Derzeitige Implementierung: Python-Skripte simulieren Compiler-Funktionalität
-- Problem: Keine vollständige Compiler-Implementierung als externes Übersetzerprogramm
+
+Die industrielle Automatisierung steht vor der Herausforderung, heterogene Systeme mit unterschiedlichen Protokollen, Architekturen und Kommunikationsmustern zu integrieren. Im Rahmen der Forschungsarbeiten am Lehrstuhl für Industrielle Kommunikationstechnik der TU Dresden unter Prof. Dr.-Ing. habil. Martin Wollschlaeger wurde das Asset Administration Shell (AAS) Framework nach IEC 63278 als standardisierter Ansatz für digitale Zwillinge in der Industrie 4.0 entwickelt. Die von Dr. Santiago Soler Perez Olaya betreute aas-core-works Implementierung offenbart dabei eine vollständige Compiler-Architektur, die auf einer M3/M2/M1 Metamodell-Struktur basiert – analog zu den Ansätzen von Prof. Castrillon im Bereich Compiler-Design an der TU Dresden.
+
+Die derzeitige Implementierung des AAS-Frameworks nutzt Python-Skripte, die Compiler-Funktionalität simulieren: Das aas-core-meta Repository definiert das M3-Metamodell in vereinfachtem Python, während aas-core-codegen daraus Zielsprachen-SDKs generiert (C++, C#, Python, TypeScript, Java, Golang). Trotz dieser funktionalen Code-Generierung fehlt eine vollständige Compiler-Implementierung als externes Übersetzerprogramm, das als eigenständiges, wartbares Tool in industriellen Produktionsumgebungen eingesetzt werden kann.
 
 ### 1.2 Vision: Industrie 5.0
-- KI-gesteuerte Systembeschreibung: Kunde beschreibt System natürlichsprachlich
-- Automatische Compilation und Deployment
-- Software-in-the-Loop: Iterative Fehlerkorrektur gegen Kundenspezifikation
-- Ziel: "Der Kunde beschreibt sein System der KI, die KI definiert Compiler-Beschreibung, Compiler generiert System"
+
+Die nächste Generation industrieller Automatisierung – Industrie 5.0 – erfordert eine fundamentale Paradigmenverschiebung: Statt manueller Systemkonfiguration und -programmierung soll eine KI-gesteuerte Systembeschreibung ermöglicht werden, bei der Anwender ihr System natürlichsprachlich beschreiben. Das Zielsystem führt automatische Compilation und Deployment durch, wobei Software-in-the-Loop Verfahren iterative Fehlerkorrektur gegen die Kundenspezifikation ermöglichen. Das langfristige Ziel dieser Forschungsvision lautet: "Der Kunde beschreibt sein System der KI, die KI definiert eine Compiler-Beschreibung, der Compiler generiert das funktionsfähige System."
+
+Diese Vision erfordert eine durchgängige Automatisierung vom abstrakten Metamodell bis zum deployed System auf heterogenen Edge-Geräten. VIA (Virtual Industry Automation) verfolgt diesen Ansatz durch eine mehrstufige Compiler-Kette (M3→M2→M1), die aus einem Metamodell zunächst ein SDK generiert (M3→M2), aus Kundenprojekten Systemprojekte erstellt (M2→M1) und diese schließlich auf über 50.000 Edge-Geräte verteilt deployed (M1-Deployment).
 
 ### 1.3 Forschungslücke
-- Fehlende Verbindung: Metamodell → Production-Grade Compiler → Deployment
-- Keine wartbare, versionierte SDK-Generierung für industrielle Langzeitnutzung
-- Manuelle Orchestrierung von >50.000 Edge-Geräten unzumutbar
-- Heterogene Architekturen (MIPS, RISC-V, POWER9, x86, ARM, Sparc) erfordern Multi-Target-Compilation
+
+Trotz der vorhandenen Metamodell-Frameworks und Code-Generatoren existiert eine fundamentale Forschungslücke zwischen Metamodell-Definition und Production-Grade Compiler-Implementierung. Bisherige Ansätze wie aas-core-codegen erzeugen zwar lauffähigen Code, jedoch fehlt die Verbindung zum automatisierten Deployment: Es gibt keine wartbare, versionierte SDK-Generierung für industrielle Langzeitnutzung (typischerweise 15-25 Jahre in der Fertigungsindustrie), keine automatische Orchestrierung der generierten Systeme und keine Optimierung der Prozesskommunikation zur Compile-Zeit.
+
+Die manuelle Orchestrierung von mehr als 50.000 Edge-Geräten in einer typischen Automobilfabrik ist praktisch unzumutbar und fehleranfällig. Zudem erfordern heterogene Zielarchitekturen (MIPS, RISC-V, POWER9, x86, ARM, Sparc) eine Multi-Target-Compilation, die in bisherigen AAS-Implementierungen nicht vorgesehen ist. Insbesondere fehlt eine wissenschaftliche Untersuchung, ob und wie Mikroservice-Kommunikation (IPC: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) zur Compile-Zeit optimiert werden kann, um Latenz und Ressourcenverbrauch gegenüber Runtime-Orchestrierung zu reduzieren.
 
 ---
 
 ## 2. Problemstellung und Forschungsfrage
 
 ### 2.1 Kontext: VIA-Gesamtsystem
-**VIA (Virtual Industry Automation)** ist eine mehrstufige Compiler-Kette (M3→M2→M1) für heterogene Industriesysteme mit automatischer Orchestrierung von >50.000 Edge-Devices. Das Gesamtsystem umfasst:
-- **M3-Compiler**: AAS Metamodell → C++ SDK
-- **M2-SDK-Compiler**: Kundenprojekt → Systemprojekt mit Network Discovery
-- **M1-System-Deployer**: Cross-Compilation, Horse-Rider-Deployment, Kubernetes-Orchestrierung
 
-### 2.2 Fokus dieser Forschungsarbeit: Prozesskommunikations-Protokoll
+VIA (Virtual Industry Automation) bildet den übergeordneten Kontext dieser Forschungsarbeit. Es handelt sich um eine mehrstufige Compiler-Kette (M3→M2→M1) für heterogene Industriesysteme mit automatischer Orchestrierung von mehr als 50.000 Edge-Devices. Das Gesamtsystem gliedert sich in drei Hauptkomponenten: Der **M3-Compiler** transformiert das AAS-Metamodell in ein sprachspezifisches SDK (C++, Python, Java), der **M2-SDK-Compiler** konvertiert Kundenprojekte unter Einbeziehung von Network Discovery in vollständige Systemprojekte, und der **M1-System-Deployer** führt Cross-Compilation, Horse-Rider-Deployment und Kubernetes-Orchestrierung durch.
 
-**Forschungsfrage:**
+Diese Architektur ermöglicht eine durchgängige Automatisierung von der abstrakten Systembeschreibung bis zum deployed System auf heterogenen Hardwareplattformen. Während das VIA-Gesamtsystem alle Aspekte von Metamodellierung bis Deployment abdeckt, fokussiert sich die vorliegende Forschungsarbeit auf einen spezifischen, kritischen Teilaspekt: die Optimierung der Prozesskommunikation zur Compile-Zeit.
+
+### 2.2 Fokus dieser Forschungsarbeit: Process-Group-Protocol
+
+Die zentrale Forschungsfrage dieser Arbeit lautet:
+
 > **Können über Metamodelle (M3/M2) automatisch Prozessketten von Mikroservices erstellt werden, deren Positionierung im System und Kommunikationsmechanismus (IPC: Pipe, Socket, TCP, File-Queue, Thread) bei der Kompilation optimiert wird?**
 
-**Teilfragen:**
-1. Welche M3-Modellelemente sind notwendig, um Prozesskommunikation zu beschreiben?
-2. Wie kann der M2-SDK-Compiler aus Prozessabhängigkeiten optimale IPC-Mechanismen ableiten?
-3. Welche Metriken bestimmen die Positionierung (gleicher Container, gleicher Host, Remote)?
-4. Wie verhält sich das Process-Group-Protocol unter OPC UA bei >50.000 Geräten?
+Diese Frage adressiert eine fundamentale Herausforderung moderner Mikroservice-Architekturen: Die Wahl des Inter-Process Communication (IPC) Mechanismus erfolgt üblicherweise zur Laufzeit durch Service-Mesh-Lösungen wie Istio oder Linkerd. Diese Runtime-Entscheidungen verursachen jedoch Overhead durch dynamisches Routing, Service Discovery und Load Balancing. Die vorliegende Arbeit untersucht, ob durch Compile-Time-Analyse des Metamodells eine statische Optimierung möglich ist, die Latenz reduziert ohne Flexibilität signifikant einzuschränken.
 
-**Hypothesen:**
-- **H1**: Compiler-basierte IPC-Optimierung reduziert Latenz um >30% gegenüber Runtime-Service-Mesh
-- **H2**: Statische Positionierungsentscheidung (Compile-Time) erreicht 90% der Effizienz dynamischer Orchestrierung
-- **H3**: Process-Group-Protocol skaliert linear bis 100.000 Services bei hierarchischer Gruppierung
-- **H4**: Metamodell-basierte Abstraktion senkt manuelle Entwicklungszeit um 60%
+Zur systematischen Bearbeitung dieser Forschungsfrage werden vier Teilfragen formuliert:
 
-**Abgrenzung:** Diese Arbeit konzentriert sich auf das **Process-Group-Protocol-Subsystem** als Teil des VIA-Gesamtsystems. Die M3/M2/M1-Architektur dient als Kontext und theoretischer Rahmen.
+1. **Metamodell-Elemente**: Welche M3-Modellelemente sind notwendig, um Prozesskommunikation (Abhängigkeiten, Datenflüsse, Latenzanforderungen) zu beschreiben?
+
+2. **IPC-Ableitung**: Wie kann der M2-SDK-Compiler aus Prozessabhängigkeiten optimale IPC-Mechanismen ableiten? Welche Heuristiken bestimmen, ob Pipe (gleicher Host, geringer Overhead), Unix Socket (gleicher Host, höhere Flexibilität), TCP (Remote, höchste Flexibilität), File-Queue (asynchron, persistent) oder Thread-Messaging (gleicher Prozess, geringste Latenz) gewählt wird?
+
+3. **Positionierungsmetriken**: Welche Metriken bestimmen die Positionierung von Mikroservices (gleicher Container, gleicher Host, gleicher Cluster-Node, Remote)? Wie werden Latenzanforderungen, Ressourcenverfügbarkeit und Ausfallsicherheit gewichtet?
+
+4. **Skalierbarkeit**: Wie verhält sich das Process-Group-Protocol unter OPC UA bei mehr als 50.000 Geräten? Kann hierarchische Gruppierung (Edge-Groups → Cluster-Groups → Global) lineares Skalierungsverhalten erreichen?
+
+Zur Validierung der Forschungshypothese werden vier messbare Hypothesen aufgestellt:
+
+- **H1 (Latenz)**: Compiler-basierte IPC-Optimierung reduziert Latenz um mindestens 30% gegenüber Runtime-Service-Mesh-Lösungen
+- **H2 (Effizienz)**: Statische Positionierungsentscheidung zur Compile-Zeit erreicht mindestens 90% der Effizienz dynamischer Runtime-Orchestrierung
+- **H3 (Skalierbarkeit)**: Das Process-Group-Protocol skaliert linear bis 100.000 Services bei hierarchischer Gruppierung
+- **H4 (Entwicklungszeit)**: Metamodell-basierte Abstraktion senkt manuelle Entwicklungszeit um mindestens 60%
+
+**Abgrenzung**: Diese Arbeit konzentriert sich auf das **Process-Group-Protocol-Subsystem** als Teil des VIA-Gesamtsystems. Die M3/M2/M1-Architektur dient als Kontext und theoretischer Rahmen, wird jedoch nicht in allen Details implementiert. Insbesondere werden M3-Compiler-Optimierungen, Multi-Architektur-Cross-Compilation und das vollständige Horse-Rider-Deployment als gegeben vorausgesetzt und nicht eigenständig erforscht.
 
 ### 2.3 Teilprobleme des Gesamtsystems (Kontext)
 
@@ -132,7 +140,12 @@
 
 ## 3. Stand der Forschung
 
+Die Forschungsarbeit baut auf mehreren etablierten Standards und Forschungsergebnissen auf, die im Folgenden systematisch dargestellt werden. Die Analyse umfasst AAS-Code-Generierung (Abschnitt 3.1), OPC UA als Kommunikationsprotokoll (Abschnitt 3.2), Multi-Message Broker für Brownfield-Integration (Abschnitt 3.3), Management-Frameworks (Abschnitt 3.4), Service-orientierte Architekturen (Abschnitt 3.5), Monitoring-Ansätze (Abschnitt 3.6) sowie theoretische Grundlagen wie ISA-95 und CMFM (Abschnitt 3.7).
+
 ### 3.1 Asset Administration Shell (AAS) - aas-core-works
+
+Das aas-core-works Framework bildet den Ausgangspunkt für die metamodell-basierte Code-Generierung in VIA. Es implementiert den IEC 63278 Standard als M3/M2/M1 Metamodel Architecture für digitale Zwillinge und demonstriert, wie aus einem abstrakten Metamodell (aas-core-meta in simplified Python) produktionsreifer Code für sechs Zielsprachen generiert werden kann. Die Architektur folgt dem Single-Source-of-Truth Prinzip: Das M3-Metamodell wird einmal kanonisch definiert, der aas-core-codegen Compiler transformiert es automatisch in sprachspezifische SDKs mit identischer Semantik. Zentrale technische Eigenschaften:
+
 - **IEC 63278 Standard**: M3/M2/M1 Metamodel Architecture für Digital Twins
 - **aas-core-meta**: M3 Metamodel in simplified Python (canonical definition), versioned releases (YYYY.MM.DD)
 - **aas-core-codegen**: Multi-Target Compiler, Single Source of Truth, automated generation, scalability
@@ -146,6 +159,9 @@
 - Limitation: Python-Skripte (nicht C++ Production-Compiler), statisches Modell (keine Runtime Reconfiguration), AAS-spezifisch (keine Industrial Real-Time Constraints)
 
 ### 3.2 OPC UA (IEC 62541) & open62541 C99 Stack
+
+OPC UA (Open Platform Communications Unified Architecture) nach IEC 62541 bildet das Kommunikations-Rückgrat für VIA. Als etablierter Standard in der industriellen Automatisierung bietet OPC UA eine M3/M2/M1-basierte Informationsmodellierung, die strukturell mit der VIA-Architektur kompatibel ist. Die open62541 Implementierung – ursprünglich ein TU Dresden Forschungsprojekt – liefert einen produktionsreifen C99-Stack mit minimalem Memory-Footprint (~250KB), der für Edge-Geräte geeignet ist. Besonders relevant für VIA ist die Dynamic Address Space API, die es ermöglicht, OPC UA Nodes zur Laufzeit zu erzeugen und zu löschen – eine Voraussetzung für die Abbildung dynamisch registrierender VIA-Prozesse. Zentrale Eigenschaften:
+
 - **Client-Server Many-to-Many**: Mehrere Clients ↔ Mehrere Server, Discovery Mechanismen, Subscriptions
 - **Informationsmodellierung (Herzstück)**: Beliebig komplexe Strukturen, eigene Objekttypen/Variablentypen, objektorientiert, dynamisch erweiterbar
 - **M3/M2/M1 Architektur**: M3 (Metamodell: Objekte/Variablen/Methoden existieren), M2 (Modell: Domain-spezifische Typen), M1 (Instanz: Laufende Systeme)
@@ -180,6 +196,9 @@
 - Limitation: Statische NodeSets (behoben durch Dynamic Address Space API), keine dynamische Orchestrierung, keine Compile-Time-Optimierung
 
 ### 3.3 Multi-Message Broker (Dr. Santiago Soler Perez Olaya et al., IEEE ETFA 2024)
+
+Der Multi-Message Broker (MMB) adressiert die Herausforderung der Brownfield-Integration: Legacy-Geräte mit proprietären, inflexiblen Protokollen (Modbus, PROFIBUS, EtherCAT) müssen in moderne AAS-basierte Industrie 4.0-Systeme integriert werden. Der MMB fungiert als Gateway zwischen Northbound-Schnittstellen (I4.0 HTTP API, zukünftig Type 3 Proactive AAS) und Southbound-Protokollen (Modbus, HTTP, MQTT, zukünftig PROFIBUS/EtherCAT/PROFINET). Die Architektur demonstriert, wie heterogene Protokolle durch Mapping-Submodelle (AID/AIMC) systematisch in ein einheitliches AAS-Datenmodell überführt werden können – ein Ansatz, den VIA für die automatische Generierung von Protocol-Adaptern nutzt. Zentrale Eigenschaften:
+
 - **Problem**: Brownfield Integration (Legacy Devices mit inflexiblen Protokollen)
 - **MMB als Gateway**: Northbound (I4.0 HTTP API, zukünftig Type 3 Proactive AAS) ↔ Southbound (Modbus, HTTP, MQTT, zukünftig PROFIBUS/EtherCAT/PROFINET)
 - **Internal Layers**: Consistency Layer (identische Requests → gleiche Info), Mapping Layer (Connector-Auswahl + Data Transformation), AAS Storage (ein AAS pro Legacy Asset)
@@ -193,6 +212,9 @@
 - Limitation: AIMC erlaubt keine Data Transformations, Type 3 noch nicht standardisiert, kein vollautomatisches Deployment
 
 ### 3.4 CMFM & Management Paradigmen
+
+Das Comprehensive Management Function Model (CMFM) bietet einen theoretischen Rahmen für Human-Centered Management in heterogenen industriellen Netzwerken ("Network of Networks"). Anders als System-Centric Ansätze (SNMP Value-based, SDN Requirements-based) fokussiert CMFM auf Intent-basiertes Management: Anwender beschreiben Ziele (Goals) und gewünschte Ausgaben (Outputs), das System leitet automatisch notwendige Konfigurationen ab. VIA adaptiert die CMFM-Philosophie für die Prozesskommunikation: Das M3-Metamodell definiert ein VIA-Vocabulary (Elements: Process, Service, Registry; Verbs: register, discover, route; IPC Types: Pipe, Socket, TCP, FileQueue, Thread), aus dem der M2-Compiler automatisch Orchestrierungslogik generiert. Zentrale Konzepte:
+
 - **CMFM**: Human-Centered vs. System-Centric Management
 - **Management Paradigmen**: Value-based (SNMP), Policy-based (Intent), Requirements-based (SDN/TSN), Ontology-based (Semantic)
 - **CMFM Stärken**: Heterogeneity Management, Intent-based, Knowledge Transfer
@@ -207,6 +229,9 @@
 - Limitation: Keine Compiler-Kette, manuelle CMFM-Erstellung, Vocabulary Management yet-to-standardize
 
 ### 3.5 SOA & Microservice Architecture (Dr. Santiago Soler Perez Olaya et al., IECON 2024)
+
+Service-orientierte Architekturen (SOA) und Microservices bilden die strukturelle Grundlage für VIA-Prozesse. Die Forschungsarbeit von Dr. Soler Perez Olaya demonstriert, wie AAS-Submodels als eigenständige Microservices implementiert werden können, die über gRPC+Protobuf kommunizieren. Besonders relevant ist die beschriebene Code-Generation-Pipeline: OpenAPI-Spezifikationen (AAS Spec) werden in Protobuf-Definitionen transformiert, aus denen der protoc-Compiler sprachspezifischen Code generiert. VIA erweitert diesen Ansatz um eine zusätzliche Abstraktionsebene (M3-Metamodell) und automatische IPC-Optimierung. Zentrale Erkenntnisse:
+
 - **SOA Prinzipien**: Modularity, Abstraction, Loose Coupling, Service Composition, Reusability
 - **Automotive SOA**: SOME/IP (Autosar), DDS (Publish/Subscribe), OPC UA (Interoperabilität)
 - **Microservice Network für AAS**: One microservice per Submodel, Northbound (HTTP API) ↔ Internal (gRPC) ↔ Southbound (Asset Protocol)
@@ -217,6 +242,9 @@
 - **Limitation**: Protobuf kein Inheritance (resort to composition), duality Protobuf-generated vs AAS Core SDK classes, heterogene Protokolle nicht unified, manuelle Orchestrierung
 
 ### 3.6 IPC, Monitoring & Service Mesh (Related Work)
+
+Die Wahl des IPC-Mechanismus hat fundamentalen Einfluss auf Latenz und Skalierbarkeit verteilter Systeme. Bestehende Lösungen wie gRPC (~0.5ms Latenz, aber keine Service Discovery), UNIX Domain Sockets (~20μs, nur lokal), DDS (Real-Time QoS, ~2ms Overhead) und Service-Mesh-Lösungen wie Istio/Linkerd (Runtime-Routing, 5-10ms Sidecar-Overhead) erfordern manuelle Konfiguration und bieten keine Compile-Time-Optimierung. Für Monitoring existieren etablierte Standards (SNMP für Infrastruktur, OPC UA für Prozessdaten, MQTT für Cloud-Anbindung), jedoch fehlt eine integrierte Sicht. VIA adressiert diese Fragmentierung durch eine Compiler-gestützte Vereinheitlichung: Der M2-Compiler wählt automatisch den optimalen IPC-Mechanismus basierend auf Prozess-Lokalisierung (gleicher Host → Pipe/Socket, Remote → TCP/gRPC) und Latenzanforderungen. Übersicht bestehender Ansätze:
+
 - **gRPC**: HTTP/2, Protobuf, ~0.5ms Latenz (Single-Host), Service Discovery fehlt
 - **ZeroMQ**: Message Queues, 5 Patterns (REQ/REP, PUB/SUB), keine Compiler-Integration
 - **DDS (OMG Data Distribution Service)**: Real-Time, QoS-Policies, Overhead ~2ms, keine Metamodell-Abstraktion
@@ -228,6 +256,9 @@
 - **Limitation**: Alle Ansätze erfordern manuelle Konfiguration, keine Compile-Time-Optimierung, keine unified heterogene Protokolle
 
 ### 3.7 Forschungslücken
+
+Die Analyse des Stands der Forschung offenbart mehrere fundamentale Lücken, die diese Arbeit adressiert:
+
 - Keine mehrstufige Compiler-Kette M3→M2→M1 für Prozesskommunikation
 - Keine automatische IPC-Mechanismus-Auswahl bei Compilation
 - Keine Sub-Protokolle unter OPC UA standardisiert
