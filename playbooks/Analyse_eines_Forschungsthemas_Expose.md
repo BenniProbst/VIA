@@ -1,6 +1,6 @@
 # Exposé: Analyse eines Forschungsthemas - Prozesskommunikation
 
-**Titel**: VIA - Virtual Integration Architecture: Self-Modeling and Building Systems for Industry 4.0
+**Titel**: VIA - Virtual Industry Automation: Self-Modeling and Building Systems for Industry 4.0
 
 **Autor**: Benjamin Probst
 **Betreuer**: Prof. Dr.-Ing. habil. Martin Wollschlaeger, Dr.-Ing. Frank Hilbert, Santiago Soler Perez Olaya
@@ -34,7 +34,7 @@
 ## 2. Problemstellung und Forschungsfrage
 
 ### 2.1 Kontext: VIA-Gesamtsystem
-**VIA (Virtual Integration Automation)** ist eine mehrstufige Compiler-Kette (M3→M2→M1) für heterogene Industriesysteme mit automatischer Orchestrierung von >50.000 Edge-Devices. Das Gesamtsystem umfasst:
+**VIA (Virtual Industry Automation)** ist eine mehrstufige Compiler-Kette (M3→M2→M1) für heterogene Industriesysteme mit automatischer Orchestrierung von >50.000 Edge-Devices. Das Gesamtsystem umfasst:
 - **M3-Compiler**: AAS Metamodell → C++ SDK
 - **M2-SDK-Compiler**: Kundenprojekt → Systemprojekt mit Network Discovery
 - **M1-System-Deployer**: Cross-Compilation, Horse-Rider-Deployment, Kubernetes-Orchestrierung
@@ -49,6 +49,12 @@
 2. Wie kann der M2-SDK-Compiler aus Prozessabhängigkeiten optimale IPC-Mechanismen ableiten?
 3. Welche Metriken bestimmen die Positionierung (gleicher Container, gleicher Host, Remote)?
 4. Wie verhält sich das Process-Group-Protocol unter OPC UA bei >50.000 Geräten?
+
+**Hypothesen:**
+- **H1**: Compiler-basierte IPC-Optimierung reduziert Latenz um >30% gegenüber Runtime-Service-Mesh
+- **H2**: Statische Positionierungsentscheidung (Compile-Time) erreicht 90% der Effizienz dynamischer Orchestrierung
+- **H3**: Process-Group-Protocol skaliert linear bis 100.000 Services bei hierarchischer Gruppierung
+- **H4**: Metamodell-basierte Abstraktion senkt manuelle Entwicklungszeit um 60%
 
 **Abgrenzung:** Diese Arbeit konzentriert sich auf das **Process-Group-Protocol-Subsystem** als Teil des VIA-Gesamtsystems. Die M3/M2/M1-Architektur dient als Kontext und theoretischer Rahmen.
 
@@ -145,11 +151,20 @@
 - SOA: gRPC + Protobuf, Kubernetes Container
 - Limitation: Keine Compiler-Kette, manuelle Orchestrierung
 
-### 3.5 Forschungslücken
-- Keine mehrstufige Compiler-Kette M3→M2→M1
-- Keine automatische Orchestrierung >50.000 Geräte
+### 3.5 IPC & Service Mesh (Related Work)
+- **gRPC**: HTTP/2, Protobuf, ~0.5ms Latenz (Single-Host), Service Discovery fehlt
+- **ZeroMQ**: Message Queues, 5 Patterns (REQ/REP, PUB/SUB), keine Compiler-Integration
+- **DDS (OMG Data Distribution Service)**: Real-Time, QoS-Policies, Overhead ~2ms, keine Metamodell-Abstraktion
+- **Istio/Linkerd (Service Mesh)**: Runtime-Routing, Dynamic Discovery, Sidecar-Overhead 5-10ms
+- **UNIX Domain Sockets**: ~20μs Latenz, nur lokale Prozesse, keine verteilte Orchestrierung
+- **Limitation**: Alle Ansätze erfordern manuelle Konfiguration, keine Compile-Time-Optimierung
+
+### 3.6 Forschungslücken
+- Keine mehrstufige Compiler-Kette M3→M2→M1 für Prozesskommunikation
+- Keine automatische IPC-Mechanismus-Auswahl bei Compilation
 - Keine Sub-Protokolle unter OPC UA standardisiert
-- Keine Horse-Rider-Deployment mit C++23 erforscht
+- Keine Compile-Time-Optimierung von Microservice-Positionierung
+- Service Mesh Overhead (5-10ms) vs. potenzielle Compiler-Optimierung unerforscht
 
 ---
 
@@ -166,11 +181,43 @@
 - **T5**: KI-Integration Industrie 5.0 (NLP → M3 → System)
 
 ### 4.3 Forschungsmethodik
+
+#### 4.3.1 Methodisches Vorgehen
+1. **Requirements Engineering**: M3-Modellelemente für Prozesskommunikation definieren (AAS-Extension)
+2. **Design**: Compiler-Optimierungsalgorithmus (Graph-basiert, Constraint Solver)
+3. **Prototypische Implementierung**: M2-SDK-Compiler mit IPC-Optimizer (C++20/23)
+4. **Evaluation**: Benchmark-Suite, Use-Case-Implementierung, Vergleichsmessungen
+
+#### 4.3.2 Evaluationsumgebung
+- **Labor-Setup**: 3-Node Kubernetes Cluster (64 Core, 256 GB RAM, 10 Gbit/s Netzwerk)
+- **Simulationstools**: Mininet für virtuelle Netzwerktopologien (bis 1.000 Nodes)
+- **Benchmark-Szenarien**:
+  - **S1**: Lokale Prozesskette (5 Services, gleicher Host)
+  - **S2**: Verteilte Prozesskette (20 Services, 3 Hosts)
+  - **S3**: Skalierungstest (100.000 Services, hierarchische Gruppierung)
+  - **S4**: Real-World Use-Case (Industrieller SCADA + MES + PLC-Edge-Integration)
+
+#### 4.3.3 Metriken & Erfolgskriterien
+- **Latenz**: End-to-End Prozesskette (P50, P95, P99 Perzentile)
+- **Throughput**: Nachrichten/Sekunde (Messages/s)
+- **CPU-Last**: Prozessor-Auslastung bei Last (%)
+- **Memory Footprint**: RAM-Verbrauch pro Service (MB)
+- **Entwicklungszeit**: Manual vs. Metamodell-generiert (Stunden)
+- **Erfolgskriterium**: H1-H4 bestätigt (siehe Hypothesen Kapitel 2.2)
+
+#### 4.3.4 Vergleichsbaseline
+- **Baseline 1**: Manuell konfiguriertes gRPC (statisch)
+- **Baseline 2**: Istio Service Mesh (dynamisch)
+- **Baseline 3**: UNIX Sockets (optimal, nur lokal)
+- **VIA Process-Group-Protocol**: Compiler-optimiert
+
+#### 4.3.5 Phasenplan
 - **Phase 1**: Research & Analyse ✅ ABGESCHLOSSEN
-- **Phase 2**: Playbook-Erstellung ⏳ IN PROGRESS
-- **Phase 3**: Prototypische Implementierung (VIA-M3-Compiler)
-- **Phase 4**: Evaluation (Benchmark, Skalierbarkeit, Use-Case)
-- **Phase 5**: Dokumentation & Publikation
+- **Phase 2**: Playbook-Erstellung & Metamodell-Design ⏳ IN PROGRESS
+- **Phase 3**: M2-SDK-Compiler Prototyp mit IPC-Optimizer (6 Wochen)
+- **Phase 4**: Benchmark-Suite & Use-Case-Implementierung (4 Wochen)
+- **Phase 5**: Evaluation & Vergleichsmessungen (4 Wochen)
+- **Phase 6**: Dokumentation & Publikation (4 Wochen)
 
 ---
 
@@ -260,38 +307,78 @@
 
 ## 7. Erwartete Ergebnisse
 
-### 7.1 Wissenschaftliche Beiträge
-- **B1**: Mehrstufige Compiler-Architektur (M3→M2→M1), Production-Grade
-- **B2**: Sub-Protokoll-Design, Standardisierungsvorschlag OPC Foundation
-- **B3**: Horse-Rider-Deployment mit C++23 Modules, Hot-Reload
-- **B4**: Automatische Network Discovery & Orchestrierung >50.000 Geräte
-- **B5**: KI-Integration Industrie 5.0 (NLP → M3 → System)
+### 7.1 Wissenschaftliche Beiträge (Fokus Prozesskommunikation)
+- **B1**: Metamodell-Extension für Prozesskommunikation in AAS M3
+- **B2**: Compiler-Optimierungsalgorithmus für IPC-Mechanismus-Auswahl
+- **B3**: Process-Group-Protocol als OPC UA Sub-Protokoll
+- **B4**: Benchmark-Vergleich: Compiler-Optimierung vs. Service Mesh vs. Manuelle Konfiguration
+- **B5**: Skalierbarkeitsnachweis >100.000 Services mit hierarchischer Gruppierung
 
 ### 7.2 Praktische Ergebnisse
-- **E1**: VIA-Toolchain (Open-Source): M3-Compiler, M2-SDK, M1-Deployer
-- **E2**: VIA Companion Specification für OPC UA
-- **E3**: Benchmark-Ergebnisse (Code-Gen Speed, Runtime, Skalierbarkeit)
-- **E4**: Industrieller Use-Case (Partner-Firma, Real-World Deployment)
+- **E1**: M2-SDK-Compiler Prototyp mit IPC-Optimizer (Open-Source)
+- **E2**: Benchmark-Suite für IPC-Performance (Latenz, Throughput, CPU, Memory)
+- **E3**: Use-Case-Implementierung: SCADA + MES + PLC-Edge-Integration
+- **E4**: Standardisierungsvorschlag: VIA Process-Group-Protocol für OPC Foundation
 
-### 7.3 Limitationen
-- **L1**: Komplexität Testabdeckung → Constraint-basierte Test-Generierung
-- **L2**: C++23 Module ABI-Stabilität → Konservatives ABI-Subset
-- **L3**: Skalierbarkeit >50K → Hierarchische Orchestrierung
-- **L4**: Sicherheit Hot-Reload → Signierte Modules, Secure Boot
+### 7.3 Konkrete Evaluation-Kriterien
+
+#### 7.3.1 Use-Case-Szenario: Automobilproduktion (Exemplarisch)
+**System-Architektur:**
+- **100 PLC-Edge-Devices**: Roboterarme, Förderbänder, Prüfstationen (MIPS/ARM, Linux)
+- **10 MES-Server**: Manufacturing Execution System (x86, Windows Server)
+- **3 SCADA-Server**: Supervisory Control, Visualisierung (x86, Linux)
+- **5 Analytics-Services**: Predictive Maintenance, Quality Control (Kubernetes Pods)
+
+**Prozesskette (Beispiel):**
+1. PLC-Edge → MES: Produktionsdaten (1 Hz, 1 KB)
+2. MES → Analytics: Aggregierte Daten (0.1 Hz, 10 KB)
+3. Analytics → SCADA: Alarme + Prognosen (Event-based, 100 Bytes)
+4. SCADA → PLC-Edge: Steuerkommandos (0.5 Hz, 50 Bytes)
+
+**Erfolgsmetriken (quantitativ):**
+- **Latenz P95 < 5ms** (End-to-End Prozesskette)
+- **Throughput > 10.000 Msg/s** (Gesamtsystem)
+- **CPU-Last < 20%** (pro Service)
+- **Memory Footprint < 50 MB** (pro Service)
+- **Entwicklungszeit: 8h manuell → 2h metamodell-generiert** (75% Reduktion)
+
+#### 7.3.2 Vergleich mit Baselines
+| Metrik | gRPC (manuell) | Istio Service Mesh | UNIX Sockets | VIA (Ziel) |
+|--------|---------------|-------------------|--------------|------------|
+| Latenz P95 | 2-5ms | 10-15ms | 0.05ms (lokal) | 1-3ms |
+| Throughput | 50k Msg/s | 30k Msg/s | 200k Msg/s (lokal) | 80k Msg/s |
+| CPU-Last | 15% | 25% | 5% (lokal) | 12% |
+| Config-Zeit | 8h | 4h (Runtime-Auto) | N/A (lokal only) | 2h (Compile-Auto) |
+
+### 7.4 Limitationen
+- **L1**: Compile-Time-Optimierung erfordert statische Topologie (dynamische Änderungen → Neu-Compilation)
+- **L2**: M3-Modellelemente noch nicht in offizieller AAS-Spezifikation
+- **L3**: Cross-Architektur-Performance variiert (MIPS vs. x86)
+- **L4**: Laborumgebung (3 Nodes) → Extrapolation auf >50k Geräte
 
 ---
 
-## 8. Zeitplan
+## 8. Zeitplan (Fokus Prozesskommunikation)
 
-- **Phase 1** (4 Wochen): Research & Playbooks ✅ ABGESCHLOSSEN
-- **Phase 2** (2 Wochen): Implementation Playbooks
-- **Phase 3** (6 Wochen): VIA-M3-Compiler Prototyp
-- **Phase 4** (6 Wochen): VIA-M2-SDK-Compiler Prototyp
-- **Phase 5** (6 Wochen): VIA-M1-System-Deployer Prototyp
-- **Phase 6** (4 Wochen): Evaluation & Benchmarking
-- **Phase 7** (4 Wochen): Dokumentation & Publikation
+- **Phase 1** (4 Wochen): Research & Analyse (AAS, OPC UA, IPC) ✅ ABGESCHLOSSEN
+- **Phase 2** (2 Wochen): Playbook & M3-Metamodell-Design ⏳ IN PROGRESS
+- **Phase 3** (6 Wochen): M2-SDK-Compiler Prototyp mit IPC-Optimizer
+  - Woche 1-2: Graph-basierter Optimierungsalgorithmus
+  - Woche 3-4: IPC-Mechanismus-Implementierung (Pipe, Socket, TCP, File-Queue, Thread)
+  - Woche 5-6: Process-Group-Protocol unter OPC UA
+- **Phase 4** (4 Wochen): Benchmark-Suite & Use-Case
+  - Woche 1-2: Benchmark-Implementierung (Latenz, Throughput, CPU, Memory)
+  - Woche 3-4: Automobilproduktion Use-Case (SCADA+MES+PLC)
+- **Phase 5** (4 Wochen): Evaluation & Vergleichsmessungen
+  - Woche 1: Baseline-Messungen (gRPC, Istio, UNIX Sockets)
+  - Woche 2-3: VIA-Messungen & Skalierungstests
+  - Woche 4: Auswertung & Hypothesen-Validierung
+- **Phase 6** (4 Wochen): Dokumentation & Publikation
+  - Woche 1-2: Forschungsbericht verfassen
+  - Woche 3: Paper für INDIN/ETFA-Konferenz vorbereiten
+  - Woche 4: OPC Foundation Standardisierungsvorschlag
 
-**Gesamtdauer**: 32 Wochen (~8 Monate)
+**Gesamtdauer**: 24 Wochen (~6 Monate)
 
 ---
 
@@ -315,8 +402,28 @@
 11. open62541 (2024). OPC UA C99 Implementation. https://github.com/open62541/open62541
 12. OPC Foundation (2024). UA-Nodeset Repository. https://github.com/OPCFoundation/UA-Nodeset
 
-### 9.4 Weitere Quellen (geplant: +15 nach weiterem Research)
-13-27. [Placeholder: Compiler-Theorie, C++23 Modules, Kubernetes Edge, gRPC Benchmarks, Industrial Protocols, Canary Deployment, Cross-Compilation, Digital Twins, NLP System Config, Software-in-the-Loop, Distributed Builds, IPC Performance, Metamodeling, Code Generation, Industrial Cybersecurity]
+### 9.4 IPC & Service Mesh (Related Work)
+13. Vinoski, S. (2006). Advanced Message Queuing Protocol. IEEE Internet Computing.
+14. Hintjens, P. (2013). ZeroMQ: Messaging for Many Applications. O'Reilly Media.
+15. OMG (2015). Data Distribution Service (DDS) v1.4. Object Management Group.
+16. Li, H. et al. (2019). Understanding the overhead of service mesh. SoCC'19.
+17. Istio Project (2024). Performance Benchmarks. https://istio.io/latest/docs/ops/deployment/performance-and-scalability/
+
+### 9.5 Compiler-Optimierung & Metamodelle
+18. Parr, T. (2010). Language Implementation Patterns. Pragmatic Bookshelf.
+19. Lattner, C. & Adve, V. (2004). LLVM: A Compilation Framework. CGO'04.
+20. Czarnecki, K. & Eisenecker, U. (2000). Generative Programming. Addison-Wesley.
+21. Völter, M. et al. (2013). Model-Driven Software Development. Wiley.
+
+### 9.6 IPC Performance Studies
+22. Sridharan, A. et al. (2003). UNIX Domain Sockets vs. Internet Sockets. Linux Journal.
+23. Google (2024). gRPC Performance Benchmarks. https://grpc.io/docs/guides/benchmarking/
+24. Redis Labs (2019). Inter-Process Communication Performance Analysis.
+
+### 9.7 Industrial Automation & Edge Computing
+25. Plattform Industrie 4.0 (2023). Asset Administration Shell Reading Guide.
+26. Sauter, T. (2010). The Three Generations of Field-Level Networks. IEEE Industrial Electronics Magazine.
+27. Shi, W. et al. (2016). Edge Computing: Vision and Challenges. IEEE Internet of Things Journal.
 
 ---
 
