@@ -1,0 +1,360 @@
+Page 1
+ 
+ Comprehensive management function models applied 
+to heterogeneous industrial networks 
+ 
+Santiago Soler Perez Olaya 
+Chair of Industrial Communications 
+Institute of Applied Computer Science 
+Technische Universität Dresden 
+Dresden, Germany 
+santiago.soler@tu-dresden.de Robert Lehmann 
+Chair of Industrial Communications 
+Institute of Applied Computer Science 
+Technische Universität Dresden 
+Dresden, Germany 
+robert.lehmann@tu-dresden.de Martin Wollschlaeger  
+Chair of Industrial Communications 
+Institute of Applied Computer Science 
+Technische Unive rsität Dresden 
+Dresden, Germany 
+martin.wollschlaeger@tu-dresden.de 
+ 
+Abstract — The comprehensive management function models 
+(CMFM) represent a solution for the growing heterogeneity in the 
+management plane of the industrial domain. We present the 
+internal structure of the CMFM with a meta-model. The use of semantic techniques and knowledge formalization is a first step towards management automation from a human-centric point of 
+view. This human-centric character also helps to keep the overview 
+and comprehensive understanding in the vast field of the network management. The evaluation of the CMFM against well-known and widely used network management systems explains the extent 
+of the novelty of this approach. The CMFM ease the management 
+of heterogeneous industrial networks and are a first step towards the application of further automation measures like artificial 
+intelligence.  
+Keywords—network management, heterogeneous industrial 
+networks, comprehensive management function models, meta-model, human-centric, intent-based 
+I. INTRODUCTION  
+Sooner than later, the challenge of heterogeneous industrial 
+networks (HetIndNets) will requir e our attention. This will be of 
+special relevance, when speaking about mixing new 
+technologies, e.g. Time Sensitive Networking (TSN), with 
+current industrial technologies in order to enable the integration of all types of traffic in one heterogeneous network. 
+There is also the aim to automate the management in IIoT 
+networks [1]. Automated management in this case implies without human intervention. This is far from being a fact. Nowadays, the network manager pours the automation of the management of a single network into scripts with hard references to that network instance in an on-demand basis. Only what needs to be repeated will be automated and it only works for that 
+particular network. 
+This paper explains how the comprehensive management 
+function models (CMFM) – briefly introduced in [2] – can be applied to the management of HetIndNets. This paper focuses on the industrial automation domain. The novelty of this paper lies in the human-centric intent-based focus applied to the network management. The CMFM are independent form management technologies. This includes a tec hnology-independent character. 
+It also presents a roadmap for the smooth transition from the current state of the art towards the automation of the network 
+management. The evaluation of the CMFM approach against a 
+use case rounds up this contribution. What this paper is not is another integration model that aims at mapping and merging of model implementations from different management approaches. 
+This paper is structured in five sections. Section II gives an 
+overview of the state of the art focusing on the different aspects relevant for the network management in industrial domain. Section III elaborates the main concept of the CMFM as well as their meta-model. Section IV offers a practical use-case taking advantage of the CMFM approach in HetIndNets. Section V 
+presents a qualitative evaluation of the CMFM applied to 
+HetIndNet compared to other approaches. Section VI closes the document with the conclusions and further steps of this research. 
+II. S
+TATE OF THE ART 
+In order to structure this section, following management 
+paradigms will be identified: Value-based, Policy-based, 
+Requirements-based, and Ontology-based management. The 
+management paradigms group and classify the myriad of management systems holding the general overview in this broad field. 
+The major plurality in network management systems can be 
+found in IT networks. Some of them are standards. Others are just recommendations. In both cases, exist successful and less successful approaches [3]. Most of them are focused on the managed network and build a digital representation of the physical system in information models, or objects, or both. This focus is very useful, when the manager knows how the system is built and aids with some minimal abstraction level. The most essential management base on the operations get and set of some 
+value in this information model or objects. We call this 
+management paradigm value-based management. Value-based management approaches, are more suitable for monitoring than for configuration/control. 
+Behind the policy-based management, there is always some 
+kind of intent oriented approach. The intent is meant to bring business domain requirements and/or policies to perform somehow automated network management. Policy Based approaches aim to let the network reconfigure itself with help of the enforced policies. This is rather theoretical, as the 
+l-))) 
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:29:48 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 2
+ 
+ implementations follow without exception a strict and 
+sometimes very limited spectrum of policy enforcement possibilities with the result of being a limited behavior delegated 
+to the network devices [4] [5] [6].  
+The requirements-based management is very common in the 
+industrial engineering processes and is represented in the IT domain mainly by the software defined networks and network function virtualization. In this management paradigm, the applications exchange its communications needs with the management system in form of service level agreements. These requirements command the enforcement of the communication services in a top-down approach that expects the underlying communication stratum to be homogeneous [7]. The time sensitive networking group follows also the requirement-based paradigm with the stream reservation protocol [8]. 
+The remaining paradigm can be subsumed as ontology-based 
+network management. Employing semantic technologies to manage networks is not new. There are several application 
+scenarios: ontologies as a means for information model 
+integration, ontology languages used to represent management information [9], ontologies as a means for automating network management by employing semantic reasoners, information interpretation with the help of ontologies [10], and ontologies used for describing services used for management. An overview on ontology-based network management is provided in [11]. While the academic maturity of ontology based management is certainly given, practical implementations in the field are still rare, if they exist at all. 
+In 2002, the Internet Architecture Board held a workshop on 
+Network Management. One of the outcomes of that workshop were the requirements of the network operators [12]. From this list of requirements, the following in Table 1, are not addressed in combination so far by any network management system. 
+The network management in industry is in most cases an 
+integrated part of the system management. The separation of data, control, and management plane – nowadays state of the art in the IT communication systems – is inexistent in the implementation of current industrial systems. In addition, the management interfaces used in the industrial domain are usually proprietary and remain exclusively for the use of own tools of the manufacturer/provider of the hardware. A big effort of I40 is to harmonize the access to management 
+and engineering-related data and functions in industry. Every valuable thing for the value chain is an “Asset” in I40. An Asset 
+shall have an Asset Administration Shell (AAS) [13] that 
+accompanies it at least for a given period of its life cycle. An Asset can/should have many AAS that contain and manage the information relevant to it and are responsible of aiding in the interaction between the asset and its environment. The AAS shall manage this interaction using an I40 yet-to-standardize communication service and still-not-listed partial models that describe the capabilities and requirements of the asset. The list of management functions or services offered by the AAS approach is also yet to define. 
+Without exception, the interoperability bases on the use of 
+the same northbound interface (NBI). If there are different NBIs, 
+the management system will need adapters (worst case N ∙M 
+adapters for N technologies and M “vendors”; sometimes one 
+vendor, e.g. Cisco, uses many different implementations, 
+protocols, etc.) [14]. To the date, this step is unavoidable in 
+HetIndNets. 
+III. C
+OMPREHENSIVE MANAGEMENT FUNCTION MODELS  
+All the management paradigms identified in section II are 
+system centric. In contrast, the CMFM is a human centered concept. The main idea is to model and formal represent the knowledge and/or expertise of the “human” network manager. This allows for example the transfer of knowledge between generations, working teams and even from integrators to end users.   
+In order to get to a domain covering automated management, 
+it is firstly necessary to analyze the role of the human network manager to deduce the range of tasks he is supposed to carry out to keep the network within operational conditions. In a second 
+step, the knowledge and/or expertise of the network manager 
+needs to be formalized to digital models. The bounded range of tasks and formalized knowledge allow a smooth transition from human-centric network management to automated management.  
+A. Delineation of Concepts 
+In order to illustrate the concept, Figure 1 represents on the 
+left the management situation in a HetIndNet. The person responsible for the network management knows what management operations are required in a given context. He or she thinks about the management operations in an abstract way. With some experience and knowledge about different network management systems, the network manager is able to translate abstract concepts of management to different known network management systems in order to execute them. The network manager usually ends up writing scripts that only work with the 
+current stand of a single network instance. This knowledge 
+and/or expertise is the fundament for the CMFM. 
+On the right of Figure 1, the application of the CMFM 
+approach is depicted. The basic idea is to deal with the heterogeneity using an abstraction layer between the heterogeneous network and the manager role. The CMFM focus on the usual management tasks that apply to the HetIndNet as a whole, e.g. renaming devices systematically, setting up flows with given Quality of Service (QoS) across the HetIndNet, 
+TABLE  1 R EQUIREMENTS OF OPERATORS TO NETWORK MANAGEMENT 
+[12] 
+Nr. Description 
+1 Ease of use is a key requirement for any network management 
+technology from the operators’ point of view. 
+4 It is necessary to enable operators to concentrate on the 
+configuration of the network as a whole rather than individual 
+devices.  
+9 Network wide configurations are typically stored in central master 
+databases and transformed into formats that can be pushed to 
+devices, either, by generating sequences of command line interface commands, or complete configuration files that are pushed to 
+devices. There is no common database schema for network 
+configuration, although the models used by various operators are probably very similar. It is desirable to
+ extract, document, and 
+standardize the common parts of these network wide configuration 
+database schemas. 
+
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:29:48 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 3
+ 
+ enforce configuration in the HetIndNet at once, and last but not 
+least keep the overall health status monitored. The CMFM support the network manager when different management interfaces need to be used in the different networks.  
+In specific cases of management tasks related to specific 
+devices and some special features of these devices, the most suitable way is to use a specific management interface supported by the devices. We have no intention to cover such specific cases with the CMFM approach. Furthermore, the CMFM are more suitable for the management tasks where heterogeneity plays a role. Otherwise, the CMFM suit also for networks which 
+development is externally performe d. The external engineers can 
+ease the management of the network by using the CMFM 
+approach. In this way, the knowledge regarding network 
+management can be easily transferred. 
+B. Meta-Model 
+The meta-model shall be capable of representing the 
+knowledge needed to perform management tasks in HetIndNets. We identified three required elements so far. In a first draft, the 
+CMFM consist of – at least – a goal, the required information, 
+and the expected output information.  In order to have an overview  and to ease the development 
+and organization of the CMFM, these shall form a taxonomy, see example in Figure 2. A taxonomy is a hierarchical structure that represents composition, meaning higher CMFM can be decomposed by lower CMFM. Nevertheless, a CMFM can have more than one higher or super CMFM. This means that specialized CMFM may belong to more than one super CMFM, e.g. resetLogs  is used in the decomposition of restartNetwork  
+and of freeUpMemory . The composition can be incomplete. This 
+means that having resetLogs  under restartNetwork  does not 
+mean that restartNetwork  consists exclusively of resetLogs . 
+Every element on every level of the taxonomy has input, 
+output, and goal properties. The goal of the CMFM is decisive. 
+Different goals necessarily imply different CMFM. The goal is 
+a semantic-validated expression of the manager’s intent and/or task regarding the management of the HetIndNet. Semantic-validated means that the terms used to describe the goal shall be chosen from a catalog of valid concepts. The concepts include 
+the name of the managed elements as well as the actions or verbs. This catalog shall be created by the network manager using its own criteria, as there is probably specific use case dependent vocabulary. It is likewise important to know what information is required to execute the management operations, i.e. the input information. The output information expected from the task can be used to evaluate if the task was successfully executed, e.g. becoming the health status of the network, or failed, e.g. throwing an error explaining the failure. Both input and output 
+information shall be defined using semantic-validated 
+expressions. 
+CMFM might be constrained with respect to other CMFM. 
+Constraint shall be a property of each element in the taxonomy and consist of semantic-validated expressions. Constraints can be of different types (non-exhaustive list):  
+- Time, e.g. Updates only execute in night hours. 
+- Order, e.g. first readConfig , then enforceConfig   
+Figure  1 Human-centered concept of comprehensive management function models. The network manager knows what functions and information  are needed in 
+each network to perform a given management operation. Management of heterogeneous System with 
+CMFMsManager of heterogeneous system
+Manager PositionCMFMs
+FxF4
+F3F2
+F1
+Management 
+Functions 
+implemented in 
+AManagement 
+Functions 
+implemented in 
+BManagement 
+Functions 
+implemented in 
+NManagement A Management N Management B
+MIBMIB MIBAbstraction LayerCMFMGOAL
+OUTIN
+Management of heterogeneous System without 
+CMFMsManager of 
+heterogeneous 
+system
+Manager Position
+Management 
+Functions 
+implemented in 
+AManagement 
+Functions 
+implemented in 
+BManagement 
+Functions 
+implemented in 
+NManagement A Management N Management B
+MIBMIB MIBFunction Models
+F…F_C1
+F_A3F_B1F_N1
+F_A2F_A1
+ 
+Figure  2 Exemplary taxonomy of CMFM. 
+
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:29:48 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 4
+ 
+ - Existence, e.g. there are network devices of some kind. 
+- Mutual exclusiveness, e.g. during readConfig  execution 
+is enforceConfig  not allowed. 
+- Execution success, e.g. in a group of CMFM that work 
+together, the other CMFM shall always/all/none/any be executed depending on the success of this CMFM. 
+Each element of the ontology can also have a representation 
+in a given management system. Thus, being possible to execute them in that given management system. Ideally, the CMFM will have a representation in every management system used in the HetIndNet. How to formalize this representation is an open question. For now, we stay near to the current reality and propose CLI scripts for this. The representation also needs to keep the information of to which management system it belongs. 
+Collecting all the mentioned parts each element of the 
+taxonomy, each CMFM, shall have goal, and output properties. 
+It can also have input, constraint, and representation properties. 
+Expression is a helper abstract class to represent the use of the 
+vocabulary to form the expression of input, output, constraint, and goal. 
+C. Roadmap & Implementation 
+The manager-centered paradigm presented in this paper 
+follows a strong feasibility oriented concept. Many gorgeous approaches and solutions lack of a feasible roadmap to get them up and running, i.e. there is no known way to get to the desired improved state parting from the current state of the art in reasonable time. For example, a great idea would be to have a button to press with the goal “manage yourself!” told to the network. The HetIndNet should then react and perform optimal 
+management itself. It would be an impressive management 
+automation, but it is not much realistic. 
+When speaking about knowledge and expertise 
+representation, the first idea is usually using ontologies. Ontologies are great at many things, identifying and classifying is a job for ontologies. However, the question “what is the optimal management right now for this network” is not directly solvable, also not for ontologies. In order to answer that question, ontologies need to be formulated to express the knowledge about network management in a suitable manner. 
+Afterwards will be possible to work with them on instance data to formalize the details of the management of this or that 
+network. This formalization should be a representation of the 
+reality as complete and trustworthy as possible. Nevertheless, there is a healthy balance between complexity and exactitude. Assuming that ontology exists, it would be possible to ask it for automated management. For this, would be necessary to implement a “reasoner” [15] capable of finding the optimal management. Moreover, doing it in real time. This is somehow not expected to happen for the time being. 
+Examples of goals addressed by network management tasks 
+are renaming devices systematically, setting up flows with given Quality of Service (QoS) across the HetIndNet, enforce configuration in the HetIndNet at once, and finally yet important 
+keep an overall health status monitored. To achieve a given goal, 
+a set of management functions will be required. While having the same goal as a set, the specific realization of the management 
+functions depends on the actual network management system 
+used. For example, to trigger a reset in a device using WBEM a procedure call will suffice, while in a field device using SNMP a value has to be written in the correct variable of the Management Information Base (MIB). For the network manager, it remains the same goal of resetting a device regarding of the management system.  
+Assuming an ontology exists  with knowledge about every 
+needed management system, including information about their functionalities and MIBs and procedures, a reasoner could search for the goal mentioned before in an automated way. This could be done offline (not in real time) and annotated as newly acquired knowledge when a match  occurs. Sadly, we know no 
+ontology covering this issue. 
+Quite more affordable is to ask the network manager to use 
+the CMFM to formalize its knowledge about the management 
+tasks. The first step would be to elaborate the vocabulary to be used in the semantic-validated expressions. The vocabulary should keep a healthy balance between exactitude and complexity. Afterwards, the network manager should fill in the CMFM taxonomy with its knowledge about the required management tasks. After the knowledge has been collected, the management tasks represented with a CMFM can be further and further automated. Using a reasoner over the collected knowledge can aid the network manager to avoid errors. Filling in the taxonomy of the CMFM with formalized knowledge helps the network manager to improve its understanding of the 
+network management. It also helps to keep the overview and 
+eases the knowledge transfer. In addition, with a working CMFM taxonomy, the automation of the network management of HetIndNets is a step nearer to be possible.  
+IV. U
+SE-CASE  
+When speaking about HetIndNets, a very probable situation 
+will be a facility based on a current industrial communication 
+system and expanded with an IIoT sensor network for predictive maintenance and early error recognition. The IIoT network is connected to the main IT network, e.g. TCP/IP over Ethernet, used in the office. Assuming that the industrial communication system is a PROFIBUS, the only connection to the upper levels  
+Figure  3 UML class diagram representing the CMFM meta-model 
+
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:29:48 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 5
+ 
+ of the automation pyramid is the Ethernet port of the 
+Programmable Logic Controller (PLC) for programming and 
+debugging purposes, if it exists. Under the assumption that a company builds many production facilities with the same blueprint for economic reasons, they could be connected to a management and maintenance central office called operations office in Figure 4. The network managers in operations office deal with three different management systems, e.g. SNMP for the TCP/IP network, Open Mobile Alliance Device Management for the IIoT system, and the Fieldbus Management of the PROFIBUS. We assume that at some point in future, the IIoT sensor network will show a better accuracy than the sensors connected to the PROFIBUS. Using a proxy/gateway, the IIoT network can deliver this information to the control loops in the PLC. 
+As an example, we will explain the use of the CMFM 
+approach applied to the configurati on enforcement. The first step 
+is to build up the vocabulary that will be used in the expressions. 
+We need to identify the network elements that are important to differentiate. The elements we have in the network are IIoT node, gateway PROFIBUS-IIoT, gateway TCP/IP-IIoT, PLC, Field Device (FD), PC, engineering station, building router, operation office (OO). We need to identify the verbs that will be necessary for the expressions. In this case, the needed verbs would be: enforce, check, send, program, and use. Other vocabulary generally needed will be the corresponding to the CMFM itself, i.e. input, output, goal, health, configuration, information, representation, and constraint. In any case, the vocabulary can be generated in an iterative fashion. 
+To start the definition of the CMFM enforceConfig , its goal 
+will be defined as “use input configuration information from OO, and engineering station to configure gateway PROFIBUS-
+IIoT, gateway TCP/IP-IIoT, IIoT nodes, and building router, and 
+program the PLC. Check for errors in the enforcement and output the result”. The input information would be defined as “list of pairs configuration file and target element”. Here we see an example for the iterative growth of the vocabulary, i.e. result, list of pairs, file, and target element will need to be added to the vocabulary. The output information would be defined as “result of the error check”. The number of representations needed can be also read from the goal expression. There are four different elements to configure and the PLC to program. These sum up to five representations of enforceConfig  that will be needed to 
+execute the task. 
+One can derive from the use case, the applicability of CMFM 
+to different network technologies and the efforts required to adapt CMFM to current or emerging network technologies vary 
+from domain to domain. The proposed CMFM can be seen as an 
+abstraction layer above existing network management paradigms that are by concept not limited to certain network technologies, but build on top of whatever is naturally offered by these technologies. 
+V. E
+VALUATION  
+In order to evaluate the CMFM approach we compared it 
+qualitatively to three of the strongest present management systems, i.e. Simple Network Management Protocol (SNMP), Network Configuration Protocol (NETCONF), and Web-Based Enterprise Management (WBEM). The results of the evaluation were rated with values from 1 (poor) to 4 (very good). The numeric results are listed in Table 2 and graphically represented in Figure 5. 
+SNMP is one of the most common network management 
+systems. It is widely used in IT but also in industrial systems. TABLE  2 V ALUES OF THE QUALITATIVE EVALUATION OF THE CMFM  
+APPROACH IN COMPARISON WITH OTHER EXEMPLARY NETWORK 
+MANAGEMENT SYSTEMS . THE VALUES VARY FROM VERY GOOD (4) TO 
+POOR (1)  
+ SNMP NETCONF  WBEM  CMFM 
+Monitoring 4  3 4 3  
+Configuration 1  4 3 3  
+Heterogeneity 1  1 2 4  
+Intent 1  2 3 4  
+Human centric  1 1 2 4  
+ 
+Figure  4 Use case network diagram 
+ 
+Figure  5 Evaluation of the CMFM approach compared with other network 
+management systems  Monitoring
+Configuration
+Heterogeneity IntentHuman centricSNMP NETCONF WBEM CMFM
+
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:29:48 UTC from IEEE Xplore.  Restrictions apply. 
+
+Page 6
+ 
+ The main feature is its simplicity. Although there are 
+mechanisms in the standard to perform configuration, it is mainly used for monitoring, as the public MIBs offer mainly 
+only readable information. For this reason, it was rated with very 
+good for monitoring and with poor for configuration. As a purely value-based system and taking into account the interoperability problems of incompatible MIBs, SNMP actually introduces heterogeneity instead of managing it. For this reason, it has a poor in heterogeneity, intent and human centric. NETCONF, as its name already says, is focusing on configuration. Nevertheless, it is almost as powerful as SNMP in monitoring and it could cover some intent orientation with additional models. It is rated with very good for configuration, as it can configure many devices at once. However, it is poor in heterogeneity management because it does not support other 
+systems. WBEM presents an object-oriented approach that gives 
+it a greater flexibility as SNMP  and NETCONF. Its agent-based 
+interaction with network elements provides a way to deal with heterogeneity. The CMFM maybe do not perform as well as 
+SNMP for monitoring or NETCONF for configuration. 
+However, it opens a new range of possibilities with its human centric focus. It is conceived to deal with heterogeneity, and follows a strong intent based solution. 
+VI. C
+ONCLUSION  
+The definition of the different management paradigms brings 
+clarity to the vast field of network management. It also helps to position the CMFM approach. This is presented in detail, explained with a use case related to HetIndNets and further qualitative evaluated against three of the most used network managements systems nowadays. The CMFM approach brings an important improvement to deal with heterogeneity. It helps to 
+keep the overview with a systematic approach and eases the knowledge transfer regarding network management between 
+humans. Additionally, it lays the foundation for a full automation 
+of management in HetIndNets. This last point could be of key importance when networked systems need to be sold or externally managed. CMFM represent a simple but powerful solution to guarantee not only the manageability of the current systems but also the seamless integration of future communication technologies and concepts yet to come. 
+We also stablished a clear and functional meta-model for the 
+CMFM. A short exemplary taxonomy was also presented here. The roadmap for the implementation of the CMFM shows a feasible way to get from the current landscape in the industrial domain to a future on interoperability and also explains how the CMFM can play a role in the automation of the network management in IIoT use cases. 
+Further investigation will be required to full functioning 
+management with CMFM in HetIndNets. One of the next steps 
+consist in complete the list of domain specific required and optional CMFM. The use of semantics and taxonomies opens the 
+path for the CMFM as enables for artificial intelligence driven 
+management. This is the main further investigation, keeping the brown field situation in focus. A
+CKNOWLEDGEMENT  
+This work was partially funded by the German Federal 
+Ministry of Education and Research as part of the research 
+project “Future Industrial Network Architecture“(FIND). 
+REFERENCES  
+[1]   P. Danny, P. Ferreira, N. Lohse und K. Dorofeev, „An Event-Based 
+AutomationML Model for the Process Execution of Plug -and- Produce’ 
+Assembly Systems,“ 2018 IEEE 16th International Conference on Industrial Informatics (INDIN), pp. 49-54, July 2018.  
+[2]   S. Soler Perez Olaya, "Comprehensive function models for the 
+management of heterogeneous industrial networks as enabler for interoperability," I-ESA 2018 Berlin, Mar 2018.  
+[3]   J.-P. Martin-Flatin, Web-Based Management of IP Networks and 
+Systems, Chinchester: John Wiley & Sons, Ltd, 2003.  
+[4]   T. Zhou, „NEtworkMOdeling(NEMO) Language An Application API 
+for Intent Driven Networking: Technical Reference Manual Version 0.7,“ 10 November 2014. [Online]. Available: http://nemo-project.net/NEMO-version-0.7.pdf. [Zugriff am 15 March 2019]. 
+[5]   OpenDaylight Project, „Network Intent Composition (NIC) User 
+Guide,“ OpenDaylight Project, [Online]. Available: https://docs.opendaylight.org/en/stable
+-fluorine/user- guide/network-
+intent-composition-(nic)-user-guide.html. [Zugriff am 15 March 2019]. 
+[6]   K. Chan, et al., „COPS Usage for Policy,“ RFC 3084, 
+https://tools.ietf.org/html/rfc3084, 2001. 
+[7]   D. Kreutz, F. M. V. Ramos, P. Esteves Verissimo, C. Esteve 
+Rothenberg, S. Azodolmolky und S. Uhlig, „Software -Defined 
+Networking: A Comprehensive Survey,“ In Proc. IEEE 103, p. 14–76, 2015.  
+[8]   A. Nasrallah, A. S. Thyagaturu, Z. Alharbi, C. Wang, X. Shao, M. 
+Reisslein und H. ElBakoury, „Ultra -Low Latency (ULL) Networks: 
+The IEEE TSN and IETF DetNet Standards and Related 5G ULL Research,“ IEEE Commun. Surv. Tutorials 21, p. 88–145, 2019.  
+[9]   A. Textor, J. Stynes und R. Kroeger, „IT Management Using a 
+Heavyweight CIM Ontology,“ in 17th GI/ITG Conference on Communication in Distributed Systems, Kiel, 2011.  
+[10]   C. Francesco und D. S. Massimo, „A Network Management System 
+Based on Ontology and Slow Intelligence System,“ International Journal of Smart Home, Bde. %1 von %2Vol. 5-3, pp. 25-38, 2011.  
+[11]   J. E. López de Vergara, A. Guerrero, V. A. Villagrá und J. Berrocal, 
+„Ontology -Based Network Management: Study Cases and Lessons 
+Learned,“ Journal of Network and Systems Management, Bd. 3, Nr. Vol. 17, pp. 234--254, 2009.  
+[12]   J. Schoenwaelder, „Overview of the 2002 IAB Network,“ RFC 3535, 
+https://tools.ietf.org/html/rfc3535, 2003. 
+[13]   Platform Industrie 4.0, "Structure of the Administration Shell," 2016. 
+[Online]. Available: https://www.plattform-i40.de/I40/Redaktion/EN/Downloads/Publikation/struct
+ure-of-the -
+administration-shell.html. [Accessed 30 04 2018]. 
+[14]   J. Strassner, Policy-Based Network Management, San Francisco: 
+Morgan Kaufmann, 2003.  
+[15]   A. I. Maarala, X. Su und J. Riekki, „Semantic Reasoning for Context-
+Aware Internet of Things Applications,“ IEEE Internet of Things Journal, pp. 461-473, April 2017.  
+ 
+ 
+
+Authorized licensed use limited to: SLUB Dresden. Downloaded on October 21,2025 at 15:29:48 UTC from IEEE Xplore.  Restrictions apply. 

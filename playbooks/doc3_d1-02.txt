@@ -1,0 +1,482 @@
+Communication Management in Automotive Service-Oriented Architectures
+Trista Lin, David Fernandez Blanco, Juleixis Guariguata IEEE SA Ethernet & IP @ Automotive Technology Day 2021
+AGENDA
+E/E ARCHITECTURE OVERVIEW
+SOA COMMUNICATION PROTOCOLS TAKEAWAYS & PERSPECTIVE
+AGENDA
+E/E ARCHITECTURE OVERVIEW
+SOA COMMUNICATION PROTOCOLS TAKEAWAYS & PERSPECTIVE
+VEHICLE DESIGN TREND
+Cloud
+Cloud	Hardware-defined
+Off the lot = Depreciation
+Apps
+OS
+Apps
+Car.OS
+(Multi OS+MW)
+Software-defined
+Update = Appreciation
+SDK providing standard APIs
+HW	HW
+Software Services
+Infrastructure Virtualization
+Service Oriented Architecture
+Domain → Cross-Domain
+→ Zonal architecture
+WHAT ACCELERATES SOA
+Electrification
+Shared Mobility
+Connectivity
+Autonomous Driving
+Continuous improvement
+−	Connectivity & OTA
+Self or cooperative driving
+−	AD/ADAS & V2X
+Cross-domain needs
+−	Domain overlapping between ADAS, HMI, energy, connectivity, etc.
+In-car Marketplace
+−	Apps and features on demand
+New vehicle ownership
+−	Carsharing, user profiling, etc.
+Scalable car platform
+−	Seamless integration and software modularity
+Software complexity
+−	Decoupling, integration, versioning, variant management, etc.
+Time to market
+−	Reduce Complexity and facilitate integration
+TOWARDS SOA – TARGET
+Autosar	RTOS	Unix-like
+	ECU	 	ECU	 	ECU	
+IT
+Infrastructure
+TOWARDS SOA – TARGET
+HW abstraction Resource optimization Reconfigurability Simplify:
+Resource management
+interfaces
+Service allocation
+Virtualized E/E Architecture
+System (HW & OS)
+	SOA communication middleware	
+IT
+From signal to service Service discovery HW/SW decoupling
+Data-centric Modularity
+Network
+E/E Architecture
+	Virtualization	
+	ECU	 	ECU	 	ECU	
+Infrastructure
+Reusability
+Simplify:
+New use case adding
+Data interfaces
+SOA requires a service-oriented infrastructure
+TOWARDS SOA – IMPLEMENTATION
+Data modeling / API
+Protocol & OS independent
+Protocol & OS dependent
+HW independent
+HW dependent
+ECU
+	SOA communication middleware	
+Virtualization
+ECU	ECU	ECU
+	SOA	
+IT
+Infrastructure
+Key points:
+Heterogeneity
+Coexistence
+Boundary
+Standardization
+Legacy ECU	Zonal ECU	Central ECU
+AGENDA
+E/E ARCHITECTURE OVERVIEW
+SOA COMMUNICATION PROTOCOLS TAKEAWAYS & PERSPECTIVE
+TURNING POINTS IN THE E/E ARCHITECTURE EVOLUTION
+Automotive E/E Architecture Evolution Cycles
+Ethernet & IP enable the deployment of
+centralized architecture
+Standardization of protocol deployment:
+Data model definition
+Data version evolution
+Software stack evolution
+Non-functional variant management
+SOA architecture style seems to be the
+solution for reducing the actual complexity
+(Source: C. Buckl et al., "The software car: Building ICT architectures for future electric vehicles," IEEE International Electric Vehicle Conference, 2012)
+SOA CONCEPT
+Why communication management?
+A service is:
+A software service
+Self-contained
+A black box to service consumers
+May be composed of other services
+Service
+Consumer
+Service
+Consumer
+Service
+Consumer
+Service
+Consumer
+Service
+Registry
+Service
+Provider
+Service
+Provider
+Service
+Provider
+Service
+Provider
+Independently deployable
+Independently updatable
+Service Bus
+Virtualized E/E Infrastructure
+Find Service
+Service Registry
+Bind, Execute
+Register
+Service
+Data logging
+Network monitoring
+Orchestration
+Auto-scaling Load balancing
+Consumer
+Provider
+Statistics	Error
+handling
+Self-Healing
+Control services
+SOA PRINCIPLES
+SOA = Software + Network + Business process
+Client
+Service Interface definition
+Service
+Modularity
+Application
+Abstraction
+Loose
+coupling
+Fault Tolerance
+Open
+Standards
+Simplicity
+Reduced Complexity
+Implementation Stub/proxy
+Service Bus
+Implementation Skeleton
+Granularity
+Flexibility
+Virtualized E/E Infrastructure
+Service Composition
+Reusability Infrastructure
+Orchestration
+Data logging
+Network monitoring
+Orchestration
+Auto-scaling Load balancing
+Virtualization
+Scalability
+Statistics	Error
+handling
+Self-Healing
+Service
+scheduling
+Service
+allocation
+API
+Interface
+evolution
+SOA FOR CAR PLATFORM EVOLUTION
+Space
+Time
+EXISTING
+NOW
+FUTURE
+ RTE   RTE    OS	
+IT
+ RTE  	Car OS	
+IT
+	Virtualization	
+ECU	ECU	ECU
+ECU	ECU	ECU	ECU	ECU
+ECU	ECU	ECU	ECU	ECU		IT		Sensor	Actuator
+SOA COMMUNICATIONS
+SW	SW	SW	SW	SW	SW	SW	SW	SW
+Middleware
+Virtualization
+HW	HW	HW	HW	HW
+IPC (inter-process communication)
+Communication protocols
+Inter-process communication (IPC) protocol
+(same machine)
+Communication protocols (machine-free)
+Process
+(child process)
+Process
+(child process)
+Process	Process
+Process	Process
+Process	Process
+Kernel
+(parent process)
+Shared memory
+(mapped)
+Shared memory
+(mapped)
+Memory
+	TCP	 IP
+socket
+	TCP	
+IP
+Signal	Shared Memory
+File
+Memory-mapped file
+D-Bus RemotingNG Socket
+…
+HTTP MQTT
+WebSocket SOME/IP DDS
+RPC
+…..
+IPC over TCP
+AUTOMOTIVE SOA COMMUNICATION ARCHITECTURE
+Classic
+Autosar
+Adaptive Autosar
+Unix- like
+Unix- like
+Cloud
+Urban
+Factory
+Automation
+Z-ECU
+Z-ECU
+Virtualization
+C-ECU
+Virtualization
+T-Box
+Infrastructure
+Infrastructure
+Infrastructure
+SOME/IP (-SD)
+DDS
+MQTT
+HTTP/ReHstTTP/Rest
+OPC UA
+DDS
+SoAd / TCP or UDP based
+WebSocket CoAP
+AMQP
+SOA PROTOCOL COMPARISON
+R/R = Request/Response; P/S = Publish/Subscribe. L = Linux; CA= Classic Autosar; AA= Adaptive Autosar; A= Android.
+* Require extra convertor to use FrancaIDL.
+SOA PROTOCOLS
+DDS
+SOME/IP
+OPC UA
+Data-centric
+Automotive SOA
+Interoperability
+Databus
+Shared service
+Data addressing
+Non-legacy ECU communication
+App abstraction thru named network data Data discovery / Location transparence
+Service interface
+Legacy ECU communication Service discovery
+Data modeling
+Non-legacy ECU communication
+Protocol abstraction thru common data models Server discovery (host/session discovery)
+(Source: omg.org/spec/DDS)
+(Source: autosar.org)
+(Source: opcfoundation.org)
+AUTOMOTIVE SOA CHALLENGES
+Heterogeneity
+Ensure the solution is compatible with the multiple ecosystems existing in the car (Classic and Adaptive Autosar, Android, Linux, etc)
+Define and comply with standards and the global deployment pipelines
+Dynamicity
+Deploy dynamic services from stateful to stateless in terms of security certifications, capacities, etc.
+Reduce service complexity (towards fine-grained services)
+Respect the latency limits required by actual and new applications
+Development Process
+Develop new interface and network standards and all the control layer services
+Evolve the development and testing process of new software requirements
+Transform or repackage the legacy applications for new SW contexts
+Resource Consumption
+Maintain lightweight consumption for the control-plane services and SOA related mechanisms
+Handle simultaneously different types of communication protocols (pub/sub, req/resp…) and different QoS levels
+RAMS &
+Cybersecurity
+Handle compatibility vulnerabilities of onboard/offboard heterogeneous SW contexts.
+Rethink and adapt the current failover mechanisms to meet safety requirements
+Deploy security mechanisms to prohibit the unauthorized access to the local/remote attack surface
+AGENDA
+E/E ARCHITECTURE OVERVIEW
+SOA COMMUNICATION PROTOCOLS TAKEAWAYS & PERSPECTIVE
+IMPORTANCE OF CONTROL PLANE IN SOA ARCHITECTURE
+New services in SOA-compatible EE Architecture Some services may stay in control plane
+Data plane
+Orchestration in control plane
+Task Assignment
+Network Supervision
+Error Handling
+Dynamic Reconfiguration
+Control plane
+OBJ	OBJ	OBJ
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+OBJ
+SOTA/FOTA/AOTA update
+Vehicle state management Lifecycle management
+SOA
+SOA  SOA  SOA
+SOA Middleware / API
+SOA
+QoS management Dynamic flow mapping
+The EE infrastructure is transparent for services thanks to the control plane
+Data optimization
+Network diagnosis
+EE
+Architecture
+Cloud
+Load balancing Network access control Network virtualization
+Service monitoring
+TAKEAWAYS
+SOA requires the communication management and the service-oriented infrastructure Standardization is the key to reduce the actual complexity
+Different protocols aim at solving different problems, i.e., legacy vs interoperability vs data-centric Complicated to unify communication protocols, but easier to unify data/information models
+Data abstraction interface is essential for SOA deployment, i.e., API
+Both data interface and software components are updatable and require branching and merging strategies Explicit service design policy for data and control planes, respectively
+HW/SW decoupling thanks to control plane
+TOWARDS DATA-CENTRIC
+While looking at the evolution of…
+From TCP/IP to information-centric network
+The trend is towards Data-centric
+Data modeling
+Data addressing, i.e., topic or named data
+Neither data producer nor data consumer is permanent. Apps are short-lived, constantly added/updated/removed.
+From 5G to 6G
+(Source: named-data.net)
+Few programming effort Scalable software architecture
+	Virtualization	
+ ECU   ECU   ECU   ECU   ECU 		IT	
+ Sensor   Actuator 
+(Source: M. Giordani et al "Toward 6G Networks: Use Cases and Technologies," in IEEE Communications Magazine, vol. 58, no. 3, pp. 55-61, March 2020)
+Evolution of Software Architecture
+1990’s	2000’s
+QQ&&AATTIiMmeE
+2010’s	?
+(Source: techtarget.com)
+SOA Criteria
+AMQP
+MQTT
+DDS
+SOME/IP
+OPC UA
+CoAP
+HTTP/REST
+WebSocket
+Communication Paradigm
+P/S
+P/S
+P/S
+P/S | R/R
+P/S | R/R
+P/S | R/R
+R/R
+R/R
+Topology
+N-1-N or 1-1
+N-1-N
+N-N
+1-N | N-1
+N-1 | N-1-N or N-N
+N-1 | N-1-N
+N-1
+N-1
+OS Available
+L, A
+L, A, ~AA
+L, A, AA
+L, ~A, CA, AA
+L, A, ~AA
+L, A, ~AA
+L, A, ~AA
+L, A, ~AA
+IDL
+-
+Franca*
+OMG
+Franca
+OMG
+-
+REST, Franca*
+WEB, Franca*
+Discovery
+✘
+✘
+Data
+Service
+Server
+✘
+✘
+✘
+Asynchronous available
+✓
+✓
+✓
+✓
+✓
+✓
+✘
+✓
+Broker-based
+| ✘
+✘
+✘
+| ✘
+✘
+✘
+✘
+QoS Awareness
+Availability
+Reliability
+✘
+✘
+✘
+✘
+✘
+TLS / DTLS
+TLS
+TLS
+TLS/DTLS
+TLS/DTLS
+TLS/DTLS
+DTLS
+TLS
+TLS
+Extra Security in the protocol
+
+Session authentication
+
+Session authentication
+
+Session authentication Operation access control
+
+Data authentication Data confidentiality
+Session authentication Data confidentiality Operation access control
+
+(Separated study)
+
+(Separated study)
+
+(Separated study) Session authentication
+Application
+Cloud
+Car-Cloud & In- Vehicle
+In-Vehicle
+In-Vehicle
+Car-Cloud
+Car-Cloud
+Car-Cloud & In- Vehicle
+Car-Cloud & In- Vehicle
