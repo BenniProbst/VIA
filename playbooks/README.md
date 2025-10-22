@@ -1,257 +1,356 @@
-Ich beschreibe in diesem Ordner meine Playbooks. Am Ende sind die Anweisungen.
+# VIA - Virtual Industry Automation: Projektbeschreibung
 
-Nach ausführlicher Recherche bin ich zu folgendem Ergebnis gekommen:
-Nachdem mir Dr. Santiago Olaye das AAS Repository geschickt hat, war ich etwas schockert und gleichzeitig begeistert
-von den Möglichkeiten dieses Projekts. Die Architektur von AAS ist über alle Metaschichten verteilt und beschreibt in
-M3, welche Objekte und Klassen es gibt, um in einem M2 Modell Eigenschaften eines Industriesystems beschreiben zu können.
-Die eigentliche Aufgabe war es, die Industrie damit zu unterstützen Messdaten zu erfassen und zu verarbeiten.
-Stattdessen finden wir eine vollständige Compiler Architektur mit Modellphasen und Metalanguage vor, wie man es sonst
-nur von Prof. Castrillon von der TU Dresden kennt. Es wurde allerdings kein Ansatz erstellt, der einen Compiler als ein
-externes Interpreter- und Übersetzerprogramm mit den dafür bekannten Schichten zu bauen, sondern es wurden nur Python
-Skripte erstellt, die die Funktionalität eines Compilers nachahmen. Dieses Projekt ist ein wichtiger Schritt in Richtung
-einer vollständigen Implementierung eines AAS Compilers, aber bleibt auf dem Level von Forschung. Das Ziel ist es nun,
-playbooks über das Projekt zu erstellen, welche zuerst die möglichen Objekte als eine neue Art von zweckgebundener
-Programmiersprache definieren, die aus den Elementen des AAS Modells unter https://github.com/aas-core-works besteht.
+**Autor**: Benjamin Probst
+**Institution**: Technische Universität Dresden, Fakultät Informatik
+**Betreuer**: Prof. Dr.-Ing. habil. Martin Wollschlaeger, Dr.-Ing. Frank Hilbert, Santiago Soler Perez Olaya
 
-Um in M2 das SDK für das eigentliche System eines Unternehmens zu definieren und programmieren zu können, müssen wir 
-als Hauptcode für dieses Projekt ein C++ Programm bauen, welches den Compiler als statisches Programm anhand der in 
-AAS M3 bekannten Definitionen baut.
-Dazu erstellen wir im Projekt ein Unterprojekt mit dem Namen VIA-M3-Compiler. Mithilfe des VIA-M3-Compiler können wir
-in die nächste Phase wechseln und eine SDK einer beliebigen Programmiersprache für die Verwendung der Einzelteile
-der als Modell definierten möglichen Objekte in M3 erstellen. Der output des VIA-M3-Compilers ist also eine M2 SDK
-einer beliebigen Programmiersprache. Um eine Programmiersprache zu unterstützen, muss diese im Commpiler implementiert
-sein. Ich sehe derzeit keinen Nutzen darin andere Sprachen, als eine C++ SDK selbst auszugeben, die wohl strukturiert
-in Objekten und Klassen den Anforderungen gerecht wird, weil C++ über eine umfassende Metaprogrammierebene seit 
-C++20 verfügt. Die Ausgabe des Hauptcodes ist ein M3 Compiler, daher eine ausführbare Compilerdatei und ein 
-Testframework, welches alle Module des M3 Compilers testet. Der Vorteil an C++20 und folgende ist, dass wir
-einfach statisch die M3 Modelle im Code definieren und zur Laufzeit auswerten können. Wir können den Compiler
-die Hauptarbeit machen lassen und erhalten ein schnelles weiteres Compilerprogramm, welches die SDK bauen kann.
+---
 
-Jetzt können wir mit dem M3 Compiler die M2 SDK bauen. Die Modelle in M3 beschreiben die Einzelteile und wir müssen
-diese zu Komponenten zusammenbauen, leider besteht das Projekt von Dr. Santiago Olaye aus Spaghetticode, wenn man
-sich die generierten SDKs anschaut. Ein Entwickler in einer Firma, der sich diese generierten SDKs anschaut wird
-verzweifeln, weil der diese nicht warten oder verändern kann. In einem Anwendungsfall muss es auch möglich sein
-eine festgelegte SDK Version nach vorher festgelegten Modellvorgaben erstellen zu können, um die SDK
-später langfristig im Unternehmen verwenden zu können.
+## 1. Einleitung und Motivation
 
-In der Phase von M2 müssen wir den Nutzer nach dem Ort seines Projektaufbaus fragen, die im Format nach M3 definert sind.
-Dies beinhaltet also, dass auch M2 ein Compiler ist und die Syntax des Benutzerprojekts prüfen und tests darüber
-durchführen muss. Durch die Eigenschaften industrieller Anlagen sind die Möglichkeiten der Einsatzkombinationen
-definierter modellierter Einzelteile deterministisch begrenzt, sodass wir zur Kompilationslaufzeit mit C++
-statisch Tests so implementieren müssen, dass sie die Features von M3 implementieren und perfekt testen. Es ist
-denkbar, dass das Testframework in diesem Unterprojekt mehr Zeit in Anspruch nehmen wird, als die eigentliche
-Implementierung des Compilers.
-Da AAS bereits alle Modelle für Implementierungen definiert, muss der M3 Compiler aus den Beschreibungen des Benutzers 
-und den AAS Modellen, die in internen Bibliotheken verfügbar sind, die M3 Modelle in sinnvolle C++ Klassen und 
-untergliederte C++ Implementierungen zusammenfügen und diese wiederum mit angepassten und lokal korrekten Kommentaren
-und Dokumentation so bauen, dass ein Benutzer ohne Mehraufwand damit arbeiten kann. 
+Nach ausführlicher Recherche des Asset Administration Shell (AAS) Projekts, insbesondere des Repositories von Santiago Soler Perez Olaya, wurde eine fundamentale Erkenntnis gewonnen: Die AAS-Architektur repräsentiert eine vollständige Compiler-Architektur mit Metamodell-Phasen (M3/M2/M1), vergleichbar mit den Arbeiten von Prof. Castrillon an der TU Dresden. Während die ursprüngliche Zielsetzung von AAS die Unterstützung der Industrie bei der Erfassung und Verarbeitung von Messdaten war, offenbart die Architektur das Potenzial für einen produktionsreifen Compiler.
 
-An dieser Stelle erhalten wir also eine C++ SDK, weil wir in CMAKE für das Kompilieren des Codes angegeben haben:
-$./VIA-M3-Compiler --lang C++
-Wir können auch den Ausgabepfad der SDK angeben und wir verwenden beim Testen eine Pipe für die Tests und parsen diese
-in einem externen Testframework auf den Erfolg der Einzeltests und Schritte. Hast du an dieser Stelle noch Fragen?
-Vorschläge?
-Ansonsten gehe ich davon aus, dass der Benutzer an dieser Stelle gefragt ist. Unser Ziel ist es, dem Anwender zu
-nutzen, daher müssen wir durch die gesamte Prozesskette der Metamodelle auch irgendwann zu dem Ergebnis kommen
-eine Implementierung und automatische Orchestrierung des Kundensystems zu erstellen. Der Kunde hält nach unseren
-Vorgaben in M3 eine Syntax und Semantik verschiedener Objekte und Klassen bereit, die wir als sein System
-interpretieren und auf verschiedenen Maschinen im System als Schnittstellen und Verarbeitungsservices bereitstellen
-sollen. Wir müssen also die SDK wieder aufbauen, wie einen Compiler. Der Input ist die Syntax und Semantik aus M3,
-der Output ist eine Implementierung des Kunden Systems. Allerdings es jetzt anders: Weil das Kundensystem in der
-gleichen Sprache wie seine SDK implementiert werden soll, können wir den Prozess er Kompilation ohne den
-Zwischenschritt ausführen, die nochmals angepassten C++ Dateien in eine Projektimplementierung in C++ umzuwandeln,
-wir können, vorausgesetzt die SDK ist in C++ korrekt und kann mit g++ nach der Umwandlung mit diesem M2-SDK-Compiler
-kompiliert werden, dann können wir die C++ Output Dateien bzw. den Stream im relase Modus auch über ein memory filesystem
-im RAM halten und direkt in g++ mit einer pipe kompilieren, was die Performance steigert. Im Debug Modus haben
-wir dagegen nun als Import des M2-SDK-Compilers die SDK Klassen und die Projektobjekte und Klassen und als Ausgabe
-haben wir wieder C++ Projektdateien und Klassen mit überführter Dokumentation aus der Welt des Kunden und aus der
-Welt der M2 SDK, die ihrerseits aus den Zusammenfügungen und Generatoren aus M3 stammten. Die Neuartigkeit meiner
-Erfindung kommt jetzt daher, dass ich dem Kunden im M2-Compiler bereits Vorschläge für die Implementierung 
-unterbreiten möchte, indem ich sein Netzwerk auf seine Erlaubnis hin kartografiere. In der Regel sitzt der Kunde
-in seiner Firma und möchte sein System einrichten, ändern, erweitern oder einzelne Teile löschen. In einem
-Industriesystem gibt es Netzwerkgeräte und Edgegeräte mit Spezialübersetzung an die zeitkritischen Bussysteme der
-Maschinen. Es ist unsere Aufgabe in diesem Schritt ein discovery System bereitzustellen, welches mit allen gängigen
-Edge Messwertwandlern in den verfügbaren Protokollen wie SNMP, OPC UA, Modbus, MQTT, RPC ect. kommunizieren und 
-über die angebotenen und notwendigen Schnittstellen die Eigenschaften der Geräte vorauslesen kann, um sie für
-das Projekt als einzelne Objekte zur Auswahl anzubieten. Es ist denkbar, dass aufgrund der Komplexität und
-intensiven Rechnearbeit der Kompilation des Gesamtprojekts der Kunde an dieser Stelle auch nur die Projekt
-Modell-Objekte per Mail oder Webseite zu uns schickt, sodass wir an dieser Stelle eine M2-Kompilation versuchen
-und den Status über Erfolg oder Misserfolg zurückgeben. Der Kunde muss ein Valides Projektsetup definieren, um von
-uns das gültige generierte C++ Projekt für alle Gerätedefinitionen, Verbindungen und Gruppen zu erhalten.
+Die derzeitige Implementierung in Form von Python-Skripten simuliert lediglich Compiler-Funktionalität, erreicht jedoch nicht den Status eines vollständigen, externen Übersetzerprogramms mit den etablierten Schichten eines Compilers. Das Projekt befindet sich auf Forschungslevel und bietet die Grundlage für eine produktionsreife Implementierung.
 
-An dieser Stelle erhalten wir also ein vollständiges Kunden System Projekt, welches aus mehreren Teilnehmern und
-Objekten der einzelnen Geräte, Server, Clients, Services, Kubernetes Beschreibungen, Netzwerkprotokollimplementierungen
-und Verarbeitungsservices wie Leitstellen und Planungsstellen besteht. Alles nach Objekten gegliedert und in C++.
-Wir können diesen Entwicklungsprozess mit dem Kompilieren on Xilinx FPGAs vergleichen, weil die Wandlung der einzelnen
-Phasen so vielschichtig ist. Allerdings müssen wir ein Dateiformat beim M2-SDK-Compiler vorhalten, der uns sagt,
-welcher C++ code und welches Ausführungsprogramm bzw. shared library nun in welches Gerät deployt werden muss.
-Apropos Deployen. Wenn wir so riesig verteilte Systems mit mehr als 50.000 Geräte haben, ist Deployment auch leichter
-gesagt, als Getan. Daher benötigen wir parallel zu unserem Compileraufbau und dem AAS Modell, dem dynamic multi message
-broker von Dr. Olaya (implementierung eines M3 Modells und Debug über M2 bis M1), auch ein Deployment System, welches
-in der Lage ist einen client service auf den edge Geräten und den Servern laufen zu lassen, daher als Rückrat für
-Systemlogging und Rejuvanation und Updates.
-Im Falle, dass wir Kubernetes Container verwenden, können wir über 
-die Sockets an der Maschine kommunizieren, wenn die deployte Systemanwendung zur Verarbeitung vom Update-/Deployprogramm
-getrennt ist. Wenn wir das weiterdenken, ist es ohnehin notwendig die Kommunikation zwischen Prozessen weiterzudenken:
-Ich denke an ein Protokoll, welches in sich zweischichtig ist, also neben der Sprachebene wie OPC UA eigentlich noch eine
-Ebene für die Prozesskomunikation und das Deployment drunter hat. Das kann man sich so vorstellen: Wir erledigen für gewöhlich das Wie 
-und Wohin über ein beliebiges Protokoll und scheren uns bei einer Verbindung nicht über das Was, das machen die 
-services. Wenn wir uns die Virtualisierung von Betriebssystemen mit Containern anschauen, können wir durch Paketierung
-schneller reparieren und allgemeine Ausfälle durch Redundanz, Ausfallsicherheit und Techniken in der Cluster-
-Strukturierung vermeiden. Dasselbe können wir jetzt für virtuelle Netzwerkgruppen machen. Allerdings haben wir
-den Unterschied, dass wir uns wegen des performance overheads keinen virtuellen Router wegen der Zeitkritikalität
-leisten können. Daher ist es notwendig die Gruppeneigenschaften mit in das fertige System zu kompilieren und die
-Binary ABIs stabil zu halten, sodass jedes Edge Gerät selbst weiß, wohin es gehört. Es ist effizienter
-hardcoded messages zu verarbeiten und weiterzuleiten und es ist auch sicherer, weil der Quellcode zur Laufzeit
-nicht verändert werden kann. Man muss daher seine Sicherheit eher auf den Deployment Server legen und weniger
-auf eine anfällige hochdynamische Industriestruktur. Im Sinne des erweiterten Protokolls haben wir also festgestellt,
-dass wir deployen müssen und dass es bei einer komplexen Datenverarbeitung notwendig ist, dass alle Prozesse
-auf ein binary Interface mit Sprachwrapper verschiedener Programmiersprachen zugreifen können, dass sie zwischen
-einander Prozessnachrichten senden, synchronisieren, loggen, checkpointen und zurückrollen können. Das OPC UA Protokoll
-beinhaltet also die Welt der Geräte außerhalb der Edgegeräte auf seiner Grundebene, leitet diese weiter oder 
-klassifiziert diese in Tunneln oder gewandelten Strömen anderer Übertragungsprotokolle und dann gibt es virtuell
-noch die Ströme des deployments mit Metadaten und Messdaten der Computer, die von den Daten der Anlage getrennt
-werden sollen, um eine Kapselung zu ermöglichen, und es gibt die Prozesskommunikation, die sich nur zwischen den
-Applikationen und Services der Systemgeräte abspielt, um jedem Service vorzugaukeln, bei dem Ansprechpartner handelte
-es sich um einen Prozess wie auf demselben Gerät. An der Stelle der Prozesskommunikation können automatisch
-Prozessketten von Mikroservices aufgebaut werden. Gibt es nur einen Weiterleitungspartner, der aufgrund der
-Kompilation der Verarbeitungskomponenten sonst als ineffizienter separater Container existieren würde, dann
-können wir die Prozesskommunikation entweder thread-basiert oder prozess-basiert oder socket-basiert oder
-datei-basiert zusammenlegen. Auf Windows Betriebssystemen sind die Möglichkeiten begrenzter. Die Auswahl des
-Verbindungsverfahrens der Prozesskommunikation zwischen zwei Services oder Prozessen hängt von den verwendeten Objekt-
-Modellen aus M3 und deren Kombination zueinander ab. Andererseits können wir über die Anforderungen des Kunden mit
-dessen Systembeschreibung und dem M2-SDK-Compiler auch automatisch eine Cluster-Verteilte Prozesskommunikaiton
-aufsetzen, welche die virtuelle Weiterverarbeitung oder Gliederung in Unteraufgaben eines Unterprozesses auf anderen
-Containern und Maschinen im Netzwerk erlaubt. Die Abschätzung des Schedulings und Rankings der dynamischen Anwendung
-dieser Einrichtung wird im M2-SDK-Compiler für die M1-Kompilation mit einem statischen Ranking der anzuwendenden 
-Methode und einer dynamischen Laufzeitentscheidung über die Auswahl der Methode zur Laufzeit gehandelt.
-Letztendlich implementieren wir also das OPC UA mit einer Erweiterung von 2 Subprotokollen, weil wir über diese
-das System der Verarbeitung alias "Hirn/Hardware des Systems" und Ausführung und Verarbeitung der reinen Datenprozesse
-im Innen von der Welt hinter den Edgegeräten mit Spezialprotokollen trennen und weiterhin auch über Gruppierungen
-weiter unterteilen und in virtuelle Netzwerkströme teilen können. Wir erstellen also unter dem OPC UA eine Subebene
-mit Edge-Group-Protocol Deploy-Protocol Process-Group-Protocol. Wir erhalten so die Außenwelt, die sich virtuell noch weiter
-in Gruppen untergliedern lässt, um Ziele nicht alles einzeln koordinieren zu müssen, dann gibt es die Ebene der
-Verwaltung, Versionierung und Messdaten des ausführenden Gerätes und zuletzt trennen wir noch die Prozesskommunikation
-in Gruppen auf, um die Steuerung/das Programm wie üblich von den Daten zu trennen. Kubernetes macht es ganz ähnlich.
-nur dass wir Kubernetes verwenden, um dieses System zu bauen und vermutlich deployment und microservices über
-Kubernetes auf niedere Hardware zugreifen müssen, wofür der Benutzer auch Kubernetes-Treiber bereitstellen muss.
-Statt dem Was und Wo ein Microservices mit welchen Eigenschaften und Ressourcen ausgeführt wird, interessiert uns
-hier nur das was kein Gerät ist: das Netzwerk. VIA ist daher eine Systemkonstruktions-Suite mit automatischem 
-Netzwerk-Orchestrator und Scheduling-Compiler, der in der Lage ist, ein komplexes System zu bauen, zu deployen und zu
-verwalten. VIA ist auch nicht vollständig statisch, denn ich plane das Deployment aufzubauen wie ein Pferd, das einen
-Reiter trägt. Daher kann das Deployment, welches auf einem microservice in einem Kubernetes Container läuft, das
-Zielprogramm huckepack als Prozess ausführen, während es selbst nur das Protokoll verwaltet. Zum Thema digital
-Twin soll auf jedem Edge Gerät mindestens zwei parallele dieser Mikroservices laufen, um bei einem Ausfall weiterhin
-die Messdaten zu erhalten oder die Maschinen zu steuern. Dies beinhaltet eine ergiebige Fehleranalyse über Netzwerk-logs
-über das deployment sub-Protokoll. Der Systembetreiber kann auf den Fehler zurückgreifen und die Fehleranalyse
-über das deployment sub-Protokoll führen. Bei Korrektur des Fehlers kann das System im laufenden Betrieb per
-Canary Deployment auf den neuen Code umgestellt und über das Vorhalten der alten Version in Sekundenbruchteilen
-zurückgerollt werden, weil C++ unter stabilen ABIs ab C++23 Module als shared library direkt aus dem Arbeitsspeicher
-oder per Definition von der Festplatte oder Remotesystem laden und ersetzen kann. Die Systemmodule für die Edgegeräte
-werden zur Kompilation der M2-SDK zuerst dem Kunden bereitgestellt und dieser definiert über seine Projektdefinition
-sein fertiges System, wonach wir mit dem M1 Compiler kompilieren und diese Edge-Module erzeugen. Es ist unsere Aufgabe
-diese Module in ihrer Konsistenz der Schnittstellen ABI, der Versionierung, der Lokalität, der Fehleranalyse, Performance
-und Anzeige der Kompatibilität zu anderen Einsatzorten zu mappen und die Möglichkeiten im System festzuhalten und dem
-Kunden zu präsentieren.
-Die Entscheidungen über die Implementierung und Vernetzung aller einzelnen Komponenten, um ein statisches M1 Projekt 
-bilden zu können, werden in M2 über C++ Metaprogrammierung und CMake-Konfigurationen beschlossen, wenn in der Projekt-
-Definitionsphase des Kunden weiterhin ein Installationsplaybook über die Kubernetes Services Installation
-für das System-Deployment erfolgt, sodass die neu eingerichteten Edge Geräte-Container im Folgenden
-Services werden grundlegend so kompiliert, dass nur wichtige Komponenten nach dem modularen Pferd und Reiter-Modell
-aufgebaut werden. Andere Services können vereinfacht in einen Kubernetes Container oder Docker Container Kompiliert
-und per Kubernetes deployed werden. Kubernetes deployed also Einfachservices und VIA deployed C++23 Module für
-Edge Geräte und externe Messdatenaggregationen und übersetzung von Protokollen oder ganz spezielle Speicher-
-und Netzwerk-Services.
+**VIA (Virtual Industry Automation)** adressiert diese Lücke durch die Entwicklung einer mehrstufigen Compiler-Kette, die automatisch wartbare Software für heterogene Industriesysteme generiert, deployed und orchestriert.
 
-Mit dem Gesamtprojekt geht es jetzt weiter. Wir haben jetzt also einen M2-SDK-Compiler in C++, der uns mit den
-Kundendaten ein M1 Projekt gebaut haben. An dieser Stelle benötigen wir in M1 den VIA-M1-System-Deployer, um das
-M1 Projekt auf einem Kubernetes Cluster und die Module auf die "horses" zu bringen. Dies beinhaltet auch generierte
-Systemtests, die der Kunde in seinem Projekt grob vordefiniert hat. Unsere Aufgabe ist es, dieses System darauf zu testen,
-dass alle Protokolle in ihrer Konstellation alle Befehle senden und empfangen können und sich zustandsbasiert
-korrekt verhalten. Es ist unsere Aufgabe zu ergründen, ob sich Einzelapplikationen nach den Spezifikationen des Kunden
-im Testsystem korrekt verhalten und wir verpflichten den Kunden jede public Funktion zu testen, die ein
-öffentliches Interface hat. Es ist unsere Aufgabe die Prozessketten der Module und Netzwerk-Services zu
-erkennen und zu testen, ob sie korrekt funktionieren. Die tests werden stets über das deployment sub-protokoll
-orchestriert, um zum Beispiel die Gegenstelle auf einen Testlauf vorzubereiten, weil die sicherste Variante der Tests
-unter echten Betriebsbedingungen abläuft. Dazu muss es möglich sein, dass für den Testlauf auch in normale microservices
-Container ein Deploymentservice mit einkompiliert wird, um den gewöhlichen Microservice über eine Erweiterte
-Prozesskommunikation zu testen und im echten System zu debuggen. Fehlt der deployment service, wird der microservice
-als Startservice im paketierten Betriebssystem registriert und gestartet. Ist der deployment service vorhanden, so
-wird der deployment service mit dem Grundmodul für einen Server Start gestartet und dann startet dieser den Reiter-Service,
-nachdem er ihn von der Master Active Management, wie ich die redundante und zu Kubernetes analoge deployment 
-Orchestration von VIA nenne, erhalten hat.
+---
 
-Zur Systemarchitektur: Die gemeinsame Sprache des Systems ist das ganz grundlegend das OPC UA Protokoll mit 
-https://de.wikipedia.org/wiki/OPC_Unified_Architecture. Wir wollen hier in einem Unterprojekt auch Modelle und
-dann generierte Implementierungen erstellen, welche dieses Protokoll implementieren. Ich möchte auch festhalten,
-dass es möglich sein soll die Subprotokolle, wie auch das Masterprotokoll nach Dr. Olayas MMB zu betreiben, sodass
-nach einer definierten Sicherheitsstufe und Paket- Ankunftssicherheit die allgemeine, wie auch die speziellen sub-Protokolle
-im Netzwerk als Many to Many Broadcast effektiv im Netzwerk im OPC UA ausgeführt werden können. Das OPC UA Protokoll ist ein
-Standard für die Kommunikation zwischen Industrieanlagen und ist in vielen Industriebranchen verbreitet. Wir wollen
-diese Implementierungen auch in diesem Unterprojekt erstellen, um die Kommunikation zwischen verschiedenen Anlagen
-und Systemen zu vereinfachen und zu standardisieren. Wir verwenden am besten die offizielle Quelle des öffentlichen
-git repository, um für das OPCUA die Spezifikationen zu erhalten und Änderungen zu überwachen und dieses Git Repository
-halten wir als third party des OPCUA Projekts. Obwohl wir subprotokolle für unser virtuelles Netzwerk Edge-Deployment
-definiert haben, plane ich das OPCUA Protokoll auch außerhalb des Kubernetes Clusters und der Netzwerk und Edge
-Gruppen, normal zwischen zwei Clustern zu verwenden und zu implementieren. Angenommen es handelt sich um ein
-gemeinsames Netzwerk, aber auf der Betriebssystemebene sind im selben physischen Netzwerk zwei Cluster vorhanden, die
-getrennt arbeiten, dann ist es dennoch wahrscheinlich, dass eine Synchronisation, etwa per VPN zwischen Standorten und
-den beiden oder gar mehreren Clustern erfolgen muss. Dies ermöglicht eine noch weitere komponentenbasierte Aufgliederung
-der Services, Netzwerke und Modularisierung der Anlagen. Wenn die Modularisierung und Installation noch manuell
-erfolgen muss, ist das kein Fortschritt. Xilinx baut auch Multi-Compiler-Ketten. Apropos Kompilerketten: Wenn wir
-das Reiterprinzip verwenden, dann können wir über große Strecken Systemwartungen durchführen und Messdaten direkt
-an uns weiterleiten lassen. Wir können gleichzeitig Beschleunigersoftware wie FPGAs oder andere Beschleuniger
-mit innerem Zustand schnell deployen und ohne Abstriche shared bei der Ausführung schnelle binaries verwenden. 
-Hier wird nicht in zeitkritischen Applikationen geskriptet!
-In der Systemarchitektur müssen wir auch beachten, dass Industriesysteme unglaublich heterogen in der CPU Architektur
-und den Speichermodellen sind. Wir sind darauf angewiesen alle exotischen Architekturen zu unterstützen
-(MIPS, RISC-V, POWER9+, x86, ARM1+, Sparc; Linux, Windows, Mac),
-weil wir die Industrie nicht nur für die Industrie der Zukunft, sondern auch für die Industrie der Vergangenheit unterstützen
-müssen. Die Edge Geräte sind meist billigste Minicomputer und die Server ausgefeilte Verarbeitungs-monster.
-Daher müssen brauchen wir einen workflow, der bereits in M2 das Zielsystem, wohin zu deployen ist, berücksichtigt.
-Der deployment Service muss auch in der Lage sein githubrunner zu instanziieren und von den Builds der einzelnen Module
-die Kompilationsergebnisse zurückzugeben. Durch die verteilte Kompilation können wir auch alle Module parallel kompilieren
-und die Ergebnisse an die entsprechenden githubrunner zurückgeben. Dies ermöglicht eine effiziente und schnelle Deployment
-Prozess. Module, die skalieren, also doppelt deployed, aber nur einmal implementiert werden, müssen nur einmal kompiliert
-werden, wenn die Umgebungen der Container und der Host-Betriebssystem gleich sind.
+## 2. VIA-Architektur: Mehrstufige Compiler-Kette
 
-Weiterhin gibt es in Kubernetes eine Steuerung für das Deployment, welche wir selbst auch redundant anbieten müssen,
-um die Edge-Services am Laufen zu halten. Wir brauchen auch einen Masterservice dafür, bei dem wir konfigurieren können,
-wie oft redundant er ist und wo wer sich aufhalten soll. Dieser Service muss als Active/Active wie eine
-active directory Domäne aufgebaut sein. ich möchte an dieser Stelle auch anmerken, dass wir für die Zugriffskontrolle
-von Benutzern und Administratoren Rollen und Benutzer definieren müssen. Ich schlage vor einmal eine eigene Lösung
-dafür zu entwickeln oder direkt eine Samba oder microsoft Active Directory zu verwenden. (Ich denke dieser Absatz
-war schon mal in einer Form oben)
+Das VIA-System besteht aus drei Hauptphasen, die eine vollständige Compiler-Kette bilden:
 
-Nach den Beschriebenen Phasen erstellen wir in playbooks auch die 3 Ordner VIA-M3-Compiler, VIA-M2-SDK und VIA-M1-System-Deploy
+### 2.1 VIA-M3-Compiler: Metamodell → SDK
 
-Zukünftig stelle ich mir die Industrie 5.0 so vor, dass man einfach über Spracheingabe oder per Text einem KI-System
-wie dir Befehle gibt, welche Industrielle Anlage oder welches Objekt zu konstruieren ist, um eine Aufgabe oder
-Funktion zu erfüllen und du baust sie. Dazu habe ich ein Software in the loop System gebaut, welches
-die Rest-Fehler in einem Projekt gegen die Kundenspezifizierung anzeigt und immer wieder korrigiert, bis das System
-funktioniert. Ich möchte das in diesem Aufbau zeigen, indem ich manuell Testservices aufsetze, die zufällige Daten
-generieren, die ich dann mit einem VIA-System automatisch abfangen kann, indem das System meine Anforderungen
-über ein KI Modell umsetzt und den Projektprozess umsetzt, bis das gewünschte laufende Debugergebnis auf meiner
-Konsole auftaucht. Das Ergebnis ist: Der Kunde beschreibt sein System der KI und die KI definiert die Anforderungen
-der Compilerbeschreibung und die Compilerbeschreibung definiert das System und sein vollautomatisches Verhalten.
+**Zielsetzung**: Definition einer zweckgebundenen Programmiersprache aus AAS-Elementen (https://github.com/aas-core-works) und Erstellung eines vollständigen Compilers als statisches C++-Programm.
 
-Bitte durchsuche den Ordner "C:\Users\benja\OneDrive\Dokumente\Uni Dresden\21_15. Semester INFO 17\Analyse eines Forschungsthemas - Prozesskommunikation"
-und lese alle Word-Dokumente, weil ich darin den Projektkontext beschreibe und den Research abgelegt habe.
-Durchsuche den derzeitigen Stand der Technik nach Korrelationen, biete open source codeprojekte zum Verständnis
-an und suche nach möglichen Lösungen für die Probleme, die ich in diesem Projekt beheben möchte.
-Recherchiere durch alle Webseiten, die ich dir gegeben habe und prüfe alle Informationen meiner strukturierten Idee,
-bzw. strukturiere meine Idee in ein erstes Playbook und dann erstelle Ordner für die einzelnen Phasen.
-Zu jeder Phase gehört nochmal als Unterkategorie das Playbook der Implementierung und das Playbook des Testsystems.
-Da das Hauptsystem den erstem M3 Compiler baut, packst du die Ordner Implementierung und Testsystem für dieses
-einfach in den playbook Ordner, ohne nochmal einen Unterorder zu erstellen. Das Hauptsystem orchestriert schließlich
-den Verlauf der 3 Phasen als eigenes Programm, welches einen Teil der Anwenderaufgaben übernimmt. Heutzutage werden
-ja auch immer noch KI Modelle per Hand aufgebaut, trainiert und zusammengesteckt. In unserem Fall beginnen wir den
-Kreis zu schließen und definieren über einen Automatismus M3 mit sich selbst. Das ist ein Meilenstein in der Forschung.
-Trotzdem wünscht sich Dr. Olaya, dass ich vergleichbare Arbeiten mit Quellen Akkumuliere und noch so 15 Quellen und
-ähliche Arbeiten mit einfließen lasse, wenn sinnvoll. Bitte gebe diese an.
+**Input**:
+- AAS M3 Definitionen (Metamodell-Objekte und -Klassen)
+- Benutzerbeschreibung des gewünschten Systems
+- VIA-Extensions für Prozesskommunikation
 
-Ausgabedokumente sind außerdem ein Expose des Forschungsprojektes für die Laufzeit, die in dem Dokument für
-"Analyse eines Forschungsthemas - Prozesskommunikation" beschrieben wird. Ich habe noch ein zweites Forschungsprojekt
-geplant, das du dir für die Strukturierung der Ausgabedatei "Expose - Analyse eines Forschungsthemas - 
-Prozesskommunikation - self modeling and building systems.docx"
-ansehen kannst.
+**Verarbeitung**:
+- C++20/C++23 Metaprogramming zur Laufzeitauswertung von M3-Modellen
+- Template-Engine für Code-Generierung
+- Constraint-Validation für Typensicherheit
+- Vollständiges Testframework für alle Module
+
+**Output**:
+- VIA-M2-SDK in C++ (fokussiert, andere Sprachen optional)
+- OPC UA NodeSet XML für Protokollimplementierung
+- Protobuf-Definitionen für Microservice-Kommunikation
+- Wartbare, versionierte Dokumentation
+
+**Vorteile von C++**:
+C++ wird als primäre Ausgabesprache gewählt, da C++20/23 eine umfassende Metaprogrammierebene bietet, die es ermöglicht, M3-Modelle statisch im Code zu definieren und zur Laufzeit effizient auszuwerten. Die generierten SDKs sind in Objekte und Klassen strukturiert, wartbar und vermeiden das "Spaghetti-Code"-Problem bisheriger Code-Generierungsansätze.
+
+**Ausführung**:
+```bash
+./VIA-M3-Compiler --lang C++ --output ./output-sdk
+```
+
+Die Tests werden über Pipes in ein externes Testframework geleitet und auf Erfolg der Einzeltests und Schritte geparst.
+
+---
+
+### 2.2 VIA-M2-SDK-Compiler: SDK → Kundensystemprojekt
+
+**Zielsetzung**: Die M2-SDK fungiert als erneuter Compiler, der die Syntax des Benutzerprojekts prüft, validiert und in ein vollständiges C++-Systemprojekt transformiert.
+
+**Input**:
+- Kundenprojekt in M3-Syntax (definiert durch VIA-M2-SDK)
+- Netzwerk-Topologie
+- Deployment-Ziele (Architekturen, Betriebssysteme)
+
+**Verarbeitung**:
+
+#### 2.2.1 Syntax-Prüfung und Tests
+Durch die deterministisch begrenzten Einsatzkombinationen industrieller Anlagen können zur Kompilationszeit statische Tests implementiert werden, die die Features von M3 implementieren und perfekt testen. Das Testframework kann aufwendiger sein als die eigentliche Compiler-Implementierung.
+
+#### 2.2.2 Network Discovery System
+Ein innovatives Feature des M2-Compilers ist die automatische Netzwerkkartografie. Mit Erlaubnis des Kunden wird das Netzwerk gescannt, um:
+- Edge-Geräte mit Messwertwandlern zu erkennen (SNMP, OPC UA, Modbus, MQTT, RPC)
+- Angebotene und notwendige Schnittstellen auszulesen
+- Geräteeigenschaften als Objekte für das Projekt anzubieten
+- Vorschläge für die Implementierung zu unterbreiten
+
+Diese Funktion unterstützt Kunden beim Einrichten, Ändern, Erweitern oder Löschen von Systemteilen.
+
+#### 2.2.3 Prozesskommunikations-Optimierung
+Der M2-SDK-Compiler analysiert Prozessabhängigkeiten und optimiert automatisch:
+- **IPC-Mechanismus-Auswahl**: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging
+- **Service-Positionierung**: Gleicher Container, gleicher Host oder Remote
+- **Statische vs. Dynamische Entscheidung**: Compile-Time-Ranking mit optionaler Runtime-Entscheidung
+
+**Output**:
+- Vollständiges C++-Systemprojekt mit allen Gerätedefinitionen, Verbindungen und Gruppen
+- Kubernetes-Manifests für Deployment
+- Edge-Modules für verteilte Systeme
+- Netzwerkprotokollimplementierungen
+- Generierte Tests
+
+**Modi**:
+- **Release-Modus**: C++-Output-Stream wird über Memory-Filesystem (RAM) direkt in g++ mit Pipe kompiliert (Performance-Optimierung)
+- **Debug-Modus**: Projektdateien mit überführter Dokumentation aus Kundenbeschreibung und M2-SDK
+
+**Komplexität**:
+Der Entwicklungsprozess ist vergleichbar mit dem Kompilieren von Xilinx FPGAs, da die Transformation der einzelnen Phasen hochgradig vielschichtig ist. Ein Dateiformat definiert, welcher C++-Code und welche Ausführungsprogramme bzw. Shared Libraries in welche Geräte deployed werden müssen.
+
+---
+
+### 2.3 VIA-M1-System-Deployer: Deployment und Orchestrierung
+
+**Zielsetzung**: Das M1-Systemprojekt wird auf einen Kubernetes-Cluster und die Edge-Module ("Horses") deployed.
+
+**Input**:
+- M2-Systemprojekt
+- Deployment-Targets (Architecture Map)
+- Kundendefinierte Systemtests (grobe Vordefinition)
+
+**Verarbeitung**:
+
+#### 2.3.1 Distributed Compilation
+- GitHub Runners werden für parallele Kompilation aller Module instanziiert
+- Module, die skalieren (mehrfach deployed, einmal implementiert), werden nur einmal kompiliert, wenn Container- und Host-Betriebssystem identisch sind
+- Cross-Compilation für heterogene Architekturen: MIPS, RISC-V, POWER9+, x86, ARM1+, Sparc
+- Unterstützung für Linux, Windows, Mac
+
+**Begründung Multi-Architektur-Support**:
+Industriesysteme sind extrem heterogen. Die Unterstützung reicht von billigsten Edge-Minicomputern bis zu ausgefeilten Verarbeitungs-Servern. VIA muss sowohl die Industrie der Zukunft als auch Legacy-Systeme der Vergangenheit unterstützen.
+
+#### 2.3.2 Horse-Rider-Deployment
+Ein innovatives Deployment-Modell, bei dem:
+- **Horse-Service**: Deployment-Service als Container läuft
+- **Rider-Service**: Fachlogik-Programm wird vom Horse-Service als Prozess ausgeführt
+- **Hot-Reload**: C++23 Modules mit stabilen ABIs ermöglichen Canary Deployment
+- **Redundanz (Digital Twin)**: Mindestens 2 parallele Mikroservices pro Edge-Gerät für Ausfallsicherheit
+- **Rollback**: Sekundenbruchteile bei Fehler durch Vorhalten der alten Version
+
+Vorteil: Systemmodule können aus Arbeitsspeicher, Festplatte oder Remote-System geladen und im laufenden Betrieb ersetzt werden.
+
+#### 2.3.3 Generierte Systemtests
+Das System wird darauf getestet, dass:
+- Alle Protokolle in ihrer Konstellation Befehle senden und empfangen können
+- Zustandsbasiertes Verhalten korrekt ist
+- Einzelapplikationen nach Kundenspezifikationen funktionieren
+- Alle öffentlichen Interfaces getestet sind (Verpflichtung für Kunden)
+- Prozessketten der Module und Netzwerk-Services korrekt funktionieren
+
+Tests werden über das Deploy-Protocol orchestriert, um Gegenstellen auf Testläufe vorzubereiten. Die sicherste Variante sind Tests unter echten Betriebsbedingungen. Optional kann ein Deployment-Service in normale Microservices einkompiliert werden, um erweiterte Prozesskommunikation zu testen.
+
+**Output**:
+- Deployed System für >50.000 Edge-Geräte
+- Digital Twin mit Monitoring und Logging
+- Master Active Management für Orchestrierung
+
+---
+
+## 3. Protokoll-Architektur: Sub-Protokolle unter OPC UA
+
+Die gemeinsame Sprache des Systems ist OPC UA (IEC 62541, https://de.wikipedia.org/wiki/OPC_Unified_Architecture). VIA erweitert OPC UA durch drei Sub-Protokolle, die verschiedene Kommunikationsebenen trennen:
+
+### 3.1 Edge-Group-Protocol
+- **Funktion**: Virtuelle Netzwerkgruppen für Edgegeräte
+- **Vorteil**: Vermeidung einzelner Koordination, Gruppierung von Zielen
+- **Sicherheit**: Hardcoded Messages für Effizienz (kein Runtime-Code-Change)
+- **Performance**: Kein virtueller Router notwendig (Zeitkritikalität gewahrt)
+
+Gruppeneigenschaften werden in das fertige System kompiliert, Binary ABIs werden stabil gehalten, sodass jedes Edge-Gerät selbst weiß, wohin es gehört.
+
+### 3.2 Deploy-Protocol
+- **Funktion**: Verwaltung, Versionierung, Systemupdates, Rejuvenation
+- **Separation**: Metadaten und Messdaten der Computer getrennt von Anlagendaten (Kapselung)
+- **Logging**: Netzwerk-Logs für Fehleranalyse
+- **Horse-Rider-Integration**: Protokollverwaltung durch Deployment-Service
+
+### 3.3 Process-Group-Protocol
+- **Funktion**: Transparente Prozesskommunikation zwischen Services
+- **IPC-Mechanismen**: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging
+- **Automatisierung**: M2-SDK-Compiler erstellt automatisch Prozessketten von Mikroservices
+- **Optimierung**: Auswahl des IPC-Mechanismus basiert auf M3-Objektmodellen und deren Kombination
+- **Cluster-Verteilung**: Virtuelle Weiterverarbeitung oder Gliederung in Unteraufgaben auf anderen Containern/Maschinen
+
+**Windows-Limitation**: Auf Windows sind die IPC-Möglichkeiten begrenzter.
+
+### 3.4 MMB-Integration (Multi-Message Broker)
+Die Sub-Protokolle können nach dem MMB-Ansatz von Dr. Soler Perez Olaya betrieben werden:
+- Many-to-Many Broadcast im Netzwerk
+- Definierte Sicherheitsstufen
+- Paket-Ankunftssicherheit
+
+---
+
+## 4. Master Active Management
+
+**Zielsetzung**: Redundante Deployment-Orchestrierung analog zu Kubernetes, speziell für VIA-Edge-Services.
+
+**Architektur**:
+- **Active/Active-Redundanz**: Analog zu Active Directory Domäne
+- **Konfiguration**: Redundanz-Levels, Service-Verteilung
+- **Zugriffskontrolle**: Rollen und Benutzer für Administratoren
+- **Integration**: Eigene Lösung oder Samba/Microsoft Active Directory
+
+Der Master-Service muss konfigurierbar sein bezüglich Redundanz-Häufigkeit und Positionierung.
+
+---
+
+## 5. Kubernetes-Integration und Deployment-Strategie
+
+**Verhältnis zu Kubernetes**:
+- **Kubernetes**: Deployed einfache Services (Standard-Container, Docker)
+- **VIA**: Deployed C++23 Modules für Edge-Geräte, Protokollübersetzungen, spezielle Speicher- und Netzwerk-Services
+
+**Socket-Kommunikation**:
+Kubernetes-Container kommunizieren über Sockets, wenn deployte Systemanwendung vom Update-/Deployprogramm getrennt ist.
+
+**Service-Trennung**:
+Deployment-Service (Horse) ist optional:
+- **Mit Deployment-Service**: Horse-Service startet mit Grundmodul, erhält Rider-Service von Master Active Management, startet Rider-Service
+- **Ohne Deployment-Service**: Microservice wird als Startservice im paketierten Betriebssystem registriert
+
+**Cluster-Übergreifend**:
+OPC UA wird auch zwischen Kubernetes-Clustern verwendet (z.B. VPN zwischen Standorten), um komponentenbasierte Aufgliederung der Services zu ermöglichen.
+
+---
+
+## 6. Skalierbarkeit und Performance
+
+**Zielsystem**: >50.000 Edge-Geräte
+
+**Performance-Optimierungen**:
+- **Hardcoded Messages**: Effizienter als dynamische Routing-Entscheidungen
+- **Compile-Time-Entscheidungen**: Statisches Ranking der IPC-Mechanismen
+- **Optional Runtime-Entscheidung**: Dynamische Methodenauswahl bei Bedarf
+- **Keine virtuellen Router**: Vermeidung von Performance-Overhead bei Zeitkritikalität
+- **Binary ABI-Stabilität**: C++23 Modules mit stabilen Schnittstellen
+- **Distributed Compilation**: Parallele Builds aller Module
+- **Sicherheit durch Statik**: Quellcode kann zur Laufzeit nicht verändert werden (Fokus auf Deployment-Server-Sicherheit)
+
+**Speicher-Effizienz**:
+- Memory-Filesystem (RAM) für Release-Modus
+- Direkte Pipe zu g++ (Performance-Steigerung)
+
+---
+
+## 7. Vision: Industrie 5.0 und KI-Integration
+
+Zukünftig wird die Industrie 5.0 durch KI-gesteuerte Systembeschreibung charakterisiert:
+
+1. **Natürlichsprachliche Beschreibung**: Kunde beschreibt System per Spracheingabe oder Text
+2. **KI-Modell**: Übersetzt Beschreibung in M3-Compiler-Anforderungen
+3. **Compiler-Kette**: M3 → M2 → M1 generiert vollständiges System
+4. **Software-in-the-Loop**: Iterative Fehlerkorrektur gegen Kundenspezifikation bis System funktioniert
+5. **Vollautomatisches Deployment**: Von Beschreibung bis zum laufenden System
+
+**Demonstration**:
+Das Konzept wird demonstriert durch manuelle Testservices, die zufällige Daten generieren, welche vom VIA-System automatisch abgefangen werden. Das System setzt Anforderungen über ein KI-Modell um und iteriert den Projektprozess, bis das gewünschte Debugergebnis auf der Konsole erscheint.
+
+**Meilenstein**:
+"M3 mit sich selbst definieren" – Ähnlich wie KI-Modelle heute noch manuell aufgebaut, trainiert und zusammengesteckt werden, schließt VIA den Kreis durch automatische M3-Definition über M3. Dies ist ein Meilenstein in der Forschung.
+
+---
+
+## 8. Technische Spezifikationen
+
+### 8.1 Programmiersprachen und Frameworks
+- **C++20/23**: Metaprogramming, Modules, stable ABIs
+- **gRPC + Protobuf**: Microservice-Kommunikation (Contract-First, Binary Serialization)
+- **OPC UA**: IEC 62541, open62541 (C99 Implementation)
+- **Kubernetes**: Container-Orchestrierung
+- **CMake**: Build-System, Multi-Architektur-Konfiguration
+
+### 8.2 Unterstützte Architekturen
+- **CPU**: MIPS, RISC-V, POWER9+, x86, ARM1+, Sparc
+- **OS**: Linux, Windows, Mac
+- **Edge-Devices**: Billigste Minicomputer bis High-End-Server
+
+### 8.3 Protokolle
+- **Industrial**: SNMP, OPC UA, Modbus, MQTT, RPC
+- **IPC**: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging
+- **VIA-Sub-Protocols**: Edge-Group, Deploy, Process-Group
+
+---
+
+## 9. Forschungsfokus für TU Dresden
+
+Während VIA als Gesamtsystem alle beschriebenen Komponenten umfasst, konzentriert sich die Forschungsarbeit an der TU Dresden auf das **Process-Group-Protocol-Subsystem**:
+
+**Forschungsfrage**:
+> Können über Metamodelle (M3/M2) automatisch Prozessketten von Mikroservices erstellt werden, deren Positionierung im System und Kommunikationsmechanismus (IPC) bei der Kompilation optimiert wird?
+
+**Teilfragen**:
+1. Welche M3-Modellelemente sind notwendig, um Prozesskommunikation zu beschreiben?
+2. Wie kann der M2-SDK-Compiler aus Prozessabhängigkeiten optimale IPC-Mechanismen ableiten?
+3. Welche Metriken bestimmen die Positionierung (gleicher Container, gleicher Host, Remote)?
+4. Wie verhält sich das Process-Group-Protocol unter OPC UA bei >50.000 Geräten?
+
+**Hypothesen**:
+- **H1**: Compiler-basierte IPC-Optimierung reduziert Latenz um >30% gegenüber Runtime-Service-Mesh
+- **H2**: Statische Positionierungsentscheidung (Compile-Time) erreicht 90% der Effizienz dynamischer Orchestrierung
+- **H3**: Process-Group-Protocol skaliert linear bis 100.000 Services bei hierarchischer Gruppierung
+- **H4**: Metamodell-basierte Abstraktion senkt manuelle Entwicklungszeit um 60%
+
+Die M3/M2/M1-Architektur dient als theoretischer Kontext und Rahmen, innerhalb dessen das Prozesskommunikations-Subsystem entwickelt und evaluiert wird.
+
+---
+
+## 10. Projektstruktur
+
+```
+playbooks/
+├── README.md (dieses Dokument)
+├── TODO.md
+├── Analyse_eines_Forschungsthemas_Expose.md
+├── phase1_research/ (✅ Abgeschlossen: AAS, OPC UA, CMFM)
+├── phase2_research/ (✅ Abgeschlossen: GitHub-Repositories)
+├── VIA-M3-Compiler/
+│   ├── implementation/
+│   └── testsystem/
+├── VIA-M2-SDK/
+│   ├── implementation/
+│   └── testsystem/
+└── VIA-M1-System-Deploy/
+    ├── implementation/
+    └── testsystem/
+```
+
+---
+
+## 11. Literatur und Quellen
+
+### Standards
+- IEC 63278 (2024): Asset Administration Shell
+- IEC 62541 (2020): OPC Unified Architecture
+- ISO/IEC 20922 (2016): MQTT Protocol
+
+### Open-Source Projekte
+- aas-core-works: https://github.com/aas-core-works
+- open62541: https://github.com/open62541/open62541
+- OPC Foundation UA-Nodeset: https://github.com/OPCFoundation/UA-Nodeset
+
+### Forschungsarbeiten
+- Soler Perez Olaya, S. & Wollschlaeger, M. (2022): CMFM Generality Hierarchy
+- Soler Perez Olaya, S. et al. (2019): CMFM for Heterogeneous Industrial Networks
+- Soler Perez Olaya, S. (2019): Role of CMFM in Network Management. PhD Thesis, TU Dresden
+
+---
+
+## 12. Status und nächste Schritte
+
+**Status**:
+- ✅ Phase 1: Research & Analyse (AAS, OPC UA, IPC) abgeschlossen
+- ⏳ Phase 2: Playbook-Erstellung & M3-Metamodell-Design in Arbeit
+- 📋 Phase 3: M2-SDK-Compiler Prototyp mit IPC-Optimizer
+- 📋 Phase 4: Benchmark-Suite & Use-Case-Implementierung
+- 📋 Phase 5: Evaluation & Vergleichsmessungen
+- 📋 Phase 6: Dokumentation & Publikation
+
+**Nächste Schritte**:
+1. Finalisierung der Playbook-Struktur
+2. M3-Modellelemente für Prozesskommunikation definieren (AAS-Extension)
+3. Graph-basierter Optimierungsalgorithmus für IPC-Mechanismus-Auswahl
+4. Prototypische Implementierung des M2-SDK-Compilers mit IPC-Optimizer
+
+---
+
+**Letzte Aktualisierung**: Oktober 2025
