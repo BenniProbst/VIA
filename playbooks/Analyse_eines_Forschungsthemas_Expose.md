@@ -132,20 +132,52 @@
 
 ## 3. Stand der Forschung
 
-### 3.1 Asset Administration Shell (AAS)
-- IEC 63278 Standard, aas-core-works: Python DSL für M3
-- Code-Generator für 6 Sprachen, Limitation: Python-Skripte, keine Production-Compiler
+### 3.1 Asset Administration Shell (AAS) - aas-core-works
+- **IEC 63278 Standard**: M3/M2/M1 Metamodel Architecture für Digital Twins
+- **aas-core-meta**: M3 Metamodel in simplified Python (canonical definition), versioned releases (YYYY.MM.DD)
+- **aas-core-codegen**: Multi-Target Compiler, Single Source of Truth, automated generation, scalability
+- **6 Language SDKs**: C++, C#, Python, TypeScript, Java, Golang (identical semantics)
+- **5 Schema Exports**: JSON Schema, XSD, RDF SHACL, JSON-LD Context, Protobuf
+- **Code Generation Pipeline**: Python M3 → Parser & Analyzer → Language SDKs + Schema Exports
+- **Transformation Rules**: Python classes → Target language classes, Properties → Getters/setters, Constraints → Validation functions, Documentation → API docs
+- **Constraint System**: Python `@invariant` decorators → Runtime Validation (Uniqueness, Multiplicity, Type Safety, Semantic Consistency)
+- **Code Injection Points**: Custom constructors, Serialization/deserialization, Performance optimizations
+- **Community**: 2.9K Stars, 307 Contributors, MPL 2.0 License
+- Limitation: Python-Skripte (nicht C++ Production-Compiler), statisches Modell (keine Runtime Reconfiguration), AAS-spezifisch (keine Industrial Real-Time Constraints)
 
-### 3.2 OPC UA (IEC 62541)
+### 3.2 OPC UA (IEC 62541) & open62541 C99 Stack
 - **Client-Server Many-to-Many**: Mehrere Clients ↔ Mehrere Server, Discovery Mechanismen, Subscriptions
 - **Informationsmodellierung (Herzstück)**: Beliebig komplexe Strukturen, eigene Objekttypen/Variablentypen, objektorientiert, dynamisch erweiterbar
 - **M3/M2/M1 Architektur**: M3 (Metamodell: Objekte/Variablen/Methoden existieren), M2 (Modell: Domain-spezifische Typen), M1 (Instanz: Laufende Systeme)
 - **ModelCompiler**: XML-Modellbeschreibung → C#/C Code, UA Modeler für grafisches Design
 - **C++ SDKs**: OPC Foundation (ANSI C/C++), Unified Automation (kommerziell), open62541 (C99, ~250KB, Open Source)
-- **76+ Companion Specifications**: DI, I4AAS, PLCopen, Robotics, CNC, MTConnect, ISA-95
+- **open62541**: C99 Implementation, MPL 2.0, 2.9K Stars, 307 Contributors, ursprünglich TU Dresden Forschungsprojekt
+  - **Embedded-Friendly**: ~250KB minimal config (Core + Namespace 0 MINIMAL), ~500KB full config, zertifiziert "Micro Embedded Device Server"
+  - **Plugin-Architektur**: Logging, Crypto (OpenSSL/mbedTLS), Access Control (RBAC), NodeStore (HashMap/ZipTree)
+  - **Platform Abstraction**: POSIX, Windows, Zephyr RTOS (freeRTOS legacy), portierbar auf neue Plattformen (clock, networking)
+  - **Nodeset Compiler**: Python Tool (nodeset_compiler.py), XML NodeSet → C Code, Integration mit VIA-M3-Compiler
+  - **Dynamic Address Space**: Nodes zur Laufzeit hinzufügen/löschen (VIA Registry ↔ OPC UA Nodes), `UA_Server_addObjectNode()` API
+  - **Performance**: 10K ops/sec (single-thread), 50K ops/sec (multi-thread 4 cores), 100K nodes tested, 1K notifications/sec
+  - **Security**: Basic256Sha256 (AES-256 + SHA256), X.509 Zertifikate, Encryption Policies
+- **76+ Companion Specifications** (UA-Nodeset Repository): DI, I4AAS, PLCopen, Robotics, CNC, MTConnect, ISA-95, PackML, EUROMAP, BACnet
+  - **DI (Device Integration)**: Generic device modeling, Base für VIA Custom Companion Spec (DeviceType, BlockType, ConfigurableObjectType)
+  - **I4AAS Companion Spec**: Maps AAS to OPC UA (AssetAdministrationShell → UA Object, Submodel → UA Object, Property → UA Variable)
+  - **VIA Custom Companion Spec** (Vision): VIAProcessType (extends DeviceType), VIARouterType, VIASchedulerType, VIARegistryType
+- **NodeSet XML Format**: Standardisierte Information Models, `<UANodeSet>` root, `<UAObject>`, `<UAVariable>`, `<UAMethod>`, `<UAObjectType>`, `<UADataType>`
+- **Hybrid Model für VIA**: Static NodeSet (VIA types) + Dynamic Instances (created at runtime when VIA processes register)
 - **Aggregationsserver**: Sammelt Daten von vielen Servern in einheitlichem Adressraum
 - **Multi-Language-Interoperabilität**: python-opcua, Java, .NET, gRPC-Bindings möglich
-- Limitation: Statische NodeSets, keine dynamische Orchestrierung, keine Compile-Time-Optimierung
+- **Code Generation Pipeline (VIA Integration)**:
+  ```
+  VIA M3 Metamodel → VIA-M3-Compiler → OPC UA NodeSet XML
+                                        ↓
+                               open62541 nodeset_compiler.py
+                                        ↓
+                                   C Code (via_nodeset.c/.h)
+                                        ↓
+                               Link mit VIA Process (C++23 Module)
+  ```
+- Limitation: Statische NodeSets (behoben durch Dynamic Address Space API), keine dynamische Orchestrierung, keine Compile-Time-Optimierung
 
 ### 3.3 Multi-Message Broker (Dr. Santiago Soler Perez Olaya et al., IEEE ETFA 2024)
 - **Problem**: Brownfield Integration (Legacy Devices mit inflexiblen Protokollen)
