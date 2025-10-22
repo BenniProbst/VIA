@@ -2,7 +2,7 @@
 
 **Multi-Stage Compiler System for Metamodel-Based Industrial Microservice Architecture**
 
-VIA is a M3→M2→M1 compiler chain that generates optimized microservice deployments for heterogeneous industrial systems using Asset Administration Shell (AAS) and OPC UA standards from Industrie 4.0 and the third digital industry phase, where AI models automate human will into results and self defining and constructing systems.
+VIA is a M3→M2→M1 compiler chain that generates optimized microservice deployments for heterogeneous industrial systems using Asset Administration Shell (AAS) and OPC UA standards from Industry 4.0 (or better Industry 3.2 after digital Terms, since there was no "Revolution") and the third digital industry phase (Industry 3.3 after digital Terms), where AI models automate human will into results and self defining and constructing systems. Arrogant sources may declare this project a first proof of Industry 5.0.
 
 > **Research Project**: TU Dresden, Chair of Industrial Communications
 > **Supervisors**: Prof. Dr.-Ing. Martin Wollschlaeger, Dr.-Ing. Hilbert, Santiago Soler Perez Olaya
