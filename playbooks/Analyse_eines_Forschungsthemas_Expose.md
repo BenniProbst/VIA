@@ -271,7 +271,11 @@ Zentrale Eigenschaften:
 
 Der Multi-Message Broker (MMB) adressiert die Herausforderung der Brownfield-Integration: Legacy-Geräte mit proprietären, inflexiblen Protokollen (Modbus, PROFIBUS, EtherCAT) müssen in moderne AAS-basierte Industrie 4.0-Systeme integriert werden. Der MMB fungiert als Gateway zwischen Northbound-Schnittstellen (I4.0 HTTP API, zukünftig Type 3 Proactive AAS) und Southbound-Protokollen (Modbus, HTTP, MQTT, zukünftig PROFIBUS/EtherCAT/PROFINET). Die Architektur demonstriert, wie heterogene Protokolle durch Mapping-Submodelle (AID/AIMC) systematisch in ein einheitliches AAS-Datenmodell überführt werden können – ein Ansatz, den VIA für die automatische Generierung von Protocol-Adaptern nutzt.
 
-**VIA-Projektintegration**: Die MMB-Konzepte (AID/AIMC Mapping, Consistency Layer, Sync/Async Translation) werden in die **VIA-M2-SDK Network Discovery**-Komponente (`playbooks/VIA-M2-SDK/network_discovery.md`) integriert. Das Network Discovery System scannt Kundennetzwerke (SNMP, OPC UA, Modbus, MQTT, RPC), extrahiert Asset Interface Descriptions (AID-ähnlich) und generiert automatisch Mapping-Vorschläge für das M2-Kundenprojekt. Anders als der MMB, der manuell konfigurierte AIMC-Submodelle erfordert, generiert VIA diese Mappings automatisch aus erkannten Schnittstellen und bietet sie dem Kunden als `.via`-Projektdatei-Vorschläge an. Die MMB-Inspiration zeigt sich auch in VIAs drei Sub-Protokollen unter OPC UA (Edge-Group, Deploy, Process-Group), die Many-to-Many Broadcast nach MMB-Ansatz ermöglichen – jedoch mit Compile-Time-Optimierung statt reiner Runtime-Routing.
+**VIA-Projektintegration**: Der MMB bildet die **M3-Modellgrundlage und Bibliothek** (`playbooks/VIA-M3-Compiler/third_party/mmb/`) für die drei VIA-Sub-Protokolle unter OPC UA. Die MMB-Architektur wird auf M3-Ebene als Basis-Bibliothek implementiert, auf der Edge-Group-Protocol, Deploy-Protocol und Process-Group-Protocol aufbauen. Diese Protokolle werden **virtuell und dynamisch als MMB zwischen Verarbeitungsgruppen auf OPC UA gemappt** – nicht statisch zur Compile-Zeit, sondern dynamisch zur Laufzeit anpassbar.
+
+Die MMB-Konzepte (AID/AIMC Mapping, Consistency Layer, Sync/Async Translation, Many-to-Many Broadcast) werden zweifach genutzt:
+1. **Network Discovery** (`playbooks/VIA-M2-SDK/network_discovery.md`): Automatische Erkennung von Brownfield-Geräten, AID-Extraktion, AIMC-Mapping-Generierung als `.via`-Projektdatei-Vorschläge
+2. **Dynamische Protokoll-Orchestrierung**: Die 3 Sub-Protokolle organisieren sich **getrennt voneinander** im Gesamtnetz, bilden **geschachtelte und rekursive Sicherheitsstufen** in jeder Protokoll-Ebene, und ermöglichen virtuelle Netzwerkströme mit unterschiedlichen QoS-Garantien (Latenz, Paket-Ankunftssicherheit, Sicherheitsstufen).
 
 Zentrale Eigenschaften:
 
@@ -329,7 +333,22 @@ Zentrale Erkenntnisse:
 
 Die Wahl des IPC-Mechanismus hat fundamentalen Einfluss auf Latenz und Skalierbarkeit verteilter Systeme. Bestehende Lösungen wie gRPC (~0.5ms Latenz, aber keine Service Discovery), UNIX Domain Sockets (~20μs, nur lokal), DDS (Real-Time QoS, ~2ms Overhead) und Service-Mesh-Lösungen wie Istio/Linkerd (Runtime-Routing, 5-10ms Sidecar-Overhead) erfordern manuelle Konfiguration und bieten keine Compile-Time-Optimierung. Für Monitoring existieren etablierte Standards (SNMP für Infrastruktur, OPC UA für Prozessdaten, MQTT für Cloud-Anbindung), jedoch fehlt eine integrierte Sicht. VIA adressiert diese Fragmentierung durch eine Compiler-gestützte Vereinheitlichung: Der M2-Compiler wählt automatisch den optimalen IPC-Mechanismus basierend auf Prozess-Lokalisierung (gleicher Host → Pipe/Socket, Remote → TCP/gRPC) und Latenzanforderungen.
 
-**VIA-Projektintegration**: Der **IPC-Optimizer** in `playbooks/VIA-M2-SDK/ipc_optimizer.md` implementiert einen graph-basierten Algorithmus zur Compile-Time-Auswahl des optimalen IPC-Mechanismus (**Kern dieser Forschungsarbeit**). Die Entscheidungslogik wird im M3-Metamodell als Template-Regeln definiert (`playbooks/VIA-M3-Compiler/templates/ipc_decision_logic.aas`), die der Kunde in seinem M2-Projekt (`.via` Dateien) mit konkreten Constraints instanziiert (z.B. "max_latency: 5ms", "same_host: true"). Der M2-Compiler führt zur Compile-Zeit einen Constraint-Solver (z.B. Z3) aus, der Pareto-optimale Lösungen für Latenz/Durchsatz/Ressourcenverbrauch findet. Die 5 IPC-Mechanismen (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) werden als AAS-lang Enumerations im M3 definiert. Monitoring-Integration erfolgt über das Deploy-Protocol (Logging, Telemetrie) und OPC UA (Prozessdaten-Exposition).
+**VIA-Projektintegration**: Der **IPC-Optimizer** in `playbooks/VIA-M2-SDK/ipc_optimizer.md` implementiert einen graph-basierten Algorithmus zur Compile-Time-Auswahl des optimalen IPC-Mechanismus (**Kern dieser Forschungsarbeit**). Die Entscheidungslogik wird im M3-Metamodell als Template-Regeln definiert (`playbooks/VIA-M3-Compiler/templates/ipc_decision_logic.aas`), die der Kunde in seinem M2-Projekt (`.via` Dateien) mit konkreten Constraints instanziiert (z.B. "max_latency: 5ms", "same_host: true").
+
+**Multi-Objective Optimization (Pareto-Optimierung)**: Der M2-Compiler führt zur Compile-Zeit einen Constraint-Solver (Z3) aus, der **Pareto-optimale Lösungen** für konfligierende Ziele findet:
+- **Latenz minimieren** (μs-Bereich für Unix Socket, ms-Bereich für TCP)
+- **Durchsatz maximieren** (Messages/s, MB/s)
+- **Ressourcenverbrauch minimieren** (CPU%, RAM MB, Netzwerkbandbreite)
+
+Eine Lösung ist **Pareto-optimal**, wenn keine Zielgröße verbessert werden kann, ohne eine andere zu verschlechtern. Der Constraint-Solver berechnet die **Pareto-Frontier** (Menge aller nicht-dominierten Lösungen) und wählt basierend auf Kunden-Constraints die beste Trade-off-Lösung. Die 5 IPC-Mechanismen (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) werden als AAS-lang Enumerations im M3 definiert.
+
+**In-the-Loop Selbstoptimierung**: VIA implementiert eine **autonome Cluster-Optimierung** durch kontinuierliche Telemetrie-Auswertung:
+- **Telemetrie-Metriken**: CPU-Last (%), RAM-Auslastung (MB), Festplatten-I/O (MB/s), Netzwerk-Latenz (ms), Message-Throughput (Messages/s)
+- **Evaluationsschleife**: Deploy-Protocol sammelt Telemetrie von allen Services → M2-Compiler analysiert Bottlenecks → Kubernetes-Lastverteilung wird dynamisch angepasst
+- **Scope**: Verarbeitende Services für Messdaten (Edge-Devices → Aggregation → Analytics) + OPC UA Protokollebene (Sub-Protokolle werden virtuell über MMB zwischen Verarbeitungsgruppen umgemappt)
+- **Feedback-Loop**: Neue Service-Positionierung wird als Canary-Deployment getestet, bei Verbesserung der Pareto-Metriken permanent übernommen, bei Verschlechterung Rollback in Sekundenbruchteilen
+
+Monitoring-Integration erfolgt über das Deploy-Protocol (Logging, Telemetrie) und OPC UA (Prozessdaten-Exposition).
 
 Übersicht bestehender Ansätze:
 
@@ -524,11 +543,59 @@ Die Forschungsarbeit vereint Konzepte aus Compiler-Theorie (Abschnitt 5.1), Meta
 
 **Projektlokation**: `playbooks/VIA-M3-Compiler/via_protocols/` (zukünftig, **Spezifikation in Planung**)
 
-- **Edge-Group-Protocol**: Virtuelle Netzwerkgruppen für hierarchische Edgegeräte-Gruppierung, Hardcoded Messages (zur Compile-Zeit in Binaries kompiliert, keine Runtime-Code-Change für Sicherheit), Binary ABIs stabil gehalten
-- **Deploy-Protocol**: Versionierung, Metadaten, Logging, Rejuvenation für Horse-Rider-System, Separation von Computer-Metadaten und Anlagendaten (Kapselung), Netzwerk-Logs für Fehleranalyse
-- **Process-Group-Protocol**: Transparente IPC-Optimierung zwischen Services (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) → **Kern dieser Forschungsarbeit**, Automatische Prozessketten-Erstellung vom M2-Compiler, Virtuelle Weiterverarbeitung oder Gliederung in Unteraufgaben auf anderen Containern/Maschinen
+**M3-Modellgrundlage**: Die drei VIA-Sub-Protokolle bauen auf der **MMB-Bibliothek** (`playbooks/VIA-M3-Compiler/third_party/mmb/`) als M3-Basis auf. Die MMB-Architektur (Consistency Layer, Mapping Layer, Many-to-Many Broadcast) wird auf M3-Ebene implementiert und als Grundlage für die drei Protokoll-Ebenen verwendet.
 
-**Status**: Spezifikation der 3 Protokolle wird im Projektverlauf als M3-Modelle definiert, MMB-Integration (Multi-Message Broker nach Dr. Soler Perez Olaya) für Many-to-Many Broadcast geplant
+#### 6.4.1 Edge-Group-Protocol (Außenwelt-Ebene)
+
+**Funktion**: Virtuelle Netzwerkgruppen für hierarchische Edgegeräte-Gruppierung, vermeidet einzelne Koordination durch Gruppierung von Zielen.
+
+**Architektur**:
+- **Hardcoded Messages**: Gruppeneigenschaften werden zur Compile-Zeit in Binaries kompiliert (keine Runtime-Code-Change für Sicherheit)
+- **Binary ABI-Stabilität**: C++23 Modules mit stabilen Schnittstellen, sodass jedes Edge-Gerät selbst weiß, wohin es gehört
+- **Geschachtelte Sicherheitsstufen**: Hierarchische Gruppierung (Device-Groups → Edge-Groups → Cluster-Groups → Global) mit rekursiven Sicherheitsregeln pro Ebene
+- **Virtuelle Netzwerkströme**: Unterteilung der Außenwelt in getrennte Verarbeitungsgruppen mit unterschiedlichen QoS-Garantien
+
+**Performance**: Kein virtueller Router notwendig (Zeitkritikalität gewahrt), Routing-Entscheidungen zur Compile-Zeit.
+
+**Dynamisches MMB-Mapping**: Zur Laufzeit können Edge-Groups virtuell über MMB zwischen Verarbeitungsgruppen umgemappt werden (z.B. bei Netzwerk-Rekonfiguration, Ausfall, Lastverschiebung).
+
+#### 6.4.2 Deploy-Protocol (Verwaltungs-Ebene)
+
+**Funktion**: Verwaltung, Versionierung, Systemupdates, Rejuvenation für Horse-Rider-System.
+
+**Architektur**:
+- **Separation**: Metadaten und Messdaten der Computer getrennt von Anlagendaten (Kapselung)
+- **Logging**: Netzwerk-Logs für Fehleranalyse, Telemetrie-Sammlung (CPU%, RAM MB, Disk I/O)
+- **Horse-Rider-Integration**: Protokollverwaltung durch Deployment-Service, Canary-Deployment, Hot-Reload, Rollback
+- **Geschachtelte Sicherheitsstufen**: Versionierungs-Policies pro Cluster/Gruppe (z.B. "Production: nur Stable", "Staging: Canary erlaubt")
+
+**In-the-Loop Selbstoptimierung**: Deploy-Protocol sammelt kontinuierlich Telemetrie von allen Services → M2-Compiler analysiert Bottlenecks → Kubernetes-Lastverteilung wird dynamisch angepasst → Neue Positionierung als Canary getestet → Bei Verbesserung der Pareto-Metriken (Latenz/Durchsatz/Ressourcen) permanent übernommen.
+
+**Dynamisches MMB-Mapping**: Deployment-Gruppen können zur Laufzeit neu organisiert werden (z.B. "alle Analytics-Services auf dedizierte High-RAM-Nodes").
+
+#### 6.4.3 Process-Group-Protocol (Datenebene) → **Kern dieser Forschungsarbeit**
+
+**Funktion**: Transparente IPC-Optimierung zwischen Services, trennt Programm-Steuerung von Daten.
+
+**Architektur**:
+- **IPC-Mechanismen**: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging (als AAS-lang Enumerations im M3 definiert)
+- **Automatisierung**: M2-SDK-Compiler erstellt automatisch Prozessketten von Mikroservices basierend auf Prozessabhängigkeiten
+- **Compile-Time-Optimierung**: Constraint-Solver (Z3) berechnet Pareto-Frontier für Latenz/Durchsatz/Ressourcen
+- **Cluster-Verteilung**: Virtuelle Weiterverarbeitung oder Gliederung in Unteraufgaben auf anderen Containern/Maschinen
+- **Geschachtelte Sicherheitsstufen**: IPC-Kommunikation kann pro Prozess-Gruppe unterschiedliche Verschlüsselungs-/Authentifizierungs-Level haben
+
+**Dynamisches MMB-Mapping**: Die Prozesskommunikations-Topologie kann zur Laufzeit über MMB umgemappt werden:
+- Edge-Devices → Aggregation-Services → Analytics-Services
+- Bei Bottleneck: Neue Aggregation-Services instanziieren, Datenströme umleiten (virtuelles Mapping über MMB)
+- Sub-Protokoll organisiert sich **getrennt** von Edge-Group und Deploy-Protocol im Gesamtnetz
+
+**Windows-Limitation**: Auf Windows sind die IPC-Möglichkeiten begrenzter (keine Unix Sockets).
+
+---
+
+**Protokoll-Interaktion**: Die drei Sub-Protokolle können sich **getrennt voneinander** im Gesamtnetz organisieren und gruppieren, jedes mit eigenen **geschachtelten und rekursiven Sicherheitsstufen**. Die dynamische Orchestrierung über MMB ermöglicht virtuelle Netzwerkströme mit unterschiedlichen Eigenschaften (Latenz-kritisch, Durchsatz-optimiert, Sicherheits-gehärtet).
+
+**Status**: Spezifikation der 3 Protokolle wird im Projektverlauf als M3-Modelle definiert, basierend auf MMB-M3-Bibliothek
 
 ---
 
