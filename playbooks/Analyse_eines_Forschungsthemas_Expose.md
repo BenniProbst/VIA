@@ -137,29 +137,65 @@
 - Code-Generator für 6 Sprachen, Limitation: Python-Skripte, keine Production-Compiler
 
 ### 3.2 OPC UA (IEC 62541)
-- open62541: C99, ~250KB Footprint, Nodeset Compiler: XML → C
-- 76+ Companion Specifications (DI, I4AAS, PLCopen)
-- Limitation: Statische NodeSets, keine dynamische Orchestrierung
+- **Client-Server Many-to-Many**: Mehrere Clients ↔ Mehrere Server, Discovery Mechanismen, Subscriptions
+- **Informationsmodellierung (Herzstück)**: Beliebig komplexe Strukturen, eigene Objekttypen/Variablentypen, objektorientiert, dynamisch erweiterbar
+- **M3/M2/M1 Architektur**: M3 (Metamodell: Objekte/Variablen/Methoden existieren), M2 (Modell: Domain-spezifische Typen), M1 (Instanz: Laufende Systeme)
+- **ModelCompiler**: XML-Modellbeschreibung → C#/C Code, UA Modeler für grafisches Design
+- **C++ SDKs**: OPC Foundation (ANSI C/C++), Unified Automation (kommerziell), open62541 (C99, ~250KB, Open Source)
+- **76+ Companion Specifications**: DI, I4AAS, PLCopen, Robotics, CNC, MTConnect, ISA-95
+- **Aggregationsserver**: Sammelt Daten von vielen Servern in einheitlichem Adressraum
+- **Multi-Language-Interoperabilität**: python-opcua, Java, .NET, gRPC-Bindings möglich
+- Limitation: Statische NodeSets, keine dynamische Orchestrierung, keine Compile-Time-Optimierung
 
-### 3.3 Multi-Message Broker (Dr. Santiago Soler Perez Olaya)
-- Northbound: I4.0 OPC UA, Southbound: Legacy Assets
-- AID/AIMC Submodels für Asset Mapping
-- Limitation: Kein vollautomatisches Deployment
+### 3.3 Multi-Message Broker (Dr. Santiago Soler Perez Olaya et al., IEEE ETFA 2024)
+- **Problem**: Brownfield Integration (Legacy Devices mit inflexiblen Protokollen)
+- **MMB als Gateway**: Northbound (I4.0 HTTP API, zukünftig Type 3 Proactive AAS) ↔ Southbound (Modbus, HTTP, MQTT, zukünftig PROFIBUS/EtherCAT/PROFINET)
+- **Internal Layers**: Consistency Layer (identische Requests → gleiche Info), Mapping Layer (Connector-Auswahl + Data Transformation), AAS Storage (ein AAS pro Legacy Asset)
+- **AID/AIMC Submodels**:
+  - **AID (Asset Interfaces Description)**: Von Vendor, Available Endpoints, basiert auf W3C WoT TD
+  - **AIMC (Asset Interfaces Mapping Configuration)**: Von User, bidirectional Mapping Asset ↔ AAS SubmodelElements
+- **Sync/Async Translation**: Buffer latest status ODER block until response available
+- **AAS Interaction Types**: Type 1 (Passive: XML/JSON/RDF), Type 2 (Reactive: HTTP API), Type 3 (Proactive: autonomous inter-AAS, Zukunft)
+- **Real-time vs Non-real-time**: Gateway zwischen Hard/Soft Real-time (Fieldbus) und Non-real-time (HTTP)
+- **Protokoll-Translation**: Controller/Peripheral ↔ Client/Server ↔ Pub/Sub
+- Limitation: AIMC erlaubt keine Data Transformations, Type 3 noch nicht standardisiert, kein vollautomatisches Deployment
 
-### 3.4 CMFM & SOA
-- CMFM: Generality Hierarchy, VIA als Domain
-- SOA: gRPC + Protobuf, Kubernetes Container
-- Limitation: Keine Compiler-Kette, manuelle Orchestrierung
+### 3.4 CMFM & Management Paradigmen
+- **CMFM**: Human-Centered vs. System-Centric Management
+- **Management Paradigmen**: Value-based (SNMP), Policy-based (Intent), Requirements-based (SDN/TSN), Ontology-based (Semantic)
+- **CMFM Stärken**: Heterogeneity Management, Intent-based, Knowledge Transfer
+- **CMFM Meta-Model**: Goal (mandatory), Output (mandatory), Input (optional), Constraints (optional), Representation (optional)
+- **Constraints-Typen**: Time, Order, Existence, Mutual Exclusiveness, Execution Success
+- **Taxonomy**: Hierarchische Composition, Multiple Super-CMFMs möglich
+- **VIA Vocabulary**: Elements (Process, Service, Registry, Scheduler, Router), Verbs (register, discover, route, schedule), IPC Types (Pipe, Socket, TCP, FileQueue, Thread)
+- **Data/Control/Management Plane**: IPC (Data), Orchestration (Control), CMFM (Management) - Separation besser als Legacy Industrial Systems
+- **Network of Networks**: VIA als holistic Management für heterogene IPC-Mechanismen (Pipe, Socket, TCP, FileQueue, Thread)
+- **Seamless Integration**: Access to different management systems, orchestration throughout
+- **Legacy Problem**: Keine Trennung Data/Control/Management in Industrial Systems, proprietary Interfaces, statische Configuration
+- Limitation: Keine Compiler-Kette, manuelle CMFM-Erstellung, Vocabulary Management yet-to-standardize
 
-### 3.5 IPC & Service Mesh (Related Work)
+### 3.5 SOA & Microservice Architecture (Dr. Santiago Soler Perez Olaya et al., IECON 2024)
+- **SOA Prinzipien**: Modularity, Abstraction, Loose Coupling, Service Composition, Reusability
+- **Automotive SOA**: SOME/IP (Autosar), DDS (Publish/Subscribe), OPC UA (Interoperabilität)
+- **Microservice Network für AAS**: One microservice per Submodel, Northbound (HTTP API) ↔ Internal (gRPC) ↔ Southbound (Asset Protocol)
+- **gRPC + Protobuf Vorteile**: High-performance, low-latency, HTTP/2 multiplexing, language interoperability (C++, C#, Python, Java, Go), binary serialization (compact, efficient), backward/forward compatibility, contract-first paradigm
+- **Code Generation Pipeline**: OpenAPI (AAS Spec) → Protobuf (.proto files) → protoc → Language-specific Code (messages, service stubs)
+- **AAS SDK Integration**: aas-core-csharp für (de-)serialization, metamodel types
+- **Container Deployment**: Docker + Kubernetes, transparent relocation (services near workload/gateway)
+- **Limitation**: Protobuf kein Inheritance (resort to composition), duality Protobuf-generated vs AAS Core SDK classes, heterogene Protokolle nicht unified, manuelle Orchestrierung
+
+### 3.6 IPC, Monitoring & Service Mesh (Related Work)
 - **gRPC**: HTTP/2, Protobuf, ~0.5ms Latenz (Single-Host), Service Discovery fehlt
 - **ZeroMQ**: Message Queues, 5 Patterns (REQ/REP, PUB/SUB), keine Compiler-Integration
 - **DDS (OMG Data Distribution Service)**: Real-Time, QoS-Policies, Overhead ~2ms, keine Metamodell-Abstraktion
 - **Istio/Linkerd (Service Mesh)**: Runtime-Routing, Dynamic Discovery, Sidecar-Overhead 5-10ms
 - **UNIX Domain Sockets**: ~20μs Latenz, nur lokale Prozesse, keine verteilte Orchestrierung
-- **Limitation**: Alle Ansätze erfordern manuelle Konfiguration, keine Compile-Time-Optimierung
+- **SNMP (Simple Network Management Protocol)**: Manager-Agent-Model, Polling (GET-Anfragen alle 60s) + Traps (Push bei Ereignissen), MIB-OID-Struktur (hierarchisch), Standard-MIBs (IF-MIB, HOST-RESOURCES-MIB, ENTITY-SENSOR-MIB), Grenzen: flache OID-Liste (keine Objekthierarchien), Polling-Paradigma (keine Pub/Sub), primär Monitoring (nicht Steuerung), Skalierungslimit bei 1000en Geräten
+- **MQTT (Message Queuing Telemetry Transport)**: Pub/Sub, Broker-basiert, IoT-Sensorik, Cloud-Anbindung, extrem schlank (bandbreite-kritisch)
+- **Hybrid-Ansatz (Empfohlen)**: SNMP (Infrastruktur-Monitoring), OPC UA (detaillierte Prozessdaten), MQTT (Cloud Analytics)
+- **Limitation**: Alle Ansätze erfordern manuelle Konfiguration, keine Compile-Time-Optimierung, keine unified heterogene Protokolle
 
-### 3.6 Forschungslücken
+### 3.7 Forschungslücken
 - Keine mehrstufige Compiler-Kette M3→M2→M1 für Prozesskommunikation
 - Keine automatische IPC-Mechanismus-Auswahl bei Compilation
 - Keine Sub-Protokolle unter OPC UA standardisiert
@@ -238,20 +274,31 @@
 - Submodels: Modulare Datenbeschreibung
 - AID/AIMC: Asset Interface Description + Mapping
 
-### 5.4 OPC UA Information Model
-- M3-basierte Typdefinitionen
-- Companion Specifications: Domain-Erweiterungen
-- Address Space: Hierarchische Nodes
+### 5.4 OPC UA Information Model & ISA-95 Integration
+- **M3-basierte Typdefinitionen**: Metamodell für Objekte, Variablen, Methoden
+- **Companion Specifications**: Domain-Erweiterungen (DI, I4AAS, PLCopen)
+- **Address Space**: Hierarchische Nodes, objektorientiert
+- **ISA-95 Levels**: Level 2 (SCADA: Prozessebene, Echtzeit), Level 3 (MES: Produktionsleitebene), Level 4 (ERP: Unternehmensebene)
+- **SCADA**: Prozessdaten erfassen, Steuerbefehle senden, Alarmierung, Historisierung, Visualisierung (HMI)
+- **MES**: Produktionsaufträge, Feinplanung, Qualitätssicherung, OEE/KPI, Rückverfolgung, bidirektional mit SCADA
+- **OPC UA als Vermittler**: Standardisierter Zugriff für SCADA, MES, ERP, Cloud
 
 ### 5.5 Prozesskommunikation
 - IPC Mechanisms: Pipe, Socket, TCP, File-Queue, Thread
 - Data vs. Control vs. Management Plane
 - gRPC + Protobuf: Contract-First, Binary Serialization
 
-### 5.6 CMFM
-- Generality Hierarchy: Domain > User > Implementation
-- VIA as Domain: Gesamte Prozesskommunikations-Domain
-- Promotion: Tacit vs. Explicit
+### 5.6 CMFM (Comprehensive Management Function Model)
+- **Manager-Centric Paradigm**: Fokus auf Ziele statt System-Details (vs. System-Centric)
+- **CMF Komponenten**: Goal (mandatory), Output (mandatory), Input (optional), Constraints (optional), Representations (optional)
+- **Generality Hierarchy**: Implementation → User → Domain → Parent Domain
+- **VIA as Domain**: Gesamte Prozesskommunikations-Domain
+- **Catalog vs. Core**: Liste aller CMFs vs. allgemein anwendbare CMFs nach Promotion
+- **Promotion**: Tacit (automatisch durch häufige Nutzung) vs. Explicit (durch Standardization Bodies)
+- **CMF Interrelations**: Equivalence (Merge gleicher Goals), Composition (Upwards/Downwards)
+- **AAS Integration**: CMFs als Operations im AAS Meta-Model, Input/Output als Attributes
+- **VIA CMFs**: process-register, process-discover, route-message, schedule-task
+- **Vocabulary Management**: Öffentliches Repository, Verknüpfung mit e-Class, CDD, I4.0 SemanticID
 
 ---
 
