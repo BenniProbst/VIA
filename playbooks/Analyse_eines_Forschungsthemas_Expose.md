@@ -774,6 +774,36 @@ Die quantitativen Erfolgsmetriken definieren messbare Zielwerte: Latenz P95 unte
 [^2]: Istio Performance Docs (2024). Sidecar Proxy: 0.20 vCPU, 60 MB Memory. Latenz-Overhead variiert mit Features.
 [^3]: Stevens & Rago (2013), Unix Domain Sockets. Kernel-level IPC, nur für lokale Kommunikation, keine verteilte Orchestrierung.
 
+#### 7.3.3 Multi-Level Debugging & Revisionsverwaltung
+
+Ein zentraler Vorteil der VIA-Architektur liegt in der **bidirektionalen Metamodell-Traceability** über alle Abstraktionsebenen (M3 ↔ M2 ↔ M1 ↔ M0). Diese Fähigkeit adressiert eine fundamentale Schwäche von ROS, wo Module in beliebigen Sprachen auf jeder Ebene eingefügt werden können, was schnell zur Unübersichtlichkeit führt, insbesondere wenn Modelle nicht in gängigen Modellsprachen in M3 definiert, sondern direkt in M2 implementiert oder in M1 hart ergänzt werden.
+
+**Reverse-Engineering-Capability**: VIA ermöglicht die Rückübersetzung von Softwarearchitektur aus M2 (kundenspezifische Modell-Sprachkonzepte) und aus M1 (implementierter Code) nach M3. Durch erneute Kompilierung wird getestet, ob die in M3 rückerstellten Modelle wieder in M2 und M1 kompiliert werden können und dieselbe Bedeutungsebene für die M0-Module liefern. Dies gewährleistet **Semantic Consistency** über den gesamten Metamodell-Stack.
+
+**Revisionsverwaltung über alle Metaschichten**: Die Revisionsverwaltung (Teil von Abschnitt 2.3 Hauptprogramm) bildet ein Teil-Framework des Hauptprogramms und verwaltet:
+
+- **Alle Codeabschnitte & Komponenten**: Vollständiger Überblick über alle existierenden Module, Services und externe Frameworks
+- **Meta-Lokation**: Zuordnung jedes Elements zu seiner Position im Metamodell (M3/M2/M1/M0)
+- **Implementierung & Kompilationsabhängigkeiten**: Dependency-Graph über alle Ebenen mit bidirektionaler Traceability
+- **Semantische Bedeutung**: Formale Semantik-Annotationen, die Reverse-Engineering ermöglichen
+
+**Debugging-Architektur**: Die Revisionsverwaltung ist eng verknüpft mit dem Multi-Level Debugging System:
+
+1. **M0 → M1 Tracing**: Runtime-Fehler werden auf Code-Ebene lokalisiert
+2. **M1 → M2 Tracing**: Code-Fehler werden auf Modell-Ebene zurückverfolgt
+3. **M2 → M3 Tracing**: Modell-Fehler werden auf Metamodell-Konzepte gemappt
+4. **M3 → M2 → M1 Recompilation**: Korrigierte Metamodelle werden durchgängig neu kompiliert
+
+**Kommentarfunktion & Dokumentation**: Die Revisionsverwaltung organisiert die Weitergabe von Kommentaren über alle Ebenen:
+- **M3-Kommentare**: Semantische Beschreibung von Metamodell-Konzepten
+- **M2-Kommentare**: Architektur-Dokumentation für Modelle
+- **M1-Kommentare**: Inline-Code-Dokumentation
+- **Bidirektionale Propagierung**: Änderungen in M1-Kommentaren können zu M2/M3 propagiert werden
+
+**Abgrenzung zu ROS**: Während ROS keine formale Metamodell-Hierarchie und keine Reverse-Engineering-Capability bietet, garantiert VIA durch die Revisionsverwaltung durchgängige Traceability und ermöglicht Model-Driven Round-Trip Engineering.
+
+**Projektlokation**: `playbooks/VIA-M2-SDK/revision_management.md` (zukünftig, **Spezifikation in Planung**)
+
 ### 7.4 Limitationen
 
 Die Forschungsarbeit unterliegt vier wesentlichen Limitationen. Limitation L1 besteht darin, dass Compile-Time-Optimierung eine statische Topologie erfordert, wobei dynamische Änderungen eine Neu-Compilation notwendig machen, was die Flexibilität zur Laufzeit einschränkt.
