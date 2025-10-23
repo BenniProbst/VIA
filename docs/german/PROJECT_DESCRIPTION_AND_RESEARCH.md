@@ -139,11 +139,11 @@ Zur Validierung der Forschungshypothese werden vier zu testende Hypothesen aufge
 
 **Hinweis**: Performance-Metriken werden in Phase 5 (Evaluation) empirisch ermittelt. Die in Abschnitt 7.3.2 genannten Zielwerte sind Projektziele, keine validiert gemessenen Ergebnisse.
 
-**Abgrenzung**: Diese Arbeit konzentriert sich auf das **Process-Group-Protocol-Subsystem** als Teil des VIA-Gesamtsystems. Die M3/M2/M1-Architektur dient als Kontext und theoretischer Rahmen, wird jedoch nicht in allen Details implementiert. Insbesondere werden M3-Compiler-Optimierungen, Multi-Architektur-Cross-Compilation und das vollständige Horse-Rider-Deployment als gegeben vorausgesetzt und nicht eigenständig erforscht.
+**Hinweis zu Forschungsschwerpunkten**: Das VIA-Gesamtsystem ist ein mehrjähriges Projekt (siehe Abschnitt 8) mit zahlreichen Teilkomponenten. Dieses Exposé beschreibt die **Gesamtvision und Architektur** des Systems. Konkrete Forschungsarbeiten (z.B. Dissertationen, Masterarbeiten) fokussieren auf **spezifische Subsysteme** – für diese werden **separate, fokussierte Exposés** erstellt (siehe separate Dokumente für Process-Group-Protocol, M3-Compiler, Deployment-System, etc.).
 
 ### 2.3 Teilprobleme des Gesamtsystems (Kontext)
 
-Das VIA-Gesamtsystem gliedert sich in acht Teilprobleme, die in der Projektstruktur unter `playbooks/` als separate Implementierungs-Playbooks dokumentiert sind. Während diese Arbeit sich auf das Process-Group-Protocol (2.3.5) konzentriert, ist das Verständnis aller Komponenten notwendig, da sie die Ausführungsumgebung für die Prozesskommunikation bilden.
+Das VIA-Gesamtsystem gliedert sich in acht Teilprobleme, die in der Projektstruktur unter `playbooks/` als separate Implementierungs-Playbooks dokumentiert sind. Das Verständnis aller Komponenten ist notwendig, da sie zusammen die vollständige Automatisierungslösung bilden und ineinandergreifen.
 
 #### 2.3.0 Hauptprogramm (Orchestrierung M3→M2→M1)
 
@@ -1297,17 +1297,149 @@ Limitation L5 betrifft die Hypothesen H1-H4, die als zu testende Annahmen formul
 
 ---
 
-## 8. Zeitplan (Fokus Prozesskommunikation)
+## 8. Zeitplan (VIA-Gesamtsystem)
 
-Der Zeitplan gliedert sich in sechs Phasen mit einer Gesamtdauer von 22 Wochen (circa 5 Monate). Phase 1 umfasste Research und Analyse zu AAS, OPC UA und IPC über vier Wochen und ist abgeschlossen. Phase 2 fokussierte auf Playbook und M3-Metamodell-Design über zwei Wochen und ist ebenfalls abgeschlossen.
+Das VIA-Projekt ist ein **mehrjähriges Forschungs- und Entwicklungsvorhaben** mit gestaffelter Entwicklung aller Komponenten. Der Zeitplan berücksichtigt die Komplexität eines produktionsreifen Compiler-Systems für industrielle Anwendungen mit 15-25 Jahren Lebensdauer.
 
-Phase 3 erstreckt sich über sechs Wochen zur Entwicklung des M2-SDK-Compiler Prototyps mit IPC-Optimizer. Woche 1-2 implementieren den graph-basierten Optimierungsalgorithmus, Woche 3-4 realisieren die IPC-Mechanismus-Implementierung für Pipe, Socket, TCP, File-Queue und Thread, und Woche 5-6 spezifizieren das Process-Group-Protocol unter OPC UA.
+### 8.1 Phase 1: Grundlagenforschung und Konzeptvalidierung (Jahr 1-2, abgeschlossen)
 
-Phase 4 umfasst vier Wochen für Benchmark-Suite und Use-Case. Woche 1-2 implementieren die Benchmark-Suite für Latenz, Throughput, CPU und Memory, während Woche 3-4 den Automobilproduktion Use-Case mit SCADA, MES und PLC realisieren.
+**Zeitraum**: Q4 2024 - Q3 2025 (12 Monate)
 
-Phase 5 widmet sich über vier Wochen der Evaluation und Vergleichsmessungen. Woche 1 führt Baseline-Messungen für gRPC, Istio und UNIX Sockets durch, Woche 2-3 erheben VIA-Messungen und Skalierungstests, und Woche 4 wertet die Ergebnisse aus und validiert die Hypothesen H1-H4.
+**Abgeschlossene Meilensteine**:
+- ✅ **Literaturrecherche** (137 wissenschaftliche Papers analysiert, Phase 1-3 Forschung abgeschlossen)
+- ✅ **Metamodell-Architektur-Design** (M3/M2/M1-Konzept validiert, aas-core-works als Referenz analysiert)
+- ✅ **OPC UA Protokoll-Analyse** (IEC 62541 vollständig erfasst, open62541 als Referenzimplementierung evaluiert)
+- ✅ **Self-Compiling Runtime Konzept** (Compiler-as-Service Architektur spezifiziert)
+- ✅ **Sub-Protokolle als MMB-Proxies** (Edge-Group/Deploy/Process-Group Konzeption abgeschlossen)
+- ✅ **Exposé für TU Dresden** (Publikationsreife Dokumentation erstellt)
 
-Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woche 1-2 verfassen den Forschungsbericht, Woche 3 bereitet ein Paper für INDIN oder ETFA-Konferenz vor, und Woche 4 erstellt den OPC Foundation Standardisierungsvorschlag.
+**Wissenschaftliche Outputs**:
+- Exposé für Analyse eines Forschungsthemas (TU Dresden Registration)
+- Gap-Analyse mit 7 identifizierten und geschlossenen Forschungslücken
+- Service Mesh Vergleichsstudie (VIA vs. Istio/Linkerd/Consul)
+
+### 8.2 Phase 2: VIA-M3-Compiler Development (Jahr 2-3)
+
+**Zeitraum**: Q4 2025 - Q3 2027 (24 Monate)
+
+**Ziele**:
+1. **M3-Compiler Core** (6 Monate)
+   - C++23 Compiler-Implementierung mit vollständigem Frontend/Backend
+   - AAS-lang Parser und Semantic Analyzer
+   - SITL (Software-in-the-Loop) für Spezifikations-Transformation (IEC 62541, IEC 63278)
+
+2. **M3-Bibliotheken** (12 Monate)
+   - OPC UA M3-Bibliothek (`third_party/opcua_m3/`)
+   - Multi-Message Broker M3-Bibliothek (`third_party/mmb/`)
+   - Protobuf Integration als M3-Interpreter
+   - CMFM Management-Framework als M3-Modelle
+
+3. **Code-Generation Pipeline** (6 Monate)
+   - Template Engine für C++-SDK-Generierung
+   - NodeSet XML-Generator für OPC UA Companion Specs
+   - Cross-Compilation Toolchains (MIPS, ARM, x86, RISC-V, POWER9, Sparc)
+
+**Meilensteine**:
+- M3-Compiler generiert lauffähige M2-SDK (Proof-of-Concept)
+- VIA Custom Companion Spec (VIAProcessType, VIARouterType) veröffentlicht als Draft
+- Test-Framework mit 1.000+ automatisierten Tests
+
+### 8.3 Phase 3: VIA-M2-SDK-Compiler & Process-Group-Protocol (Jahr 3-4)
+
+**Zeitraum**: Q4 2027 - Q3 2029 (24 Monate)
+
+**Ziele**:
+1. **IPC-Optimizer** (8 Monate) → **Kern der Forschungsarbeit**
+   - Graph-basierter Algorithmus mit Z3 Constraint-Solver
+   - Pareto-Optimierung (Latenz/Durchsatz/Ressourcen)
+   - Inkrementelle Recompilation (nur geänderte Module + Abhängigkeiten)
+   - Telemetrie-basierte dynamische Anpassung
+
+2. **Process-Group-Protocol Spezifikation** (6 Monate)
+   - OPC UA Companion Specification als offener Standard
+   - 5 IPC-Mechanismen (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging)
+   - Hierarchische Gruppierung und geschachtelte Sicherheitsstufen
+
+3. **M2-SDK Runtime Components** (10 Monate)
+   - Compiler-as-Service (läuft in M0-System)
+   - Kubernetes Sidecar Executor-Generierung
+   - Network Discovery Scanner (SNMP, OPC UA, Modbus)
+   - Deploy-Protocol für Horse-Rider Hot-Reload
+
+**Meilensteine**:
+- Benchmark-Suite: Latenz <50μs (Unix Socket), Durchsatz >100k msgs/sec
+- Use-Case Validierung: Automobilproduktion mit 1.000 Services
+- Wissenschaftliche Publikation: IEEE INDIN oder ETFA Conference Paper
+
+### 8.4 Phase 4: VIA-M1-System-Deployer & Edge-Group-Protocol (Jahr 4-5)
+
+**Zeitraum**: Q4 2029 - Q3 2031 (24 Monate)
+
+**Ziele**:
+1. **Distributed Compilation** (8 Monate)
+   - GitHub Runners für parallele Multi-Arch Builds
+   - CMake Toolchains für alle Zielarchitekturen
+   - Binary Caching und ABI-Stabilität (C++23 Modules)
+
+2. **Deployment Orchestration** (10 Monate)
+   - Horse-Rider-Deployment mit Canary-Testing
+   - Kubernetes Manifest-Generierung (Deployments, Services, ConfigMaps)
+   - Helm Charts für parametrisierbare Deployments
+   - Bare-Metal Deployment für Legacy-Hardware
+
+3. **Edge-Group-Protocol** (6 Monate)
+   - Hierarchische Edge-Device-Gruppierung (Device → Edge → Cluster → Global)
+   - Virtuelle Netzwerkströme mit QoS-Garantien
+   - Skalierungstest: 50.000+ Edge-Geräte
+
+**Meilensteine**:
+- Production-Ready M1-Deployer für Kubernetes + Bare-Metal
+- Edge-Group-Protocol als OPC UA Companion Spec veröffentlicht
+- Pilot-Deployment in Partnerfabrik (Ziel: 10.000 Devices)
+
+### 8.5 Phase 5: Productization & Standardization (Jahr 5-6)
+
+**Zeitraum**: Q4 2031 - Q3 2033 (24 Monate)
+
+**Ziele**:
+1. **Industrial Hardening** (12 Monate)
+   - Security Audits (Penetration Testing, Code Review)
+   - Compliance-Zertifizierung (IEC 62443 Cybersecurity)
+   - Performance-Optimierung für 100.000+ Services
+   - Long-Term-Support (LTS) Releases mit 5-Jahres-Garantie
+
+2. **Standardisierung** (12 Monate)
+   - OPC Foundation: VIA Companion Specifications (alle 3 Sub-Protokolle)
+   - OASIS: AAS-lang als offener Standard
+   - ISO/IEC: Metamodel-Compiler-Architektur (M3/M2/M1)
+   - Open-Source Release: VIA-Compiler unter MPL 2.0 Lizenz
+
+**Meilensteine**:
+- VIA 1.0 Release (Production-Ready)
+- OPC Foundation Certification für alle 3 Sub-Protokolle
+- Wissenschaftliche Publikation: Journal Paper (z.B. IEEE TII, JISA)
+- Community: >1.000 GitHub Stars, >10 Contributors
+
+### 8.6 Gesamtdauer und Ressourcen
+
+**Gesamtlaufzeit**: 6 Jahre (Q4 2024 - Q3 2033)
+
+**Entwicklungsaufwand** (geschätzt):
+- **Jahr 1-2** (Phase 1): 1 FTE (Grundlagenforschung, Doktorand)
+- **Jahr 2-3** (Phase 2): 2-3 FTE (M3-Compiler Development, Team-Erweiterung)
+- **Jahr 3-4** (Phase 3): 3-4 FTE (M2-SDK + Process-Group-Protocol, Vollzeit-Team)
+- **Jahr 4-5** (Phase 4): 4-5 FTE (M1-Deployer + Edge-Group-Protocol, Scale-Up)
+- **Jahr 5-6** (Phase 5): 2-3 FTE (Hardening + Standardisierung, Stabilisierung)
+
+**Finanzierungsquellen**:
+- Promotionsstipendium (TU Dresden)
+- Industriepartner (Co-Finanzierung für Pilot-Deployments)
+- Forschungsförderung (z.B. BMWi ZIM, BMBF, EU Horizon)
+
+**Risikomanagement**:
+- **Technisches Risiko**: Pareto-Optimierung skaliert nicht → Fallback auf heuristische Algorithmen
+- **Standardisierungsrisiko**: OPC Foundation lehnt Sub-Protokolle ab → Veröffentlichung als Community-Standard
+- **Marktrisiko**: Industrie adoptiert VIA nicht → Open-Source Community als Träger
 
 ---
 
