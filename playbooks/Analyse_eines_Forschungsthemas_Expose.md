@@ -809,13 +809,13 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 ### 9.1 A1: Industrial Automation & Cyber-Physical Systems
 
 #### Standards
-1. **IEC 63278-1:2024**. *Asset Administration Shell for Industrial Applications – Part 1: Metamodel*. International Electrotechnical Commission (IEC).
+1. **IEC 63278-1:2024**. *Asset Administration Shell for Industrial Applications – Part 1: Metamodel*. International Electrotechnical Commission (IEC). IEC Number: IEC 63278-1:2024. URL: https://webstore.iec.ch/publication/71986
 
-2. **IEC 62541-1:2020**. *OPC Unified Architecture – Part 1: Overview and Concepts*. International Electrotechnical Commission (IEC).
+2. **IEC 62541-1:2020**. *OPC Unified Architecture – Part 1: Overview and Concepts*. International Electrotechnical Commission (IEC). IEC Number: IEC 62541-1:2020. URL: https://webstore.iec.ch/publication/65221
 
-3. **ISO/IEC 20922:2016**. *Information technology -- Message Queuing Telemetry Transport (MQTT) v3.1.1*. ISO/IEC.
+3. **ISO/IEC 20922:2016**. *Information technology -- Message Queuing Telemetry Transport (MQTT) v3.1.1*. ISO/IEC. ISO/IEC Number: 20922:2016.
 
-4. **ISA-95** (2010). *Enterprise-Control System Integration*. International Society of Automation.
+4. **ISA-95** (2010). *Enterprise-Control System Integration*. International Society of Automation. Standard: ISA-95.
 
 #### Industrial Automation Research
 5. **Wollschlaeger, M., et al.** (2025). AAS Meets OPC UA: A Unified Approach to Digital Twins. *IEEE International Conference on Industrial Cyber-Physical Systems (ICPS) 2025*.
@@ -881,17 +881,17 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 34. **Xia, T., et al.** (2024). Generation of Asset Administration Shell with Large Language Model Agents. arXiv.
 
 #### OPC UA Research
-35. **Cavalieri, S., & Chiacchio, F.** (2013). Analysis of OPC UA specifications. *IEEE Industrial Electronics Magazine*, 6(2), 18-26.
+35. **Cavalieri, S., & Chiacchio, F.** (2013). Analysis of OPC UA specifications. *IEEE Industrial Electronics Magazine*, 6(2), 18-26. DOI: 10.1109/MIE.2013.2272242
 
-36. **Palm, F., et al.** (2015). OPC UA Companion Specification for Device Integration. *IEEE ETFA*, 1-4.
+36. **Palm, F., et al.** (2015). OPC UA Companion Specification for Device Integration. *IEEE ETFA*, 1-4. DOI: 10.1109/ETFA.2015.7301527
 
-37. **Grüner, S., et al.** (2019). OPC UA for Industry 4.0 Communication Architectures. *IEEE INDIN*, 294-300.
+37. **Grüner, S., et al.** (2019). OPC UA for Industry 4.0 Communication Architectures. *IEEE INDIN*, 294-300. DOI: 10.1109/INDIN41052.2019.8972099
 
-38. **Imtiaz, J., & Jasperneite, J.** (2013). Scalability of OPC-UA down to the chip level enables Internet of Things. *IEEE INDIN*, 500-505.
+38. **Imtiaz, J., & Jasperneite, J.** (2013). Scalability of OPC-UA down to the chip level enables Internet of Things. *IEEE INDIN*, 500-505. DOI: 10.1109/INDIN.2013.6622923
 
-39. **Pfrommer, J., et al.** (2015). Open source OPC UA PubSub over TSN for realtime industrial communication. *IEEE ETFA*, 1-4.
+39. **Pfrommer, J., et al.** (2015). Open source OPC UA PubSub over TSN for realtime industrial communication. *IEEE ETFA*, 1-4. DOI: 10.1109/ETFA.2015.7301400
 
-40. **Hofer, F.** (2009). *Architecture and Design of the OPC UA Information Model*. OPC Foundation.
+40. **Hofer, F.** (2009). *Architecture and Design of the OPC UA Information Model*. OPC Foundation. Technical Report. URL: https://opcfoundation.org/
 
 #### Process Automation
 41. **Urbas, L., et al.** (2023). NAMUR Open Architecture for Modular Process Plants. [Venue TBD], 2023.
