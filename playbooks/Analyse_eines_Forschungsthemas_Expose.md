@@ -973,7 +973,7 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 #### Service Mesh & Overhead
 72. **Li, H., Zhu, Y., Zhu, J., Wo, T., & Huai, J.** (2019). Understanding the Overhead of Service Mesh. *Proceedings of the ACM Symposium on Cloud Computing (SoCC '19)*, 308. DOI: 10.1145/3357223.3362706
 
-73. **Istio Project** (2024). *Performance Benchmarks*. https://istio.io/latest/docs/ops/deployment/performance-and-scalability/
+73. **Istio Project** (2024). *Performance Benchmarks*. URL: https://istio.io/latest/docs/ops/deployment/performance-and-scalability/
 
 #### Microservices Performance
 74. **Kabamba, K., et al.** (2023). Advanced Strategies for Precise and Transparent Debugging of Performance Issues in In-Memory Data Store-Based Microservices. arXiv:2312.10257
@@ -984,19 +984,19 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 
 77. **Song, Z., et al.** (2023). ChainsFormer: A Chain Latency-aware Resource Provisioning Approach for Microservices Cluster. arXiv:2311.14283
 
-78. **Dragoni, N., et al.** (2017). Microservices: yesterday, today, and tomorrow. *Present and Ulterior Software Engineering*, 195-216.
+78. **Dragoni, N., et al.** (2017). Microservices: yesterday, today, and tomorrow. *Present and Ulterior Software Engineering*, 195-216. DOI: 10.1007/978-3-319-67425-4_12
 
 79. **Newman, S.** (2015). *Building Microservices: Designing Fine-Grained Systems*. O'Reilly Media. ISBN: 978-1491950357
 
 #### Container Orchestration
-80. **Burns, B., & Oppenheimer, D.** (2016). Borg, Omega, and Kubernetes. *ACM Queue*, 14(1), 70-93.
+80. **Burns, B., & Oppenheimer, D.** (2016). Borg, Omega, and Kubernetes. *ACM Queue*, 14(1), 70-93. DOI: 10.1145/2898442.2898444
 
-81. **Verma, A., et al.** (2015). Large-scale cluster management at Google with Borg. *EuroSys*, 18, 1-17.
+81. **Verma, A., et al.** (2015). Large-scale cluster management at Google with Borg. *EuroSys*, 18, 1-17. DOI: 10.1145/2741948.2741964
 
 #### Distributed Systems Theory
 82. **Lamport, L.** (1998). The Part-Time Parliament. *ACM Transactions on Computer Systems*, 16(2), 133-169. DOI: 10.1145/279227.279229
 
-83. **Ongaro, D., & Ousterhout, J.** (2014). In Search of an Understandable Consensus Algorithm. *USENIX Annual Technical Conference*, 305-319.
+83. **Ongaro, D., & Ousterhout, J.** (2014). In Search of an Understandable Consensus Algorithm. *USENIX Annual Technical Conference*, 305-319. URL: https://www.usenix.org/conference/atc14/technical-sessions/presentation/ongaro
 
 84. **Stoica, I., et al.** (2001). Chord: A Scalable Peer-to-peer Lookup Service for Internet Applications. *ACM SIGCOMM*, 31(4), 149-160. DOI: 10.1145/964723.383071
 
@@ -1010,25 +1010,25 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 
 87. **Suzuki, K., et al.** (2023). TZC: Efficient Inter-Process Communication for Robotics Middleware with Partial Serialization. arXiv:2304.10408
 
-88. **Poke, M., & Hoefler, T.** (2017). DARE: High-Performance State Machine Replication on RDMA Networks. *High-Performance Parallel and Distributed Computing (HPDC)*, 107-118.
+88. **Poke, M., & Hoefler, T.** (2017). DARE: High-Performance State Machine Replication on RDMA Networks. *High-Performance Parallel and Distributed Computing (HPDC)*, 107-118. DOI: 10.1145/3078597.3078604
 
 #### Communication Protocols
-89. **Belshe, M., Peon, R., & Thomson, M.** (2015). *Hypertext Transfer Protocol Version 2 (HTTP/2)*. RFC 7540. IETF.
+89. **Belshe, M., Peon, R., & Thomson, M.** (2015). *Hypertext Transfer Protocol Version 2 (HTTP/2)*. RFC 7540. IETF. URL: https://www.rfc-editor.org/rfc/rfc7540
 
-90. **Google** (2020). *gRPC Performance Best Practices*. https://grpc.io/docs/guides/performance/
+90. **Google** (2020). *gRPC Performance Best Practices*. URL: https://grpc.io/docs/guides/performance/
 
-91. **Google** (2023). *Protocol Buffers Language Guide*. https://protobuf.dev/
+91. **Google** (2023). *Protocol Buffers Language Guide*. URL: https://protobuf.dev/
 
 92. **Hintjens, P.** (2013). *ZeroMQ: Messaging for Many Applications*. O'Reilly Media. ISBN: 978-1449334062
 
-93. **Vinoski, S.** (2006). Advanced Message Queuing Protocol. *IEEE Internet Computing*, 10(6), 87-89.
+93. **Vinoski, S.** (2006). Advanced Message Queuing Protocol. *IEEE Internet Computing*, 10(6), 87-89. DOI: 10.1109/MIC.2006.116
 
-94. **OASIS** (2019). *MQTT Version 5.0*. OASIS Standard.
+94. **OASIS** (2019). *MQTT Version 5.0*. OASIS Standard. URL: https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html
 
-95. **OASIS** (2012). *Advanced Message Queuing Protocol (AMQP) Version 1.0*. OASIS Standard.
+95. **OASIS** (2012). *Advanced Message Queuing Protocol (AMQP) Version 1.0*. OASIS Standard. URL: https://docs.oasis-open.org/amqp/core/v1.0/amqp-core-overview-v1.0.html
 
 #### Middleware
-96. **Object Management Group (OMG)** (2015). *Data Distribution Service (DDS) Version 1.4*. Formal Specification formal/2015-04-10.
+96. **Object Management Group (OMG)** (2015). *Data Distribution Service (DDS) Version 1.4*. Formal Specification formal/2015-04-10. URL: https://www.omg.org/spec/DDS/1.4/
 
 97. **Pardo-Castellote, G.** (2003). OMG Data-Distribution Service: Architectural Overview. *Proceedings of the 23rd International Conference on Distributed Computing Systems Workshops*, 200-206. DOI: 10.1109/ICDCSW.2003.1203555
 
@@ -1050,15 +1050,15 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 
 101. **Marler, R. T., & Arora, J. S.** (2004). Survey of Multi-Objective Optimization Methods for Engineering. *Structural and Multidisciplinary Optimization*, 26(6), 369-395. DOI: 10.1007/s00158-003-0368-6
 
-102. **Coello Coello, C. A., Lamont, G. B., & Van Veldhuizen, D. A.** (2007). *Evolutionary Algorithms for Solving Multi-Objective Problems* (2nd ed.). Springer.
+102. **Coello Coello, C. A., Lamont, G. B., & Van Veldhuizen, D. A.** (2007). *Evolutionary Algorithms for Solving Multi-Objective Problems* (2nd ed.). Springer. ISBN: 978-0387332543
 
-103. **Nebro, A. J., et al.** (2009). jMetal: A Java framework for multi-objective optimization. *Advances in Engineering Software*, 42, 760-771.
+103. **Nebro, A. J., et al.** (2009). jMetal: A Java framework for multi-objective optimization. *Advances in Engineering Software*, 42, 760-771. DOI: 10.1016/j.advengsoft.2011.05.014
 
-104. **Deb, K., & Jain, H.** (2014). An evolutionary many-objective optimization algorithm using reference-point-based nondominated sorting approach, part I: solving problems with box constraints. *IEEE Transactions on Evolutionary Computation*, 18(4), 577-601.
+104. **Deb, K., & Jain, H.** (2014). An evolutionary many-objective optimization algorithm using reference-point-based nondominated sorting approach, part I: solving problems with box constraints. *IEEE Transactions on Evolutionary Computation*, 18(4), 577-601. DOI: 10.1109/TEVC.2013.2281535
 
-105. **Zitzler, E., & Thiele, L.** (1999). Multiobjective evolutionary algorithms: a comparative case study and the strength Pareto approach. *IEEE Transactions on Evolutionary Computation*, 3(4), 257-271.
+105. **Zitzler, E., & Thiele, L.** (1999). Multiobjective evolutionary algorithms: a comparative case study and the strength Pareto approach. *IEEE Transactions on Evolutionary Computation*, 3(4), 257-271. DOI: 10.1109/4235.797969
 
-106. **Verdoolaege, S.** (2010). isl: An Integer Set Library for the Polyhedral Model. *International Congress on Mathematical Software (ICMS)*, 299-302.
+106. **Verdoolaege, S.** (2010). isl: An Integer Set Library for the Polyhedral Model. *International Congress on Mathematical Software (ICMS)*, 299-302. DOI: 10.1007/978-3-642-15582-6_49
 
 ---
 
@@ -1089,23 +1089,23 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 109. **Maruyama, Y., Kato, S., & Azumi, T.** (2016). Exploring the performance of ROS2. *Proceedings of the 13th International Conference on Embedded Software (EMSOFT)*, 1-10. DOI: 10.1145/2968478.2968502
 
 #### ROS Documentation & Resources
-110. **ROS 2 Documentation** (2024). *Official ROS 2 Rolling Documentation*. https://docs.ros.org/en/rolling/
+110. **ROS 2 Documentation** (2024). *Official ROS 2 Rolling Documentation*. URL: https://docs.ros.org/en/rolling/
 
-111. **ROS 2 Design Documentation** (2024). *ROS 2 Design Principles and Architecture*. https://design.ros2.org/
+111. **ROS 2 Design Documentation** (2024). *ROS 2 Design Principles and Architecture*. URL: https://design.ros2.org/
 
-112. **micro-ROS Documentation** (2024). *micro-ROS for Embedded Systems*. https://micro.ros.org/
+112. **micro-ROS Documentation** (2024). *micro-ROS for Embedded Systems*. URL: https://micro.ros.org/
 
-113. **ROS 2 Composition Documentation** (2024). *About Composition*. https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Composition.html
+113. **ROS 2 Composition Documentation** (2024). *About Composition*. URL: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Composition.html
 
 ---
 
 ### 9.12 Open-Source Projekte & Tools
 
-114. **aas-core-works** (2024). *AAS SDKs and Tools*. https://github.com/aas-core-works
+114. **aas-core-works** (2024). *AAS SDKs and Tools*. URL: https://github.com/aas-core-works
 
-115. **open62541** (2024). *OPC UA C99 Implementation*. https://github.com/open62541/open62541
+115. **open62541** (2024). *OPC UA C99 Implementation*. URL: https://github.com/open62541/open62541
 
-116. **OPC Foundation** (2024). *UA-Nodeset Repository*. https://github.com/OPCFoundation/UA-Nodeset
+116. **OPC Foundation** (2024). *UA-Nodeset Repository*. URL: https://github.com/OPCFoundation/UA-Nodeset
 
 ---
 
@@ -1115,46 +1115,46 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 
 118. **Vandevoorde, D., Josuttis, N. M., & Gregor, D.** (2017). *C++ Templates: The Complete Guide* (2nd ed.). Addison-Wesley Professional. ISBN: 978-0321714121
 
-119. **ISO/IEC 14882:2020**. *Programming languages – C++* (C++20 Standard). ISO/IEC.
+119. **ISO/IEC 14882:2020**. *Programming languages – C++* (C++20 Standard). ISO/IEC. URL: https://www.iso.org/standard/79358.html
 
 ---
 
 ### 9.14 Operating Systems & Performance
 
-120. **Arpaci-Dusseau, R. H., & Arpaci-Dusseau, A. C.** (2018). *Operating Systems: Three Easy Pieces*. Arpaci-Dusseau Books. (Open Source Textbook)
+120. **Arpaci-Dusseau, R. H., & Arpaci-Dusseau, A. C.** (2018). *Operating Systems: Three Easy Pieces*. Arpaci-Dusseau Books. (Open Source Textbook) URL: https://pages.cs.wisc.edu/~remzi/OSTEP/
 
-121. **Sridharan, A., Gupta, D., & Vahdat, A.** (2003). An Analysis of Linux Scalability to Many Cores. *Proceedings of the 9th USENIX Symposium on Operating Systems Design and Implementation (OSDI)*.
+121. **Sridharan, A., Gupta, D., & Vahdat, A.** (2003). An Analysis of Linux Scalability to Many Cores. *Proceedings of the 9th USENIX Symposium on Operating Systems Design and Implementation (OSDI)*. URL: https://www.usenix.org/conference/osdi-03
 
 ---
 
 ### 9.15 Additional Research Papers (Application-Specific)
 
 #### Multi-Objective Optimization Applications
-122. Wu, X., et al. (2023). Multi-Objective Genetic Algorithm for Healthcare Workforce Scheduling. arXiv:2023.xxxxx
+122. Wu, X., et al. (2023). Multi-Objective Genetic Algorithm for Healthcare Workforce Scheduling. arXiv. DOI: TBD (arXiv ID incomplete)
 
-123. Metronome: Efficient Scheduling for Periodic Traffic Jobs. arXiv
+123. Metronome: Efficient Scheduling for Periodic Traffic Jobs. arXiv. DOI: TBD (arXiv ID incomplete)
 
-124. Production Scheduling Framework for Reinforcement Learning. arXiv
+124. Production Scheduling Framework for Reinforcement Learning. arXiv. DOI: TBD (arXiv ID incomplete)
 
-125. Resource Scheduling for UAVs-aided D2D Networks (NSGA-III Application). arXiv
+125. Resource Scheduling for UAVs-aided D2D Networks (NSGA-III Application). arXiv. DOI: TBD (arXiv ID incomplete)
 
-126. CASPER: Carbon-Aware Scheduling for Distributed Web Services. arXiv
+126. CASPER: Carbon-Aware Scheduling for Distributed Web Services. arXiv. DOI: TBD (arXiv ID incomplete)
 
 #### AAS Code Generation & AI
-127. Strakosova, I., et al. (2025). Product-oriented Product-Process-Resource Asset Network. arXiv
+127. Strakosova, I., et al. (2025). Product-oriented Product-Process-Resource Asset Network. arXiv. DOI: TBD (arXiv ID incomplete)
 
-128. da Silva, A., et al. (2023). Toward a Mapping of Capability and Skill Models. arXiv
+128. da Silva, A., et al. (2023). Toward a Mapping of Capability and Skill Models. arXiv. DOI: TBD (arXiv ID incomplete)
 
-129. Fay, A., et al. (2024). AI-Assisted Engineering for Industry 4.0 Automation Systems. [Venue TBD]
+129. Fay, A., et al. (2024). AI-Assisted Engineering for Industry 4.0 Automation Systems. [Venue TBD]. DOI: TBD (Venue information incomplete)
 
 #### Embedded & Edge Computing
-130. OPC UA for IO-Link Wireless in a Cyber Physical Finite Element Sensor Network for Shape Measurement. arXiv
+130. OPC UA for IO-Link Wireless in a Cyber Physical Finite Element Sensor Network for Shape Measurement. arXiv. DOI: TBD (arXiv ID incomplete)
 
-131. Timeseries on IIoT Platforms: Requirements and Survey for Digital Twins in Process Industry. arXiv
+131. Timeseries on IIoT Platforms: Requirements and Survey for Digital Twins in Process Industry. arXiv. DOI: TBD (arXiv ID incomplete)
 
-132. An Architecture for Deploying Reinforcement Learning in Industrial Environments. arXiv
+132. An Architecture for Deploying Reinforcement Learning in Industrial Environments. arXiv. DOI: TBD (arXiv ID incomplete)
 
-133. Towards Deterministic Communications in 6G Networks. arXiv
+133. Towards Deterministic Communications in 6G Networks. arXiv. DOI: TBD (arXiv ID incomplete)
 
 ---
 
