@@ -345,6 +345,10 @@ VIA/
 │   ├── Analyse_eines_Forschungsthemas_Expose.md
 │   ├── phase1_research/           # ✅ Abgeschlossen: AAS, OPC UA, CMFM
 │   ├── phase2_research/           # ✅ Abgeschlossen: GitHub-Repositories
+│   ├── phase3_literature_review/  # ✅ Abgeschlossen: 95+ wissenschaftliche Quellen
+│   │   ├── README.md              # Überblick Phase 3, Methodik, Ergebnisse
+│   │   ├── RESEARCH_SUMMARY_AND_PLAN.md  # Fachbereiche, Forscher, Arbeitsplan
+│   │   └── LITERATURE_RESEARCH_DATABASE.md  # Detaillierte Paper-Datenbank
 │   ├── VIA-M3-Compiler/           # ✅ VERSIONIERT (Git)
 │   │   ├── templates/
 │   │   │   └── ipc_decision_logic.aas
