@@ -423,25 +423,281 @@ Die Limitationen des Frameworks liegen darin, dass Python-Skripte statt eines C+
 
 ### 3.2 OPC UA (IEC 62541) & open62541 C99 Stack
 
-OPC UA (Open Platform Communications Unified Architecture) nach IEC 62541 (IEC 62541-1:2020; Cavalieri & Chiacchio, 2013 für Spezifikations-Analyse) bildet das Kommunikations-Rückgrat für VIA. Als etablierter Standard in der industriellen Automatisierung bietet OPC UA eine M3/M2/M1-basierte Informationsmodellierung (Hofer, 2009), die strukturell mit der VIA-Architektur kompatibel ist. Die open62541 Implementierung (open62541, 2024) – ursprünglich ein TU Dresden Forschungsprojekt – liefert einen produktionsreifen C99-Stack mit minimalem Memory-Footprint (~250KB, vgl. Imtiaz & Jasperneite, 2013 für Embedded-Skalierbarkeit), der für Edge-Geräte geeignet ist. Besonders relevant für VIA ist die Dynamic Address Space API, die es ermöglicht, OPC UA Nodes zur Laufzeit zu erzeugen und zu löschen – eine Voraussetzung für die Abbildung dynamisch registrierender VIA-Prozesse.
+#### 3.2.1 OPC UA als standardisiertes Kommunikationsprotokoll
 
-**VIA-Projektintegration**: OPC UA wird in VIA ausschließlich auf M3-Ebene als Bibliothek definiert. Die textuelle Spezifikation von OPC UA IEC 62541 wird über SITL in M3-Modellcode transformiert und in `playbooks/VIA-M3-Compiler/third_party/opcua_m3/` als M3-Bibliothek integriert. Der VIA-M3-Compiler generiert aus diesen M3-Modellen sowohl OPC UA NodeSet XML-Dateien (VIA Custom Companion Spec) in `playbooks/VIA-M3-Compiler/output/via_companion_spec.xml` als auch die vollständige OPC UA Implementierung für die M2-SDK. VIA verwendet keine externen M2-Bibliotheken wie open62541 direkt, sondern generiert die gesamte OPC UA Funktionalität aus dem M3-Metamodell heraus. Die open62541 C99-Implementierung dient lediglich als Referenz und Beweis, dass die OPC UA Spezifikation korrekt in embedded Systemen implementierbar ist. Die von VIA generierte SDK implementiert die Dynamic Address Space API analog zu `UA_Server_addObjectNode()` für die dynamische Registrierung von Prozessen zur Laufzeit – ein Hybrid-Modell aus statischen Typdefinitionen (VIAProcessType, VIARouterType) und dynamischen Instanzen.
+OPC UA (Open Platform Communications Unified Architecture) nach IEC 62541 (IEC 62541-1:2020; Cavalieri & Chiacchio, 2013) bildet das fundament ale **Kommunikations-Rückgrat** für VIA und ist der zentrale Standard für industrielle Interoperabilität in Industrie 4.0-Umgebungen. Im Gegensatz zu proprietären Protokollen bietet OPC UA eine plattformunabhängige, serviceorientierte Architektur mit klar definierter Spezifikation über alle Ebenen hinweg.
 
-OPC UA implementiert ein Client-Server Many-to-Many Modell, bei dem mehrere Clients mit mehreren Servern kommunizieren können, unterstützt durch Discovery Mechanismen und Subscriptions für ereignisbasierte Datenübertragung. Die Informationsmodellierung bildet das Herzstück von OPC UA und ermöglicht beliebig komplexe Strukturen mit eigenen Objekttypen und Variablentypen, wobei das Modell objektorientiert und dynamisch erweiterbar ist.
+**IEC 62541 Normstruktur**: Der Standard ist in 14 Teile gegliedert, die alle Aspekte des Protokolls vollständig definieren:
 
-Die M3/M2/M1 Architektur definiert drei Abstraktionsebenen: M3 als Metamodell, in dem Objekte, Variablen und Methoden als Konzepte existieren, M2 als Modell mit domain-spezifischen Typen, und M1 als Instanz-Ebene mit laufenden Systemen. Der ModelCompiler transformiert XML-Modellbeschreibungen in C# oder C Code, wobei der UA Modeler grafisches Design ermöglicht. Verschiedene C++ SDKs stehen zur Verfügung: Die OPC Foundation bietet eine ANSI C/C++ Implementierung, Unified Automation eine kommerzielle Lösung, und open62541 eine C99-basierte Open Source Variante mit circa 250KB Footprint.
+- **Part 1: Overview and Concepts** – Architektur-Überblick, Grundkonzepte
+- **Part 2: Security Model** – Verschlüsselung, Authentifizierung, Zertifikate
+- **Part 3: Address Space Model** – Objektmodell, Referenzen, Namespaces
+- **Part 4: Services** – 37 Service Sets (Read, Write, Browse, Call, Subscribe, etc.)
+- **Part 5: Information Model** – Standard-Typen (BaseObjectType, BaseVariableType)
+- **Part 6: Mappings** – Binary Encoding, JSON Encoding, Transport (UA-TCP, HTTPS)
+- **Part 7: Profiles** – Konformitätsstufen (Nano, Micro, Embedded, Standard, Advanced)
+- **Part 8: Data Access** – AnalogItemType, DiscreteItemType, DataChangeNotifications
+- **Part 9: Alarms & Conditions** – Event-System, AlarmTypes, AcknowledgeableConditionType
+- **Part 10: Programs** – ProgramStateMachineType, Programm-Orchestrierung
+- **Part 11: Historical Access** – Archivierung, Trending, HistoricalDataConfiguration
+- **Part 12: Discovery** – Multicast-Discovery, Local Discovery Server (LDS), Global Discovery Server (GDS)
+- **Part 13: Aggregates** – Statistische Funktionen (Average, Min, Max, Count)
+- **Part 14: PubSub** – Publisher/Subscriber-Modell (UDP, MQTT, AMQP)
 
-Die open62541 Implementierung ist eine C99 Implementation unter MPL 2.0 Lizenz mit 2.9K Stars und 307 Contributors, die ursprünglich als TU Dresden Forschungsprojekt entstand. Sie ist embedded-friendly mit circa 250KB minimaler Konfiguration (Core + Namespace 0 MINIMAL) und circa 500KB voller Konfiguration, zertifiziert als "Micro Embedded Device Server". Die Plugin-Architektur umfasst austauschbare Module für Logging, Crypto (OpenSSL oder mbedTLS), Access Control (RBAC) und NodeStore (HashMap oder ZipTree). Die Platform Abstraction unterstützt POSIX, Windows und Zephyr RTOS (freeRTOS legacy) und ist portierbar auf neue Plattformen durch abstrahierte Clock- und Networking-Interfaces.
+Diese **vollständige Spezifikation** aller Protokollschichten unterscheidet OPC UA von fragmentierten Standards (z.B. Modbus mit inoffiziellen Erweiterungen) und macht es zur idealen Basis für VIA's **compile-time Protocol Generation**.
 
-Der Nodeset Compiler ist ein Python Tool (nodeset_compiler.py), das XML NodeSets in C Code transformiert und für die Integration mit dem VIA-M3-Compiler vorgesehen ist. Die Dynamic Address Space API ermöglicht das Hinzufügen und Löschen von Nodes zur Laufzeit, was die Abbildung der VIA Registry auf OPC UA Nodes über die `UA_Server_addObjectNode()` API ermöglicht. Die Performance liegt bei 10.000 Operationen pro Sekunde im Single-Thread-Betrieb, 50.000 Operationen pro Sekunde mit vier Cores, wobei 100.000 Nodes getestet wurden und 1.000 Notifications pro Sekunde unterstützt werden. Die Sicherheitsimplementierung umfasst Basic256Sha256 (AES-256 + SHA256), X.509 Zertifikate und konfigurierbare Encryption Policies.
+#### 3.2.2 OPC UA Architekturschichten und Protokoll-Stack
 
-Das UA-Nodeset Repository bietet über 76 Companion Specifications, darunter DI, I4AAS, PLCopen, Robotics, CNC, MTConnect, ISA-95, PackML, EUROMAP und BACnet. Die DI (Device Integration) Companion Specification definiert generic device modeling und bildet die Basis für die VIA Custom Companion Spec mit Typen wie DeviceType, BlockType und ConfigurableObjectType. Die I4AAS Companion Spec mappt AAS auf OPC UA, wobei AssetAdministrationShell zu UA Object, Submodel zu UA Object und Property zu UA Variable transformiert wird. Die VIA Custom Companion Spec (Vision) definiert VIAProcessType (extends DeviceType), VIARouterType, VIASchedulerType und VIARegistryType.
+OPC UA definiert einen **mehrschichtigen Protokoll-Stack**, der klare Verantwortlichkeiten zwischen Ebenen trennt:
 
-Das NodeSet XML Format standardisiert Information Models mit `<UANodeSet>` als root-Element und enthält `<UAObject>`, `<UAVariable>`, `<UAMethod>`, `<UAObjectType>` und `<UADataType>` Definitionen. VIA nutzt ein Hybrid Model aus Static NodeSet (VIA types) und Dynamic Instances, die zur Laufzeit erstellt werden, wenn VIA-Prozesse sich registrieren. Aggregationsserver sammeln Daten von vielen Servern in einem einheitlichen Adressraum. Multi-Language-Interoperabilität wird durch python-opcua, Java, .NET und gRPC-Bindings ermöglicht.
+```
+┌─────────────────────────────────────────┐
+│ Application Layer (Part 4: Services)    │
+│  ├─ Read/Write/Browse Services          │
+│  ├─ Method Call Services                │
+│  ├─ Subscription Services               │
+│  └─ Session Management                  │
+├─────────────────────────────────────────┤
+│ Information Model (Part 3/5)            │
+│  ├─ Address Space (Nodes, References)   │
+│  ├─ ObjectTypes, VariableTypes          │
+│  └─ Namespace Management                │
+├─────────────────────────────────────────┤
+│ Encoding Layer (Part 6)                 │
+│  ├─ Binary Encoding (efficient)         │
+│  ├─ JSON Encoding (web-friendly)        │
+│  └─ XML Encoding (legacy)               │
+├─────────────────────────────────────────┤
+│ Secure Channel (Part 2/6)               │
+│  ├─ Encryption (AES-128, AES-256)       │
+│  ├─ Signing (SHA1, SHA256)              │
+│  └─ Key Exchange (RSA-2048)             │
+├─────────────────────────────────────────┤
+│ Transport Layer (Part 6)                │
+│  ├─ UA Binary Protocol (opc.tcp://)     │
+│  ├─ HTTPS (reverse proxy-friendly)      │
+│  └─ WebSockets (browser-compatible)     │
+└─────────────────────────────────────────┘
+```
 
-Die Code Generation Pipeline für VIA Integration verläuft wie folgt: Das VIA M3 Metamodell wird vom VIA-M3-Compiler in OPC UA NodeSet XML transformiert, das vom open62541 nodeset_compiler.py in C Code (via_nodeset.c/.h) übersetzt wird, der schließlich mit VIA Prozessen (C++23 Modules) gelinkt wird.
+**VIA-Relevanz**: Diese Schichtung ermöglicht **selektive Code-Generierung** – der VIA-M3-Compiler kann für embedded Systeme nur notwendige Schichten generieren (z.B. Binary Encoding + UA-TCP ohne JSON/HTTPS), während für Cloud-Gateways alle Schichten aktiviert werden.
 
-Die Limitationen von OPC UA liegen in statischen NodeSets, wobei die Dynamic Address Space API diese Einschränkung für VIA behebt, sowie im Fehlen dynamischer Orchestrierung und Compile-Time-Optimierung in bisherigen Implementierungen.
+#### 3.2.3 Client-Server-Modell und Many-to-Many-Kommunikation
+
+OPC UA implementiert ein **Client-Server-Modell** mit flexibler Topologie:
+
+- **Ein Server kann mehrere Clients gleichzeitig bedienen** (bis zu konfiguriertem Limit, typisch 10-500 Sessions)
+- **Ein Client kann mit mehreren Servern parallel kommunizieren** (Aggregation-Szenarien)
+- **Server-zu-Server-Kommunikation** möglich durch Dual-Role (Server A als Client zu Server B)
+
+**Discovery-Mechanismen** (IEC 62541-12):
+
+1. **Local Discovery Server (LDS)**: Zentrale Registry für Server im lokalen Netzwerk
+2. **Multicast Discovery**: UDP-basierte Broadcast-Suche (für automatische Netzwerk-Exploration)
+3. **Global Discovery Server (GDS)**: Überregionale Server-Registry mit Zertifikats-Management
+
+**VIA Network Discovery Integration**: Das `playbooks/VIA-M2-SDK/network_discovery.md` Modul nutzt OPC UA Discovery zur automatischen Erkennung von:
+- Bestehenden VIA-Prozessen im Netzwerk
+- OPC UA-fähigen Legacy-Geräten (z.B. moderne SPSen mit eingebauten OPC UA Servern)
+- Brownfield-Assets mit MMB-Gateway (siehe Abschnitt 3.3)
+
+Die erkannten Geräte werden automatisch in `.via`-Projektdateien vorgeschlagen, wobei der VIA-M2-Compiler die optimale Kommunikationstopologie ableitet.
+
+#### 3.2.4 Informationsmodellierung: Address Space und Metamodell-Kompatibilität
+
+Das **OPC UA Address Space Model** (IEC 62541-3) bildet das Herzstück der Interoperabilität und zeigt strukturelle Ähnlichkeit zur VIA M3/M2/M1-Architektur:
+
+**Address Space Konzepte**:
+
+- **Nodes**: Fundamentale Einheiten (Objects, Variables, Methods, Views, ObjectTypes, VariableTypes, DataTypes, ReferenceTypes)
+- **References**: Typisierte Beziehungen zwischen Nodes (Hierarchical: HasComponent, Organizes; Non-Hierarchical: HasTypeDefinition, HasModellingRule)
+- **Namespaces**: Versionierte Modellräume (Namespace 0 = OPC UA Standard, Namespace 1+ = Custom Models)
+
+**Objektorientierung**:
+
+- **Type Hierarchy**: Vererbung von BaseObjectType/BaseVariableType (analog zu OOP-Klassen)
+- **Instanziierung**: TypeDefinition → Instanz-Objekt (analog zu Klasse → Instanz)
+- **Polymorphie**: Subtyp-Kompatibilität (Client kann mit BaseType arbeiten, auch wenn Server Subtyp bereitstellt)
+
+**M3/M2/M1 Mapping zu OPC UA**:
+
+```
+VIA-Ebene          OPC UA-Konzept               Beispiel
+─────────────────────────────────────────────────────────────
+M3 (Metamodell)    BaseObjectType               Object, Variable, Method
+                   BaseVariableType
+                   Base ReferenceType           HasComponent, Organizes
+─────────────────────────────────────────────────────────────
+M2 (Modell)        Custom ObjectTypes           VIAProcessType (extends DeviceType)
+                   Custom VariableTypes         VIAStateType (extends BaseDataVariableType)
+                   Companion Specifications     VIA Custom Companion Spec
+─────────────────────────────────────────────────────────────
+M1 (Instanz)       Instanz-Objekte              VIAProcess_42 (Instance of VIAProcessType)
+                   Runtime Values               Temperature = 23.5°C
+                   Method Calls                 StartProcess(params)
+```
+
+**Dynamische Modellierung**: OPC UA unterstützt **Dynamic Address Space Updates** – Nodes können zur Laufzeit hinzugefügt/entfernt werden. Dies ist essentiell für VIA, da Prozesse dynamisch registrieren und deregistrieren.
+
+#### 3.2.5 open62541 C99 Stack – Embedded-geeignete Implementierung
+
+Die **open62541 Implementierung** (open62541, 2024; ursprünglich TU Dresden Forschungsprojekt) liefert einen **produktionsreifen C99-Stack** mit folgenden Eigenschaften:
+
+**Memory Footprint**:
+- **Minimal Configuration** (~250 KB): Core + Namespace 0 MINIMAL (~100 Nodes)
+- **Standard Configuration** (~500 KB): Core + Namespace 0 REDUCED (~500 Nodes)
+- **Full Configuration** (~800 KB): Core + Namespace 0 FULL (~3000 Nodes) + Encryption (mbedTLS +300 KB)
+
+**Plattform-Unterstützung**:
+- **POSIX** (Linux, BSD, macOS, QNX)
+- **Windows** (Win32 API)
+- **Zephyr RTOS** (embedded)
+- **Legacy**: freeRTOS, vxWorks, WEC7 (Windows Embedded Compact)
+
+**Plugin-Architektur**: Modulare Komponenten austauschbar (analog zu VIA's Modular Design):
+- **Logging**: stdout, syslog, custom backends
+- **Crypto**: OpenSSL, mbedTLS, LibreSSL
+- **Access Control**: Role-Based Access Control (RBAC), custom authenticators
+- **NodeStore**: HashMap (schnell), ZipTree (speichereffizient)
+
+**Performance-Charakteristika** (relevant für VIA's 50.000+ Device Skalierung):
+- **Single-threaded**: ~10.000 Read/Write ops/sec, ~1.000 Notifications/sec
+- **Multi-threaded** (4 Cores): ~50.000 ops/sec (lineares Scaling)
+- **Address Space Size**: Getestet mit bis zu 100.000 Nodes (HashMap NodeStore)
+- **Concurrent Clients**: ~50 (single-threaded), ~500 (multi-threaded, hardware-abhängig)
+
+**Nodeset Compiler**: Python-basiertes Tool (`nodeset_compiler.py`) zur Transformation von OPC UA XML NodeSets in C-Code – **direkt kompatibel** mit VIA's Code-Generation-Pipeline (siehe Abschnitt 3.2.6).
+
+#### 3.2.6 VIA-Projektintegration und Code-Generation-Pipeline
+
+**M3-Ebene als Basis-Bibliothek**: OPC UA wird in VIA **ausschließlich auf M3-Ebene als Bibliothek** definiert. Die textuelle Spezifikation von IEC 62541 (PDF/HTML) wird über **SITL (Software-in-the-Loop)** in ausführbaren M3-Modellcode transformiert und in `playbooks/VIA-M3-Compiler/third_party/opcua_m3/` integriert.
+
+```
+Stufe 1: VIA M3 Metamodell → OPC UA NodeSet XML
+─────────────────────────────────────────────────
+VIA-M3-Compiler liest: VIA-Prozess-Definitionen (.via Dateien)
+                       AAS-Submodelle (M3-Bibliothek)
+                       CMFM Management-Funktionen (M3-Bibliothek)
+
+Generiert:            via_companion_spec.xml (OPC UA NodeSet 2.0)
+                      ├─ VIAProcessType (extends DeviceType)
+                      ├─ VIARouterType (extends BaseObjectType)
+                      ├─ VIASchedulerType (extends BaseObjectType)
+                      └─ VIARegistryType (extends BaseObjectType)
+
+Stufe 2: OPC UA NodeSet XML → C++ Code
+────────────────────────────────────────
+open62541 nodeset_compiler.py:
+    Input:  via_companion_spec.xml + Opc.Ua.Di.NodeSet2.xml (DI Companion Spec)
+    Output: via_nodeset.h / via_nodeset.c
+
+Stufe 3: Integration in VIA-M2-SDK
+───────────────────────────────────────
+VIA-M2-Compiler linkt: via_nodeset.c + open62541 library + VIA Process C++23 Modules
+Deployment:            Native Binary (ARM/x86/MIPS) OR Docker Container OR K8s Pod
+```
+
+**Keine externe M2-Bibliotheks-Abhängigkeit**: VIA verwendet **keine** direkte Abhängigkeit zu open62541 als externe M2-Bibliothek. Stattdessen:
+
+1. **OPC UA Spezifikation (IEC 62541) wird auf M3-Ebene modelliert** – Die Norm selbst (14 Parts) wird in AAS-lang als M3-Bibliothek beschrieben
+2. **VIA-M3-Compiler generiert OPC UA Code** – Aus dem M3-Modell wird vollständiger C++-Code für OPC UA Client/Server generiert
+3. **open62541 dient als Referenzimplementierung** – Beweist, dass OPC UA korrekt in Embedded-Systemen (250 KB Footprint) implementierbar ist
+4. **Dynamic Address Space API** – VIA generiert Code analog zu `UA_Server_addObjectNode()` für dynamische Prozess-Registrierung
+
+**Hybrid-Modell** (Statisch + Dynamisch):
+- **Statische Typdefinitionen**: VIAProcessType, VIARouterType (Teil des via_companion_spec.xml, einmalig generiert)
+- **Dynamische Instanzen**: VIAProcess_42 (zur Laufzeit erstellt, wenn Prozess sich registriert)
+
+Beispiel für dynamische Registrierung (generierter Code):
+```cpp
+// VIA-M2-SDK: auto-generated from M3
+void VIARegistry::registerProcess(const ProcessInfo& info) {
+    UA_ObjectAttributes oAttr = UA_ObjectAttributes_default;
+    oAttr.displayName = UA_LOCALIZEDTEXT("en-US", info.name.c_str());
+
+    UA_NodeId processNodeId;
+    UA_Server_addObjectNode(
+        opcua_server_,
+        UA_NODEID_NULL,  // Auto-generate NodeId
+        UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER),
+        UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES),
+        UA_QUALIFIEDNAME(1, info.name.c_str()),
+        UA_NODEID_NUMERIC(2, VIA_PROCESS_TYPE),  // From via_companion_spec
+        oAttr,
+        nullptr,
+        &processNodeId
+    );
+
+    // Add process-specific variables (state, telemetry, etc.)
+    // Add process-specific methods (start, stop, configure, etc.)
+}
+```
+
+#### 3.2.7 Companion Specifications und VIA Custom Companion Spec
+
+Das **UA-Nodeset Repository** (OPC Foundation, 2024) bietet über **76 Companion Specifications**, die domänenspezifische Informationsmodelle standardisieren:
+
+**Ausgewählte Companion Specs (relevant für VIA)**:
+- **DI (Device Integration)**: Basis-Modell für Geräte (DeviceType, BlockType, ConfigurableObjectType)
+- **I4AAS (Asset Administration Shell)**: OPC UA Mapping der IEC 63278 AAS (siehe Abschnitt 3.1)
+- **PLCopen**: Speicherprogrammierbare Steuerungen (PLC-Programme, Funktionsblöcke)
+- **ISA-95**: Enterprise-Control System Integration (Produktionsaufträge, Materialfluss)
+- **PackML**: Packaging Machine Language (Zustandsautomaten für Verpackungsmaschinen)
+- **MTConnect**: Manufacturing Technology Connectivity (CNC-Maschinen, Werkzeugmaschinen)
+
+**VIA Custom Companion Specification** (Konzept):
+```xml
+<!-- via_companion_spec.xml (generiert vom VIA-M3-Compiler) -->
+<UANodeSet xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+
+  <!-- VIAProcessType: Basis-Typ für alle VIA-Prozesse -->
+  <UAObjectType NodeId="ns=2;i=1001" BrowseName="2:VIAProcessType">
+    <DisplayName>VIA Process</DisplayName>
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">
+        <TargetId>ns=1;i=1002</TargetId> <!-- DI:DeviceType -->
+      </Reference>
+      <Reference ReferenceType="HasComponent">
+        <TargetId>ns=2;i=1002</TargetId> <!-- StateVariable -->
+      </Reference>
+      <Reference ReferenceType="HasComponent">
+        <TargetId>ns=2;i=1003</TargetId> <!-- TelemetryObject -->
+      </Reference>
+      <Reference ReferenceType="HasComponent">
+        <TargetId>ns=2;i=1010</TargetId> <!-- StartMethod -->
+      </Reference>
+      <Reference ReferenceType="HasComponent">
+        <TargetId>ns=2;i=1011</TargetId> <!-- StopMethod -->
+      </Reference>
+    </References>
+  </UAObjectType>
+
+  <!-- StateVariable: Process Lifecycle State -->
+  <UAVariable NodeId="ns=2;i=1002" BrowseName="2:State" DataType="Int32">
+    <DisplayName>State</DisplayName>
+    <Description>Process state: 0=Stopped, 1=Starting, 2=Running, 3=Stopping, 4=Error</Description>
+  </UAVariable>
+
+  <!-- TelemetryObject: Real-time Metrics -->
+  <UAObject NodeId="ns=2;i=1003" BrowseName="2:Telemetry">
+    <DisplayName>Telemetry</DisplayName>
+    <!-- Child nodes: CPULoad, MemoryUsage, MessageRate, Latency, ... -->
+  </UAObject>
+
+  <!-- StartMethod: Start Process with Parameters -->
+  <UAMethod NodeId="ns=2;i=1010" BrowseName="2:Start">
+    <DisplayName>Start</DisplayName>
+    <!-- InputArguments: config (JSON), priority (Int32) -->
+    <!-- OutputArguments: success (Boolean), errorCode (Int32) -->
+  </UAMethod>
+
+</UANodeSet>
+```
+
+**Limitationen traditioneller OPC UA Ansätze**:
+- **Statische NodeSets**: Einmal generierte Modelle sind fix → VIA löst dies durch Dynamic Address Space API
+- **Keine Orchestrierung**: OPC UA definiert keine automatische Service-Composition → VIA fügt Process-Group-Protocol hinzu
+- **Runtime-Only Optimierung**: Keine Compile-Time IPC-Auswahl → VIA's Kernforschungsbeitrag (siehe Abschnitt 2.2)
 
 ### 3.3 Multi-Message Broker (Santiago Soler Perez Olaya et al., IEEE ETFA 2024)
 
