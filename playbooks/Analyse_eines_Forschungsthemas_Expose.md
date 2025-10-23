@@ -106,7 +106,19 @@ Die zentrale Forschungsfrage dieser Arbeit lautet:
 
 > **Können über Metamodelle (M3/M2) automatisch Prozessketten von Mikroservices erstellt werden, deren Positionierung im System und Kommunikationsmechanismus (IPC: Pipe, Socket, TCP, File-Queue, Thread) bei der Kompilation optimiert wird?**
 
-Diese Frage adressiert eine fundamentale Herausforderung moderner Mikroservice-Architekturen: Die Wahl des Inter-Process Communication (IPC) Mechanismus erfolgt üblicherweise zur Laufzeit durch Service-Mesh-Lösungen wie Istio oder Linkerd. Diese Runtime-Entscheidungen verursachen jedoch Overhead durch dynamisches Routing, Service Discovery und Load Balancing. Die vorliegende Arbeit untersucht, ob durch Compile-Time-Analyse des Metamodells eine statische Optimierung möglich ist, die Latenz reduziert ohne Flexibilität signifikant einzuschränken.
+Diese Frage adressiert eine fundamentale Herausforderung moderner Mikroservice-Architekturen: Die Wahl des Inter-Process Communication (IPC) Mechanismus erfolgt üblicherweise zur Laufzeit durch Service-Mesh-Lösungen wie Istio oder Linkerd. Diese Runtime-Entscheidungen verursachen jedoch Overhead durch dynamisches Routing, Service Discovery und Load Balancing.
+
+**VIA's architekturelle Besonderheit: Self-Compiling Runtime System**: Anders als traditionelle Compiler, die offline arbeiten und statische Binaries erzeugen, ist der VIA-Compiler **Teil der Laufzeitumgebung (M0-Ebene)**. Der Kompilationsprozess wird zur Laufzeit des eigenen deployed Service-Mesh durchgeführt – der Compiler kompiliert sich selbst und das System kontinuierlich neu. Diese Architektur kombiniert die Vorteile beider Welten:
+
+1. **Compiler-Qualität mit Runtime-Flexibilität**: IPC-Entscheidungen werden **zur Laufzeit mit dem EIGENEN Compiler** durchgeführt, nicht durch externe Proxies (Istio/Linkerd). Der VIA-M2-Compiler läuft als Service im M0-System und reagiert auf Telemetrie, Netzwerktopologie-Änderungen und neue Prozess-Registrierungen.
+
+2. **Inkrementelle Recompilation**: Wie bei echten Compilern werden **nur geänderte Module und deren Abhängigkeitsketten** neu kompiliert. Wenn ein Prozess seine Anforderungen ändert (z.B. neue Latenz-Constraints), rekompiliert VIA nur die betroffenen IPC-Pfade – nicht das gesamte System.
+
+3. **Kubernetes Sidecar als IPC-Executor**: Die vom Compiler berechneten IPC-Entscheidungen werden als **Kubernetes Sidecar** implementiert, gemäß den **M3-Scheduling-Regeln**. Der Sidecar führt die generierten Kommunikationsmuster aus (Unix Socket, TCP, gRPC), überwacht Telemetrie (Latenz, Durchsatz, Fehlerrate) und meldet Abweichungen an den Compiler-Service zurück.
+
+4. **Statisch definiert, dynamisch angepasst**: VIA hält die **strikte Trennung von Modell (M3-Definitionen) und Implementierung (M1-Binaries)**, erlaubt jedoch **Telemetrie-basierte Anpassungen statischer Regeln**. Beispiel: M3 definiert "max_latency: 5ms", aber Telemetrie zeigt 8ms → Compiler rechnet neu, schlägt Prozess-Migration vor (von TCP → Unix Socket durch Container-Relocation).
+
+Diese Architektur ist **weder rein compile-time noch rein runtime**, sondern ein **kontinuierlicher Compile-Runtime-Zyklus**: Der Compiler ist immer aktiv, aber seine Entscheidungen basieren auf compiler-theoretischen Optimierungen (Constraint-Solving, Graph-Algorithmen), nicht auf heuristischen Proxy-Regeln. Der Forschungsbeitrag liegt in der Frage, ob diese **compiler-driven runtime optimization** gegenüber **proxy-driven runtime orchestration** (Service Mesh) Vorteile bietet.
 
 Zur systematischen Bearbeitung dieser Forschungsfrage werden vier Teilfragen formuliert:
 
@@ -120,8 +132,8 @@ Zur systematischen Bearbeitung dieser Forschungsfrage werden vier Teilfragen for
 
 Zur Validierung der Forschungshypothese werden vier zu testende Hypothesen aufgestellt:
 
-- **H1 (Latenz)**: Compiler-basierte IPC-Optimierung hat das Potenzial, Latenz gegenüber Runtime-Service-Mesh-Lösungen signifikant zu reduzieren (zu messen in Phase 5). Li et al. (2019) zeigen, dass Istio Service Mesh 5-10ms Latenz-Overhead pro Request verursacht, verursacht durch Sidecar Proxies (~0.2 vCPU pro Sidecar, 50-80 MB Memory). VIA eliminiert diesen Overhead durch Compile-Time IPC-Entscheidungen ohne Sidecar Proxies und erreicht durch direkte Nutzung von Unix Domain Sockets (~20-50μs Latenz, Stevens & Rago, 2013) für lokale Kommunikation potenziell 100-500x niedrigere Latenz.
-- **H2 (Effizienz)**: Statische Positionierungsentscheidung zur Compile-Zeit kann dynamische Runtime-Orchestrierung unter definierten Constraints approximieren (Trade-off Analyse erforderlich)
+- **H1 (Latenz)**: Compiler-basierte IPC-Optimierung hat das Potenzial, Latenz gegenüber Runtime-Service-Mesh-Lösungen signifikant zu reduzieren (zu messen in Phase 5). Li et al. (2019) zeigen, dass Istio Service Mesh 5-10ms Latenz-Overhead pro Request verursacht, verursacht durch Sidecar Proxies (~0.2 vCPU pro Sidecar, 50-80 MB Memory) mit **dynamischem Routing** und **Service Discovery zur Laufzeit**. VIA nutzt zwar ebenfalls Kubernetes Sidecars als IPC-Executors, jedoch führen diese **statisch kompilierte Kommunikationspfade** aus: Der VIA-Compiler berechnet zur Laufzeit (aber durch Compiler-Algorithmen, nicht Proxy-Heuristiken) die optimalen IPC-Mechanismen (Pipe/Unix Socket/TCP/gRPC) und generiert **dedicated, optimierte Sidecars** ohne generischen Routing-Overhead. Durch direkte Nutzung von Unix Domain Sockets (~20-50μs Latenz, Stevens & Rago, 2013) für lokale Kommunikation statt TCP-basiertem Envoy-Routing erreicht VIA potenziell 100-500x niedrigere Latenz für intra-host Kommunikation.
+- **H2 (Effizienz)**: Compiler-berechnete Positionierungsentscheidungen (durchgeführt zur M0-Laufzeit, aber durch Compiler-Algorithmen statt Heuristiken) können proxy-basierte Runtime-Orchestrierung unter definierten Constraints übertreffen. **Inkrementelle Recompilation** (nur geänderte Module + Abhängigkeitsketten) ermöglicht schnelle Anpassung ohne vollständiges System-Rebuild. Trade-off-Analyse erforderlich: Recompilation-Overhead vs. Proxy-Routing-Overhead.
 - **H3 (Skalierbarkeit)**: Das Process-Group-Protocol mit hierarchischer Gruppierung soll auf mindestens 100.000 Services skalieren (Simulationsbasierte Validierung)
 - **H4 (Entwicklungszeit)**: Metamodell-basierte Abstraktion soll manuelle Entwicklungszeit messbar reduzieren (Vergleichsstudie erforderlich)
 
@@ -793,7 +805,7 @@ Die folgende Tabelle vergleicht VIA systematisch mit führenden Service Mesh-Lö
 | **Multi-Cluster** | Edge-Group-Protocol | ✅ Multi-Primary/Remote | ✅ Gateway-basiert | ✅ WAN Federation | ❌ Manuell | ❌ N/A |
 | **Konfigurationszeit** | <3h (M3→M2 Auto-Gen) | 4-8h (YAML-Manifeste) | 2-4h (CRDs) | 3-6h (HCL Config) | 8-16h (Manuell) | N/A |
 | **Skalierung** | 50.000+ Devices | ~10.000 Services | ~5.000 Services | ~15.000 Services | Unbegrenzt (statisch) | N/A (nur lokal) |
-| **Proxy-Technologie** | ❌ Keine Proxies | Envoy (C++) | Rust Micro-Proxy | Envoy (optional) | ❌ Direkt | ❌ Kernel |
+| **Proxy-Technologie** | ✅ Compiler-generierte Sidecars | Envoy (C++) | Rust Micro-Proxy | Envoy (optional) | ❌ Direkt | ❌ Kernel |
 | **Standards-Compliance** | IEC 63278, IEC 62541 | SMI (archived)[^8] | SMI (archived) | Consul-eigene API | gRPC/Protobuf | POSIX |
 | **Deployment-Modell** | Horse-Rider (M1-Deploy) | Kubernetes Sidecar Injection | Kubernetes Sidecar Injection | Agent per Node | Container/Native | Prozess-lokal |
 | **Legacy-Unterstützung** | ✅ Bare-Metal (MIPS, ARM) | ⚠️ Container-only | ⚠️ Container-only | ✅ VM/Container/Bare-Metal | ✅ Alle Plattformen | ✅ Alle Plattformen |
@@ -803,25 +815,45 @@ Die folgende Tabelle vergleicht VIA systematisch mit führenden Service Mesh-Lö
 [^7]: HashiCorp Consul Documentation - Consul Connect Agent-basierter Service Mesh mit 3-6ms Latenz-Overhead, mTLS-Performance-Profil
 [^8]: Service Mesh Interface (SMI) - CNCF-Standardisierungsversuch für vendor-neutrale APIs, archived Oktober 2023 (smi-spec.io)
 
-**Kernunterschied: Compile-Time vs. Runtime-Optimierung**
+**Kernunterschied: Compiler-Driven vs. Proxy-Driven Runtime Optimization**
 
-Die fundamentale Unterscheidung zwischen VIA und allen Service Mesh-Lösungen liegt im **Zeitpunkt der IPC-Entscheidung**:
+Die fundamentale Unterscheidung zwischen VIA und allen Service Mesh-Lösungen liegt **nicht im Zeitpunkt** (beide zur Laufzeit), sondern in der **Methodik der IPC-Entscheidung**:
 
-1. **Service Mesh (Istio/Linkerd/Consul)**: Runtime-Entscheidung durch Sidecar-Proxies
-   - ✅ **Vorteile**: Dynamische Topologie, Traffic-Shifting ohne Neukompilation, Canary-Rollouts zur Laufzeit
-   - ❌ **Nachteile**: 2-10ms Proxy-Overhead, 20-80 MB Memory pro Service, CPU-Last für Routing-Logik
+1. **Service Mesh (Istio/Linkerd/Consul)**: Proxy-basierte Heuristiken zur Laufzeit
+   - **Mechanismus**: Envoy/Linkerd Proxies führen **generisches, dynamisches Routing** durch
+   - **Entscheidungsprinzip**: Heuristische Routing-Regeln (Round-Robin, Least-Requests, Weighted) + Service Discovery
+   - ✅ **Vorteile**: Keine Recompilation, instant Traffic-Shifting, universelle Proxies für alle Services
+   - ❌ **Nachteile**: 2-10ms Proxy-Overhead (HTTP/2 Parsing, TLS-Terminierung), 20-80 MB Memory pro Service, generische Routing-Logik ohne Service-spezifische Optimierung
 
-2. **VIA (Compile-Time)**: Statische Entscheidung bei M2-Compilation
-   - ✅ **Vorteile**: Null Proxy-Overhead (direkte IPC), optimale Latenz, minimale Ressourcen
-   - ❌ **Nachteile**: Neu-Compilation bei Topologie-Änderungen, weniger Runtime-Flexibilität
+2. **VIA (Compiler-Driven Runtime)**: Compiler-berechnete Sidecars zur M0-Laufzeit
+   - **Mechanismus**: VIA-M2-Compiler **läuft als Service im M0-System** und generiert **dedicated, optimierte Sidecars**
+   - **Entscheidungsprinzip**: Compiler-Algorithmen (Constraint-Solving, Graph-Optimierung, Pareto-Frontiers) mit Telemetrie-Feedback
+   - ✅ **Vorteile**: Service-spezifische Optimierung (z.B. Unix Socket für lokale, gRPC für Remote), kein generischer Routing-Overhead, inkrementelle Recompilation (nur geänderte Module + Abhängigkeiten)
+   - ❌ **Nachteile**: Recompilation bei Topologie-Änderungen (aber inkrementell, nicht vollständig), Compiler-Service als zusätzliche Komponente
+
+**Warum VIA trotzdem Sidecars nutzt (Missverständnis-Klärung)**:
+
+VIA nutzt **Kubernetes Sidecars als IPC-Executors**, aber diese sind **fundamental verschieden** von Envoy/Linkerd Proxies:
+
+- **Istio/Linkerd Sidecar**: Generischer, dynamischer Proxy – **alle Services** nutzen den **identischen Envoy-Binary** mit dynamischen Config-Updates
+- **VIA Sidecar**: **Compiler-generierter, dedizierter Executor** – **jeder Service** erhält einen **maßgeschneiderten Sidecar**, der nur die benötigten IPC-Mechanismen implementiert (z.B. Service A: nur Unix Socket + gRPC, Service B: nur TCP + File-Queue)
+
+**Analogie**: Istio ist wie ein **universeller Interpreter** (flexibel, aber langsam), VIA ist wie ein **ahead-of-time Compiler** (spezialisiert, schnell, aber Recompilation bei Änderungen).
+
+**Telemetrie-basierte dynamische Anpassung**: VIA's Compiler-Service überwacht kontinuierlich Telemetrie (Latenz, Durchsatz, Fehlerrate) und **rekompiliert automatisch** bei Abweichungen von M3-Constraints. Beispiel:
+- M3 definiert: `max_latency: 5ms`
+- Telemetrie zeigt: `actual_latency: 8ms`
+- Compiler-Service berechnet: Prozess-Migration (Container A → B) und IPC-Wechsel (TCP → Unix Socket)
+- Kubernetes führt Canary-Deployment durch
+- Bei Verbesserung: Permanente Übernahme, bei Verschlechterung: Rollback
 
 **Trade-off-Analyse (Hypothese H2)**:
 
-Die zentrale Forschungsfrage dieser Arbeit ist: **Kann statische Compile-Time-Optimierung die Runtime-Flexibilität von Service Meshes unter definierten Constraints approximieren?**
+Die zentrale Forschungsfrage lautet: **Kann compiler-driven runtime optimization proxy-driven orchestration unter definierten Constraints übertreffen?**
 
-- **Statische Fabriken**: VIA optimal (15-25 Jahre Produktionslaufzeit, seltene Topologie-Änderungen)
-- **Dynamische Umgebungen**: Service Mesh optimal (Robotik, Cloud-Native Microservices, A/B-Testing)
-- **Hybrid-Ansatz**: VIA mit Hot-Reload für seltene Rekonfigurationen (~1x/Monat vs. Service Mesh ~100x/Tag)
+- **Statische Fabriken mit Telemetrie-Anpassung**: VIA optimal (inkrementelle Recompilation 1x/Woche, 99% der Zeit optimale IPC-Pfade)
+- **Hochdynamische Umgebungen**: Service Mesh optimal (A/B-Testing, Canary-Rollouts 100x/Tag, Zero-Recompilation)
+- **VIA's Sweet Spot**: Fabriken mit **seltenen aber kritischen Rekonfigurationen** (neue Produktionslinie 1x/Quartal, aber 50.000 Geräte → Recompilation lohnt sich)
 
 SNMP (Simple Network Management Protocol) implementiert ein Manager-Agent-Model mit Polling (GET-Anfragen alle 60 Sekunden) und Traps (Push bei Ereignissen), nutzt eine hierarchische MIB-OID-Struktur und definiert Standard-MIBs wie IF-MIB, HOST-RESOURCES-MIB und ENTITY-SENSOR-MIB. Die Grenzen von SNMP liegen in der flachen OID-Liste ohne Objekthierarchien, im Polling-Paradigma ohne Pub/Sub-Unterstützung, in der primären Fokussierung auf Monitoring statt Steuerung, und im Skalierungslimit bei tausenden Geräten.
 
@@ -1087,7 +1119,85 @@ Eine Windows-Limitation besteht darin, dass auf Windows-Systemen die IPC-Möglic
 
 **Protokoll-Interaktion**: Die drei Sub-Protokolle können sich **getrennt voneinander** im Gesamtnetz organisieren und gruppieren, jedes mit eigenen **geschachtelten und rekursiven Sicherheitsstufen**. Die dynamische Orchestrierung über MMB ermöglicht virtuelle Netzwerkströme mit unterschiedlichen Eigenschaften (Latenz-kritisch, Durchsatz-optimiert, Sicherheits-gehärtet).
 
-**Status**: Spezifikation der 3 Protokolle wird im Projektverlauf als M3-Modelle definiert, basierend auf MMB-M3-Bibliothek
+**Sub-Protokolle als versionierte MMB-Proxies über OPC UA Hauptkanal**:
+
+Die 3 VIA-Sub-Protokolle (Edge-Group, Deploy, Process-Group) können konzeptionell als **versionierte Proxy-Protokolle nach dem MMB-Pattern** verstanden werden, die auf dem **OPC UA Hauptdatenkanal** als **Steuerkanäle** implementiert sind:
+
+**Proxy-Architektur Analogie**:
+```
+┌─────────────────────────────────────────────────────────────┐
+│ OPC UA Hauptkanal (IEC 62541)                               │
+│  ├─ Datenebene: Process-Data (Sensor-Values, Telemetrie)    │
+│  └─ Steuerebene: 3 Sub-Protokolle als MMB-Proxies           │
+│     ├─ Edge-Group-Protocol Proxy (v1.0.0)                   │
+│     │   └─ Routing-Entscheidungen für Edge-Device-Gruppen   │
+│     ├─ Deploy-Protocol Proxy (v2.1.3)                       │
+│     │   └─ Versionierung, Canary-Deployment, Rollback       │
+│     └─ Process-Group-Protocol Proxy (v1.5.2)                │
+│         └─ IPC-Mechanismus-Entscheidungen (Pipe/Socket/TCP) │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Vergleich zu Service Mesh Proxies**:
+
+| Aspekt | Service Mesh (Envoy/Linkerd) | VIA Sub-Protokolle |
+|--------|------------------------------|---------------------|
+| **Proxy-Lokation** | Pro-Pod Sidecar (Envoy Binary) | Pro-Protokoll-Ebene MMB-Proxy (OPC UA NodeSet) |
+| **Proxy-Funktion** | HTTP/2 Routing, TLS-Terminierung | Protokoll-spezifische Steuerung (Gruppierung/Deployment/IPC) |
+| **Versionierung** | Envoy-Version global | Sub-Protokoll-Version **pro Proxy** (Edge: v1.0, Deploy: v2.1, Process: v1.5) |
+| **Konfiguration** | xDS API (Dynamic Listener/Cluster Discovery) | OPC UA NodeSet XML + M3-Compiler-generierte Steuerlogik |
+| **Datenkanal** | Kubernetes Service Network (iptables/eBPF) | OPC UA Secure Channel (IEC 62541-6) |
+
+**Warum "Proxy" die richtige Begrifflichkeit ist**:
+
+Die VIA Sub-Protokolle fungieren als **Proxies** im klassischen Sinne:
+
+1. **Abstraktionsebene**: Sie abstrahieren komplexe Steuerungslogik (Gruppierung, Deployment, IPC) von den eigentlichen Daten-Services
+2. **Indirektion**: Statt direkter Kommunikation zwischen Services werden Entscheidungen durch Proxy-Protokolle vermittelt
+3. **Versionierung**: Jedes Sub-Protokoll ist **unabhängig versioniert** (Edge-Group v1.0, Deploy v2.1, Process v1.5) – analog zu Envoy-Versionen
+4. **MMB-Pattern**: Sie nutzen das Multi-Message Broker Pattern (Consistency Layer, Mapping Layer, Broadcast) als Proxy-Implementierung
+
+**Kernunterschied zu klassischen Proxies**:
+
+- **Istio/Linkerd Proxies**: Intercepten HTTP-Traffic **zwischen** Services (Data Plane Proxies)
+- **VIA Sub-Protokoll Proxies**: Steuern Metadaten **über** Services (Control Plane Proxies auf OPC UA Steuerkanal)
+
+**Implementierung als OPC UA Companion Specifications**:
+
+Jedes Sub-Protokoll wird als **eigenständige OPC UA Companion Spec** definiert (analog zu DI, I4AAS, PLCopen):
+
+```xml
+<!-- Edge-Group-Protocol v1.0.0 Companion Spec -->
+<UANodeSet xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+  <NamespaceUris>
+    <Uri>http://via-automation.org/EdgeGroupProtocol/v1.0.0/</Uri>
+  </NamespaceUris>
+
+  <UAObjectType NodeId="ns=1;i=1001" BrowseName="1:EdgeGroupType">
+    <DisplayName>Edge Group</DisplayName>
+    <References>
+      <Reference ReferenceType="HasComponent">
+        <TargetId>ns=1;i=1002</TargetId> <!-- GroupID -->
+      </Reference>
+      <Reference ReferenceType="HasComponent">
+        <TargetId>ns=1;i=1003</TargetId> <!-- SecurityLevel -->
+      </Reference>
+      <Reference ReferenceType="HasComponent">
+        <TargetId>ns=1;i=1010</TargetId> <!-- JoinGroupMethod -->
+      </Reference>
+    </References>
+  </UAObjectType>
+</UANodeSet>
+```
+
+**Versionierungs-Strategie**: VIA nutzt **Semantic Versioning** (SemVer 2.0.0) für Sub-Protokolle:
+- **Major Version** (v2.0.0): Breaking Changes (Inkompatible Protokolländerungen)
+- **Minor Version** (v1.5.0): Neue Features (Abwärtskompatibel)
+- **Patch Version** (v1.0.1): Bugfixes (Voll kompatibel)
+
+Alte und neue Versionen können **parallel** im OPC UA Address Space koexistieren (Namespace 1: EdgeGroup v1.0, Namespace 2: EdgeGroup v2.0) – ermöglicht schrittweise Migration ohne Downtime.
+
+**Status**: Spezifikation der 3 Protokolle wird im Projektverlauf als M3-Modelle definiert, basierend auf MMB-M3-Bibliothek, und als versionierte OPC UA Companion Specifications publiziert
 
 ---
 
