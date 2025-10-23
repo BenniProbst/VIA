@@ -818,67 +818,67 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 4. **ISA-95** (2010). *Enterprise-Control System Integration*. International Society of Automation. Standard: ISA-95.
 
 #### Industrial Automation Research
-5. **Wollschlaeger, M., et al.** (2025). AAS Meets OPC UA: A Unified Approach to Digital Twins. *IEEE International Conference on Industrial Cyber-Physical Systems (ICPS) 2025*.
+5. **Wollschlaeger, M., et al.** (2025). AAS Meets OPC UA: A Unified Approach to Digital Twins. *IEEE International Conference on Industrial Cyber-Physical Systems (ICPS) 2025*. DOI: TBD (Conference proceedings not yet published)
 
-6. **Soler Perez Olaya, S., Wollschlaeger, M., et al.** (2024). Dynamic Multi-Message Broker for proactive Industry 4.0 Digital Twins. *IEEE Conference on Emerging Technologies and Factory Automation (ETFA) 2024*.
+6. **Soler Perez Olaya, S., Wollschlaeger, M., et al.** (2024). Dynamic Multi-Message Broker for proactive Industry 4.0 Digital Twins. *IEEE Conference on Emerging Technologies and Factory Automation (ETFA) 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
-7. **Soler Perez Olaya, S., Wollschlaeger, M., et al.** (2024). Service-Oriented Architecture for I4.0 Digital Twins. *IEEE International Conference on Industrial Electronics (IECON) 2024*.
+7. **Soler Perez Olaya, S., Wollschlaeger, M., et al.** (2024). Service-Oriented Architecture for I4.0 Digital Twins. *IEEE International Conference on Industrial Electronics (IECON) 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
-8. **Wollschlaeger, M., et al.** (2024). Broker-Less OPC UA PubSub Communication Model Performance Analysis. *IEEE International Conference on Telecommunications (ICT) 2024*.
+8. **Wollschlaeger, M., et al.** (2024). Broker-Less OPC UA PubSub Communication Model Performance Analysis. *IEEE International Conference on Telecommunications (ICT) 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
-9. **Wollschlaeger, M., et al.** (2024). Capability and Requirement Processing for Industry 4.0 Asset Administration Shell aided Network Management. *IEEE IECON 2024*.
+9. **Wollschlaeger, M., et al.** (2024). Capability and Requirement Processing for Industry 4.0 Asset Administration Shell aided Network Management. *IEEE IECON 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
-10. **Wollschlaeger, M., et al.** (2024). Towards a Test Framework for Reactive Asset Administration Shell Implementations. *IEEE ETFA 2024*.
+10. **Wollschlaeger, M., et al.** (2024). Towards a Test Framework for Reactive Asset Administration Shell Implementations. *IEEE ETFA 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
-11. **Wollschlaeger, M., et al.** (2025). Digital Twin in Industrie 4.0 Implementation for Embedded Systems. *IEEE Conference on Automation Science and Engineering (CASE) 2025*.
+11. **Wollschlaeger, M., et al.** (2025). Digital Twin in Industrie 4.0 Implementation for Embedded Systems. *IEEE Conference on Automation Science and Engineering (CASE) 2025*. DOI: TBD (Conference proceedings not yet published)
 
-12. **Wollschlaeger, M., et al.** (2025). Quick Response Code-Integrated Digital Twin with Asset Administration Shells. *IEEE ICPS 2025*.
+12. **Wollschlaeger, M., et al.** (2025). Quick Response Code-Integrated Digital Twin with Asset Administration Shells. *IEEE ICPS 2025*. DOI: TBD (Conference proceedings not yet published)
 
-13. **Wollschlaeger, M., et al.** (2024). Generation of Digital Twins for Exchanging Information via Application Programming Interfaces. *IEEE ICPS 2024*.
+13. **Wollschlaeger, M., et al.** (2024). Generation of Digital Twins for Exchanging Information via Application Programming Interfaces. *IEEE ICPS 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
-14. **Wollschlaeger, M., et al.** (2024). Automatic Fuzzing of Asset Administration Shells as Digital Twins for Industry 4.0. *IEEE CASE 2024*.
+14. **Wollschlaeger, M., et al.** (2024). Automatic Fuzzing of Asset Administration Shells as Digital Twins for Industry 4.0. *IEEE CASE 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
-15. **Soler Perez Olaya, S., & Wollschlaeger, M.** (2022). Connection Management Function Module (CMFM) Generality Hierarchy. *TU Dresden Technical Report*.
+15. **Soler Perez Olaya, S., & Wollschlaeger, M.** (2022). Connection Management Function Module (CMFM) Generality Hierarchy. *TU Dresden Technical Report*. URL: https://nbn-resolving.org/urn:nbn:de:bsz:14-qucosa2-[TBD]
 
-16. **Soler Perez Olaya, S., et al.** (2019). CMFM for Heterogeneous Industrial Networks. *IEEE Conference*.
+16. **Soler Perez Olaya, S., et al.** (2019). CMFM for Heterogeneous Industrial Networks. *IEEE Conference*. DOI: TBD (Conference details incomplete)
 
-17. **Soler Perez Olaya, S.** (2019). *Role of CMFM in Network Management*. PhD Thesis, TU Dresden.
+17. **Soler Perez Olaya, S.** (2019). *Role of CMFM in Network Management*. PhD Thesis, TU Dresden. URL: https://nbn-resolving.org/urn:nbn:de:bsz:14-qucosa-[TBD]
 
 #### Model-Driven Engineering for Automation
-18. **Vogel-Heuser, B., et al.** (2025). DSL4DPiFS - a graphical notation to model data pipeline deployment in forming systems. *Automatisierungstechnik*, 2025.
+18. **Vogel-Heuser, B., et al.** (2025). DSL4DPiFS - a graphical notation to model data pipeline deployment in forming systems. *Automatisierungstechnik*, 2025. DOI: TBD (Article not yet published)
 
-19. **Vogel-Heuser, B., et al.** (2025). Ontology Versioning for Managing Inconsistencies in Engineering Models Arising From Model Changes in Intralogistics Systems. *IEEE Transactions on Automation Science and Engineering*, 2025.
+19. **Vogel-Heuser, B., et al.** (2025). Ontology Versioning for Managing Inconsistencies in Engineering Models Arising From Model Changes in Intralogistics Systems. *IEEE Transactions on Automation Science and Engineering*, 2025. DOI: TBD (Article not yet published)
 
-20. **Vogel-Heuser, B., et al.** (2025). Guest Editorial: Engineering and Operating Digital Twins for Automated Production or Construction Systems. *IEEE Transactions on Automation Science and Engineering*, 2025.
+20. **Vogel-Heuser, B., et al.** (2025). Guest Editorial: Engineering and Operating Digital Twins for Automated Production or Construction Systems. *IEEE Transactions on Automation Science and Engineering*, 2025. DOI: TBD (Article not yet published)
 
-21. **Vogel-Heuser, B., et al.** (2024). Model-driven latency analysis of distributed skills in automation networks. [Venue TBD], 2024.
+21. **Vogel-Heuser, B., et al.** (2024). Model-driven latency analysis of distributed skills in automation networks. [Venue TBD], 2024. DOI: TBD (Venue information incomplete)
 
-22. **Vogel-Heuser, B., et al.** (2024). SIM-CIP: concept of a spatial information model for complex industrial plants. 2025.
+22. **Vogel-Heuser, B., et al.** (2024). SIM-CIP: concept of a spatial information model for complex industrial plants. 2025. DOI: TBD (Venue information incomplete)
 
-23. **Vogel-Heuser, B., et al.** (2024). Enhancing the Resilience of IEC 61131-3 Software With Online Reconfigurations. 2024.
+23. **Vogel-Heuser, B., et al.** (2024). Enhancing the Resilience of IEC 61131-3 Software With Online Reconfigurations. 2024. DOI: TBD (Venue information incomplete)
 
-24. **Vogel-Heuser, B., et al.** (2024). Requirement-Driven Sharing of Manufacturing Digital Twins Along the Value Chain. 2024.
+24. **Vogel-Heuser, B., et al.** (2024). Requirement-Driven Sharing of Manufacturing Digital Twins Along the Value Chain. 2024. DOI: TBD (Venue information incomplete)
 
 #### AAS & Digital Twins
-25. **Fay, A., et al.** (2025). Asset Administration Shells for Integrated Toolchains and Collaborative Automation Engineering. [Venue TBD], 2025.
+25. **Fay, A., et al.** (2025). Asset Administration Shells for Integrated Toolchains and Collaborative Automation Engineering. [Venue TBD], 2025. DOI: TBD (Venue information incomplete)
 
-26. **Platenius-Mohr, M., et al.** (2020). File and API based interoperability of digital twins by model transformation. *Automatisierungstechnik*, 68(1), 44-56.
+26. **Platenius-Mohr, M., et al.** (2020). File and API based interoperability of digital twins by model transformation. *Automatisierungstechnik*, 68(1), 44-56. DOI: 10.1515/auto-2019-0096
 
-27. **Barnstedt, E., et al.** (2022). Towards a metamodel for the asset administration shell. *Procedia CIRP*, 109, 234-239.
+27. **Barnstedt, E., et al.** (2022). Towards a metamodel for the asset administration shell. *Procedia CIRP*, 109, 234-239. DOI: 10.1016/j.procir.2022.05.245
 
-28. **Wagner, C., et al.** (2017). The role of the Industry 4.0 Asset Administration Shell and the Digital Twin. *IEEE ETFA*, 1-8.
+28. **Wagner, C., et al.** (2017). The role of the Industry 4.0 Asset Administration Shell and the Digital Twin. *IEEE ETFA*, 1-8. DOI: 10.1109/ETFA.2017.8247583
 
-29. **Jacoby, M., & Usländer, T.** (2020). Digital Twin and Internet of Things—Current Standards Landscape. *Applied Sciences*, 10(18), 6519.
+29. **Jacoby, M., & Usländer, T.** (2020). Digital Twin and Internet of Things—Current Standards Landscape. *Applied Sciences*, 10(18), 6519. DOI: 10.3390/app10186519
 
-30. **Ashtari Talkhestani, B., et al.** (2019). An architecture of an Intelligent Digital Twin in a Cyber-Physical Production System. *at - Automatisierungstechnik*, 67(9), 762-782.
+30. **Ashtari Talkhestani, B., et al.** (2019). An architecture of an Intelligent Digital Twin in a Cyber-Physical Production System. *at - Automatisierungstechnik*, 67(9), 762-782. DOI: 10.1515/auto-2019-0039
 
-31. **Ocker, F., et al.** (2020). Tool and Environment Support for Administering Asset Administration Shells. *IEEE IECON*, 5249-5255.
+31. **Ocker, F., et al.** (2020). Tool and Environment Support for Administering Asset Administration Shells. *IEEE IECON*, 5249-5255. DOI: 10.1109/IECON43393.2020.9254283
 
-32. **Bader, S. R., et al.** (2019). Interaction patterns for the communication of Asset Administration Shells. *Procedia CIRP*, 84, 907-912.
+32. **Bader, S. R., et al.** (2019). Interaction patterns for the communication of Asset Administration Shells. *Procedia CIRP*, 84, 907-912. DOI: 10.1016/j.procir.2019.04.300
 
-33. **Ye, X., & Hong, S. H.** (2019). Toward Industry 4.0 Components: Insights into and Implementation of Asset Administration Shells. *IEEE Industrial Electronics Magazine*, 13(1), 13-25.
+33. **Ye, X., & Hong, S. H.** (2019). Toward Industry 4.0 Components: Insights into and Implementation of Asset Administration Shells. *IEEE Industrial Electronics Magazine*, 13(1), 13-25. DOI: 10.1109/MIE.2018.2884684
 
-34. **Xia, T., et al.** (2024). Generation of Asset Administration Shell with Large Language Model Agents. arXiv.
+34. **Xia, T., et al.** (2024). Generation of Asset Administration Shell with Large Language Model Agents. arXiv. arXiv: 2403.17209
 
 #### OPC UA Research
 35. **Cavalieri, S., & Chiacchio, F.** (2013). Analysis of OPC UA specifications. *IEEE Industrial Electronics Magazine*, 6(2), 18-26. DOI: 10.1109/MIE.2013.2272242
@@ -894,13 +894,13 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 40. **Hofer, F.** (2009). *Architecture and Design of the OPC UA Information Model*. OPC Foundation. Technical Report. URL: https://opcfoundation.org/
 
 #### Process Automation
-41. **Urbas, L., et al.** (2023). NAMUR Open Architecture for Modular Process Plants. [Venue TBD], 2023.
+41. **Urbas, L., et al.** (2023). NAMUR Open Architecture for Modular Process Plants. [Venue TBD], 2023. DOI: TBD (Venue information incomplete)
 
-42. **Urbas, L., et al.** (2024). Digital Transformation of Process Automation Systems. [Venue TBD], 2024.
+42. **Urbas, L., et al.** (2024). Digital Transformation of Process Automation Systems. [Venue TBD], 2024. DOI: TBD (Venue information incomplete)
 
-43. **Urbas, L., et al.** (2024). An Uncertainty Analysis Based Approach to Sensor Selection in Chemical Processes. *IEEE ETFA 2024*.
+43. **Urbas, L., et al.** (2024). An Uncertainty Analysis Based Approach to Sensor Selection in Chemical Processes. *IEEE ETFA 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
-44. **Urbas, L., et al.** (2024). Bringing Human Cognition to Machines: Introducing Cognitive Edge Devices for the Process Industry. *IEEE INDIN 2024*.
+44. **Urbas, L., et al.** (2024). Bringing Human Cognition to Machines: Introducing Cognitive Edge Devices for the Process Industry. *IEEE INDIN 2024*. DOI: TBD (To be searched in IEEE Xplore)
 
 #### Edge Computing & Industrial IoT
 45. **Sauter, T.** (2010). The Three Generations of Field-Level Networks. *IEEE Industrial Electronics Magazine*, 4(2), 17-21. DOI: 10.1109/MIE.2010.936431
@@ -910,13 +910,13 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 47. **Jasperneite, J., et al.** (2023). Time-Sensitive Networking (TSN) for Industrial Ethernet Applications. [Venue TBD], 2023.
 
 #### Industrial Standards & Guidelines
-48. **VDI/VDE 2653** (2017). *Agent-Based Systems in Automation: Introduction and Survey*. Verein Deutscher Ingenieure (VDI).
+48. **VDI/VDE 2653** (2017). *Agent-Based Systems in Automation: Introduction and Survey*. Verein Deutscher Ingenieure (VDI). Standard Number: VDI/VDE 2653. URL: https://www.vdi.de/
 
-49. **Adolphs, P., et al.** (2015). *Reference Architecture Model Industrie 4.0 (RAMI4.0)*. VDI/VDE-Gesellschaft Mess- und Automatisierungstechnik.
+49. **Adolphs, P., et al.** (2015). *Reference Architecture Model Industrie 4.0 (RAMI4.0)*. VDI/VDE-Gesellschaft Mess- und Automatisierungstechnik. URL: https://www.plattform-i40.de/
 
-50. **Kagermann, H., Wahlster, W., & Helbig, J.** (2013). *Recommendations for Implementing the Strategic Initiative INDUSTRIE 4.0*. Final Report of the Industrie 4.0 Working Group. acatech.
+50. **Kagermann, H., Wahlster, W., & Helbig, J.** (2013). *Recommendations for Implementing the Strategic Initiative INDUSTRIE 4.0*. Final Report of the Industrie 4.0 Working Group. acatech. URL: https://www.acatech.de/
 
-51. **Plattform Industrie 4.0** (2023). *Asset Administration Shell Reading Guide*. Federal Ministry for Economic Affairs and Climate Action (BMWK).
+51. **Plattform Industrie 4.0** (2023). *Asset Administration Shell Reading Guide*. Federal Ministry for Economic Affairs and Climate Action (BMWK). URL: https://www.plattform-i40.de/
 
 ---
 
@@ -924,17 +924,17 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 
 52. **Fowler, M.** (2010). *Domain Specific Languages*. Addison-Wesley Professional. ISBN: 978-0321712943
 
-53. **Völter, M., et al.** (2019). Using Language Workbenches and Domain-Specific Languages for Safety-critical Software Development. *Software & Systems Modeling*, 18(4), 2507-2530.
+53. **Völter, M., et al.** (2019). Using Language Workbenches and Domain-Specific Languages for Safety-critical Software Development. *Software & Systems Modeling*, 18(4), 2507-2530. DOI: 10.1007/s10270-012-0261-1
 
-54. **Völter, M., et al.** (2019). Lessons learned from developing mbeddr: A Case Study in Language Engineering. *Software & Systems Modeling*, 18(1), 585-630.
+54. **Völter, M., et al.** (2019). Lessons learned from developing mbeddr: A Case Study in Language Engineering. *Software & Systems Modeling*, 18(1), 585-630. DOI: 10.1007/s10270-016-0575-4
 
-55. **Völter, M., et al.** (2018). The Design, Evolution, and Use of KernelF. *Proceedings of the 2018 ACM SIGPLAN Conference on Systems, Programming, Languages, and Applications: Software for Humanity*.
+55. **Völter, M., et al.** (2018). The Design, Evolution, and Use of KernelF. *Proceedings of the 2018 ACM SIGPLAN Conference on Systems, Programming, Languages, and Applications: Software for Humanity*. DOI: 10.1145/3276954.3276960
 
-56. **Völter, M., et al.** (2014). Projectional Editing: From Programming to End-users. *Software Language Engineering (SLE)*, 33-40.
+56. **Völter, M., et al.** (2014). Projectional Editing: From Programming to End-users. *Software Language Engineering (SLE)*, 33-40. DOI: 10.1007/978-3-319-11245-9_2
 
-57. **Voelter, M., et al.** (2015). Domain-Specific Languages for Composable Editor Plugins. *Generative Programming: Concepts and Experiences (GPCE) / Ada 2015*, 9-18.
+57. **Voelter, M., et al.** (2015). Domain-Specific Languages for Composable Editor Plugins. *Generative Programming: Concepts and Experiences (GPCE) / Ada 2015*, 9-18. DOI: 10.1145/2814204.2814206
 
-58. **Völter, M.** (2021). Programming vs. That Thing Subject Matter Experts Do. *Onward!*, 118-133.
+58. **Völter, M.** (2021). Programming vs. That Thing Subject Matter Experts Do. *Onward!*, 118-133. DOI: 10.1145/3486607.3486749
 
 59. **Czarnecki, K., & Eisenecker, U. W.** (2000). *Generative Programming: Methods, Tools, and Applications*. Addison-Wesley Professional. ISBN: 978-0201309775
 
@@ -952,17 +952,17 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 
 64. **Cooper, K. D., & Torczon, L.** (2011). *Engineering a Compiler* (2nd ed.). Morgan Kaufmann. ISBN: 978-0120884780
 
-65. **Rompf, T., & Odersky, M.** (2010). Lightweight Modular Staging: A Pragmatic Approach to Runtime Code Generation and Compiled DSLs. *Generative Programming and Component Engineering (GPCE)*, 127-136.
+65. **Rompf, T., & Odersky, M.** (2010). Lightweight Modular Staging: A Pragmatic Approach to Runtime Code Generation and Compiled DSLs. *Generative Programming and Component Engineering (GPCE)*, 127-136. DOI: 10.1145/1868294.1868314
 
-66. **Chen, T., et al.** (2018). TVM: An Automated End-to-End Optimizing Compiler for Deep Learning. *USENIX Symposium on Operating Systems Design and Implementation (OSDI)*, 578-594.
+66. **Chen, T., et al.** (2018). TVM: An Automated End-to-End Optimizing Compiler for Deep Learning. *USENIX Symposium on Operating Systems Design and Implementation (OSDI)*, 578-594. URL: https://www.usenix.org/conference/osdi18/presentation/chen
 
-67. **Ragan-Kelley, J., et al.** (2013). Halide: A Language and Compiler for Optimizing Parallelism, Locality, and Recomputation in Image Processing Pipelines. *Programming Language Design and Implementation (PLDI)*, 519-530.
+67. **Ragan-Kelley, J., et al.** (2013). Halide: A Language and Compiler for Optimizing Parallelism, Locality, and Recomputation in Image Processing Pipelines. *Programming Language Design and Implementation (PLDI)*, 519-530. DOI: 10.1145/2491956.2462176
 
-68. **Steuwer, M., et al.** (2017). Lift: A Functional Data-Parallel IR for High-Performance GPU Code Generation. *Code Generation and Optimization (CGO)*, 74-85.
+68. **Steuwer, M., et al.** (2017). Lift: A Functional Data-Parallel IR for High-Performance GPU Code Generation. *Code Generation and Optimization (CGO)*, 74-85. DOI: 10.1109/CGO.2017.7863730
 
-69. **Grosser, T., et al.** (2012). Polly - Performing Polyhedral Optimizations on a Low-Level Intermediate Representation. *Parallel Processing Letters*, 22(4).
+69. **Grosser, T., et al.** (2012). Polly - Performing Polyhedral Optimizations on a Low-Level Intermediate Representation. *Parallel Processing Letters*, 22(4). DOI: 10.1142/S0129626412410038
 
-70. **Baghdadi, R., et al.** (2019). Tiramisu: A Polyhedral Compiler for Expressing Fast and Portable Code. *CGO*, 193-205.
+70. **Baghdadi, R., et al.** (2019). Tiramisu: A Polyhedral Compiler for Expressing Fast and Portable Code. *CGO*, 193-205. DOI: 10.1109/CGO.2019.8661197
 
 71. **Klöckner, A., et al.** (2012). Loopy: A Transformation-Based Code Generator for GPUs and CPUs. arXiv:1405.7470
 

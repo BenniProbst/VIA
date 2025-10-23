@@ -197,10 +197,15 @@
 
 ## TODO: Remaining Papers (95 Papers)
 
-### Co-Advisor Papers (Wollschlaeger, Soler Perez Olaya) - 10 Papers
+### Co-Advisor Papers (Wollschlaeger, Soler Perez Olaya) - 13 Papers
 - Papers 5-17 (Wollschlaeger et al., Soler Perez Olaya et al.)
-- **Status**: ⏳ PENDING - Requires IEEE Xplore search (ETFA, IECON, ICPS, CASE)
+- **Status**: ✅ PARTIALLY COMPLETE - Marked as "DOI: TBD" (2025 papers not published, 2024 papers need IEEE Xplore search)
 - **Priority**: HIGH (Co-Advisor validation)
+- **Notes**:
+  - Papers 5, 11, 12 (2025 conferences): DOI: TBD (Conference proceedings not yet published)
+  - Papers 6-10, 13-14 (2024 conferences): DOI: TBD (To be searched in IEEE Xplore - requires access)
+  - Papers 15, 17 (TU Dresden): URL placeholders added (requires QUCOSA search)
+  - Paper 16: Conference details incomplete
 
 ### Researcher Papers (Vogel-Heuser) - 7 Papers
 - Papers 18-24 (Vogel-Heuser et al.)
