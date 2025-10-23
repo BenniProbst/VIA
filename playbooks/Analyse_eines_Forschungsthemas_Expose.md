@@ -304,11 +304,46 @@ Eine zentrale Erkenntnis dieser Analyse ist, dass **ROS-Systeme prinzipiell durc
 
 **Abgrenzung**: Die konkrete Implementierung einer ROS-VIA-Integration ist nicht Teil dieser Forschungsarbeit, wird jedoch als **zukünftige Erweiterung** (Post-Dissertation) skizziert.
 
-#### 3.0.6 Relevanz für diese Arbeit
+#### 3.0.6 Anwendungsdomänen-Abgrenzung: VIA vs. ROS
+
+Trotz architektonischer Ähnlichkeiten adressieren ROS und VIA **fundamental unterschiedliche Anwendungsdomänen**, die verschiedene Optimierungsstrategien erfordern:
+
+**ROS-Domäne: Robotik und autonome Systeme**
+- **Dynamische, unstrukturierte Umgebungen**: Mobile Roboter (Navigation, SLAM), Manipulatoren (Motion Planning, MoveIt), autonome Fahrzeuge (Sensorfusion, Objekterkennung), humanoide Roboter (Balance-Control), Drohnen (Schwarmkoordination)
+- **Prototyping und Forschung**: Schnelle Iteration, Wiederverwendung von Community-Packages (>3.000 ROS-Packages), experimentelle Algorithmen
+- **Soft Real-Time-Anforderungen**: 10Hz-100Hz Regelschleifen für Bewegungssteuerung, adaptive Planung basierend auf Sensorik
+- **Typische Systemgröße**: 10-1.000 Nodes pro Roboter, 1-100 Roboter pro Fleet
+- **Flexibilität zur Laufzeit**: Runtime-Optimierung durch DDS-QoS-Policies, dynamische Node-Komposition, Service Discovery
+
+**VIA-Domäne: Statische Fabrik-Informationssysteme (Industrie 4.0)**
+- **Fest installierte Produktionslinien**: SCADA-Systeme (Prozessvisualisierung, Alarmierung), MES-Integration (Produktionsaufträge, OEE), PLC-Edge-Vernetzung (Roboterarme, Förderbänder, Prüfstationen), ERP-Anbindung (Auftragsdatenfluss, Lagerverwaltung)
+- **Langzeitwartung und Compliance**: 15-25 Jahre Produktionslebensdauer, Versionskonsistenz, Audit-Trails, Standardkonformität (IEC 63278 AAS, IEC 62541 OPC UA)
+- **Hard Real-Time-Anforderungen**: <1ms Latenz für Prozesssteuerung, deterministische Prozessketten ohne adaptive Planung
+- **Typische Systemgröße**: 100-50.000+ Edge-Geräte pro Fabrik (z.B. Automobilproduktion mit mehreren Werken)
+- **Effizienz zur Compile-Zeit**: Statische Topologien ermöglichen Pareto-Optimierung bei Compilation, IPC-Mechanismus-Auswahl ohne Runtime-Overhead
+
+**Capability Overlap Matrix**:
+
+| Fähigkeit | ROS | VIA | Overlap |
+|-----------|-----|-----|---------|
+| **Multi-Platform-Deployment** | Container-only (Docker buildx) | Native + Docker + K8s | ✅ Partial |
+| **IPC-Optimierung** | Runtime (DDS QoS) | Compile-Time (Pareto) | ✅ Conceptual |
+| **Middleware-Abstraktion** | RMW (Runtime) | MMB (M3-Bibliothek) | ✅ Architectural |
+| **Composition** | Intra-Process (Runtime) | Process-Group-Protocol (Compile-Time) | ✅ Similar Goal |
+| **Discovery** | DDS Auto-Discovery | OPC UA Discovery + Registry | ✅ Similar Mechanism |
+| **Legacy-Support** | ❌ Container-only | ✅ Native Bare-Metal | ❌ VIA-Only |
+| **Dynamische Umgebungen** | ✅ Robotik-Fokus | ❌ Statische Fabriken | ❌ ROS-Only |
+| **Standards-Compliance** | ROS-eigene Standards | IEC 63278, IEC 62541 | ❌ Different Standards |
+| **Echtzeit** | Soft Real-Time | Hard Real-Time | ✅ Partial |
+| **Skalierung** | 10-1.000 Nodes | 50.000+ Devices | ✅ Different Scale |
+
+**Kernunterschied-Zusammenfassung**: ROS optimiert für **Flexibilität zur Laufzeit** in dynamischen, unstrukturierten Robotik-Szenarien, während VIA für **Effizienz zur Compile-Zeit** in statischen, strukturierten Fabrik-Umgebungen optimiert. Beide Ansätze sind für ihre jeweilige Domäne optimal, jedoch nicht direkt gegeneinander austauschbar.
+
+#### 3.0.7 Relevanz für diese Arbeit
 
 Die ROS-Architektur demonstriert die **Machbarkeit metamodell-basierter Abstraktion** für komplexe verteilte Systeme und validiert zentrale VIA-Design-Entscheidungen:
-- **Mehrschichtige Abstraktion** ist in der Praxis bewährt (ROS: >10 Jahre Produktionseinsatz)
-- **Middleware-Abstraktion** (RMW) zeigt, dass heterogene Implementierungen unter einheitlicher API integrierbar sind
+- **Mehrschichtige Abstraktion** ist in der Praxis bewährt (ROS: >10 Jahre Produktionseinsatz, Quigley et al. 2009)
+- **Middleware-Abstraktion** (RMW) zeigt, dass heterogene Implementierungen unter einheitlicher API integrierbar sind (Macenski et al. 2022)
 - **Community-Driven Development** (>3.000 ROS-Packages) demonstriert Skalierbarkeit offener Ökosysteme
 
 Die wesentliche **Forschungslücke**, die VIA adressiert, liegt in der **Compile-Time-Optimierung von IPC-Mechanismen** – ein Aspekt, den ROS nicht systematisch untersucht. Diese Arbeit trägt dazu bei, die Lücke zwischen ROS-ähnlicher Flexibilität und industriellen Performance-Anforderungen zu schließen.

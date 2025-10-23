@@ -244,3 +244,99 @@ Ich erstelle nun systematisch für jedes Paper:
 
 **Update-Frequenz**: Nach jeweils 10 analysierten Papers Update durchführen
 **Ziel**: Alle 133 Papers innerhalb 2 Tagen vollständig analysieren
+
+---
+
+## Papers 6-15: Micro-ROS, OPC UA, DDS, AAS, Pareto-Optimization, Z3, LLVM
+
+### Paper 6: micro-ROS Documentation (2024)
+**Typ**: Offizielle Projekt-Dokumentation
+**URL**: https://micro.ros.org/
+**Schlüsselkonzepte**:
+- Client-Agent-Architektur für Mikrocontroller (STM32, ESP32, Renesas RA)
+- Micro XRCE-DDS (optimiert für low memory usage)
+- rclc Executor mit bounded end-to-end latencies (Real-Time)
+- Memory Footprint: "Extremely resource-constrained devices" (<1MB RAM)
+
+**Zitations-Kontext**:
+Abschnitt 3.0.4, Zeile 260-278 (VIA Hybrid Deployment):
+> "**Edge-Devices mit begrenzten Ressourcen**: <1GB RAM, keine Container-Runtime. Micro-ROS demonstriert, dass Embedded-Systeme mit <1MB RAM (micro-ROS auf STM32, ESP32) Middleware-Abstraktion realisieren können. VIA folgt ähnlichem Prinzip mit ~250KB Footprint (open62541 C99 Stack), erweitert jedoch um native Cross-Compilation für Legacy-Architekturen (MIPS, RISC-V), die micro-ROS nicht adressiert."
+
+**Relevanz für VIA**: ⭐⭐⭐⭐ (Embedded Deployment Strategies)
+
+---
+
+### Paper 7: ROS2 Composition Documentation (2024)
+**Typ**: Offizielle technische Dokumentation
+**URL**: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Composition.html
+**Schlüsselkonzepte**:
+- Intra-Process Communication (Zero-Copy Message Passing)
+- Component Container (Single-Threaded, Multi-Threaded, Isolated Executors)
+- Deploy-Time-Flexibilität: Separate Prozesse vs. Single Process
+
+**Zitations-Kontext**:
+Abschnitt 3.0.2, Zeile 197-212 (ROS-Prozesskommunikation vs. VIA):
+> "**ROS Composition**: Deploy-Time-Entscheidung zwischen separate processes (fault isolation) und single process (lower overhead). **VIA Process-Group-Protocol**: Compile-Time-Entscheidung für IPC-Mechanismus (Pipe, Unix Socket, TCP) mit optionalem Runtime-Remapping über MMB."
+
+**Relevanz für VIA**: ⭐⭐⭐⭐⭐ KRITISCH (IPC-Optimierung Konzeptvergleich)
+
+---
+
+### Paper 8: Pardo-Castellote (2003) - OMG DDS Architectural Overview
+**Bibliographie**: Pardo-Castellote, G. (2003). DOI: 10.1109/ICDCSW.2003.1203555
+**Zitations-Kontext**: Abschnitt 3.0.2 (DDS QoS), Abschnitt 5.4 (OPC UA vs. DDS)
+**Relevanz für VIA**: ⭐⭐⭐⭐ (Middleware QoS Design Patterns)
+
+---
+
+### Paper 9: OMG (2015) - DDS Version 1.4
+**Bibliographie**: OMG. (2015). Data Distribution Service (DDS) Version 1.4. formal/2015-04-10
+**Zitations-Kontext**: Abschnitt 3.0.3 (RMW-Abstraktion), Abschnitt 3.5 (SOA DDS Integration)
+**Relevanz für VIA**: ⭐⭐⭐⭐ (Standards-Referenz)
+
+---
+
+### Paper 10: IEC 63278-1:2024 - AAS Metamodel
+**Bibliographie**: IEC 63278-1:2024. Asset Administration Shell for Industrial Applications – Part 1: Metamodel
+**Zitations-Kontext**: Abschnitt 1.1 (Ausgangssituation), Abschnitt 3.1 (AAS-core-works), Abschnitt 5.3 (Theoretischer Hintergrund)
+**Relevanz für VIA**: ⭐⭐⭐⭐⭐ KRITISCH (Zentrale Standards-Grundlage)
+
+---
+
+### Paper 11: IEC 62541-1:2020 - OPC UA
+**Bibliographie**: IEC 62541-1:2020. OPC Unified Architecture – Part 1: Overview and Concepts
+**Zitations-Kontext**: Abschnitt 1.1 (M3-Bibliothek), Abschnitt 3.2 (OPC UA Stack), Abschnitt 5.4 (Information Model)
+**Relevanz für VIA**: ⭐⭐⭐⭐⭐ KRITISCH (Kommunikations-Grundlage)
+
+---
+
+### Paper 12: Deb et al. (2002) - NSGA-II
+**Bibliographie**: Deb, K., et al. (2002). A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II. *IEEE TEVC*, 6(2), 182-197. DOI: 10.1109/4235.996017
+**Zitations-Kontext**: Abschnitt 2.2 (H1-Hypothese Pareto-Optimierung), Abschnitt 3.6 (IPC-Optimizer), Abschnitt 3.8.2 (Mathematische Rigorosität)
+**Relevanz für VIA**: ⭐⭐⭐⭐⭐ KRITISCH (Kernalgorithmus für IPC-Optimizer)
+
+---
+
+### Paper 13: Zhang & Li (2007) - MOEA/D
+**Bibliographie**: Zhang, Q., & Li, H. (2007). MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition. *IEEE TEVC*, 11(6), 712-731. DOI: 10.1109/TEVC.2007.892759
+**Zitations-Kontext**: Abschnitt 3.6 (Alternative zu NSGA-II für >3 Objectives), Abschnitt 4.3.1 (Algorithmus-Design)
+**Relevanz für VIA**: ⭐⭐⭐⭐ (Alternative für komplexe Szenarien)
+
+---
+
+### Paper 14: De Moura & Bjørner (2008) - Z3 SMT Solver
+**Bibliographie**: De Moura, L., & Bjørner, N. (2008). Z3: An Efficient SMT Solver. *TACAS 2008*, 337-340. DOI: 10.1007/978-3-540-78800-3_24
+**Zitations-Kontext**: Abschnitt 2.2 (Constraint-Solver), Abschnitt 3.6 (IPC-Optimizer Integration), Abschnitt 3.8.2 (Beweisbar optimale Lösungen)
+**Relevanz für VIA**: ⭐⭐⭐⭐⭐ KRITISCH (Constraint-Solver für IPC-Optimierung)
+
+---
+
+### Paper 15: Lattner & Adve (2004) - LLVM
+**Bibliographie**: Lattner, C., & Adve, V. (2004). LLVM: A Compilation Framework. *CGO'04*, 75-86. DOI: 10.1109/CGO.2004.1281665
+**Zitations-Kontext**: Abschnitt 2.3.1 (M3-Compiler Architektur), Abschnitt 5.1 (Compiler-Theorie), Abschnitt 6.1 (Template-Engine)
+**Relevanz für VIA**: ⭐⭐⭐⭐⭐ KRITISCH (Compiler-Architektur Blueprint)
+
+---
+
+**Status**: 15/133 Papers analyzed (11.3%)
+**Nächster Batch**: Papers 16-30 (Industrial Automation - Wollschlaeger, Vogel-Heuser, Fay)
