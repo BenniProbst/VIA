@@ -33,6 +33,8 @@ Trotz der vorhandenen Metamodell-Frameworks und Code-Generatoren existiert eine 
 
 Die manuelle Orchestrierung von mehr als 50.000 Edge-Geräten in einer typischen Automobilfabrik ist praktisch unzumutbar und fehleranfällig. Zudem erfordern heterogene Zielarchitekturen (MIPS, RISC-V, POWER9, x86, ARM, Sparc) eine Multi-Target-Compilation, die in bisherigen AAS-Implementierungen nicht vorgesehen ist. Insbesondere fehlt eine wissenschaftliche Untersuchung, ob und wie Mikroservice-Kommunikation (IPC: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) zur Compile-Zeit optimiert werden kann, um Latenz und Ressourcenverbrauch gegenüber Runtime-Orchestrierung zu reduzieren.
 
+Eine detaillierte Analyse der Forschungslücken im Kontext bestehender Ansätze erfolgt in Abschnitt 3.7.
+
 ---
 
 ## 2. Problemstellung und Forschungsfrage
@@ -79,6 +81,8 @@ Das VIA-Gesamtsystem gliedert sich in acht Teilprobleme, die in der Projektstruk
 #### 2.3.0 Hauptprogramm (Orchestrierung M3→M2→M1)
 
 **Projektlokation**: `src/main.cpp` (versioniert, nicht in gitignore)
+
+Eine detaillierte Input/Output-Spezifikation des Hauptprogramms erfolgt in Abschnitt 6.0.
 
 Das VIA-Hauptprogramm orchestriert den gesamten Bootstrap-Zyklus durch sequenzielle Compilation und Testing der Compiler-Stufen:
 
@@ -562,13 +566,17 @@ Die Forschungsmethodik folgt einem ingenieurwissenschaftlichen Ansatz mit vier H
 - **Baseline 3**: UNIX Sockets (optimal, nur lokal)
 - **VIA Process-Group-Protocol**: Compiler-optimiert
 
+Die quantitative Evaluation gegen diese Baselines erfolgt in Abschnitt 7.3.2.
+
 #### 4.3.5 Phasenplan
-- **Phase 1**: Research & Analyse ✅ ABGESCHLOSSEN
-- **Phase 2**: Playbook-Erstellung & Metamodell-Design ⏳ IN PROGRESS
+- **Phase 1**: Research & Analyse (4 Wochen) ✅ ABGESCHLOSSEN
+- **Phase 2**: Playbook-Erstellung & Metamodell-Design (2 Wochen) ✅ ABGESCHLOSSEN
 - **Phase 3**: M2-SDK-Compiler Prototyp mit IPC-Optimizer (6 Wochen)
 - **Phase 4**: Benchmark-Suite & Use-Case-Implementierung (4 Wochen)
 - **Phase 5**: Evaluation & Vergleichsmessungen (4 Wochen)
 - **Phase 6**: Dokumentation & Publikation (4 Wochen)
+
+**Gesamtdauer**: 22 Wochen (circa 5 Monate)
 
 ---
 
@@ -615,6 +623,8 @@ VIA CMFs definieren process-register (Prozess-Registrierung), process-discover (
 ### 6.0 VIA-Hauptprogramm (Orchestrierung M3→M2→M1)
 
 **Projektlokation**: `src/main.cpp` (versioniert)
+
+Die konzeptionelle Einordnung des Hauptprogramms im Gesamtsystem erfolgte in Abschnitt 2.3.0. Der vorliegende Abschnitt spezifiziert die detaillierte Input/Output-Architektur.
 
 #### Input
 - Benutzerbeschreibung des gewünschten Systems (Code-Kommentare in `.via` Dateien oder natürlichsprachliche Textdatei für zukünftige KI-Integration)
@@ -806,7 +816,7 @@ Ein zentraler Vorteil der VIA-Architektur liegt in der **bidirektionalen Metamod
 
 ### 7.4 Limitationen
 
-Die Forschungsarbeit unterliegt vier wesentlichen Limitationen. Limitation L1 besteht darin, dass Compile-Time-Optimierung eine statische Topologie erfordert, wobei dynamische Änderungen eine Neu-Compilation notwendig machen, was die Flexibilität zur Laufzeit einschränkt.
+Die Forschungsarbeit unterliegt fünf wesentlichen Limitationen. Limitation L1 besteht darin, dass Compile-Time-Optimierung eine statische Topologie erfordert, wobei dynamische Änderungen eine Neu-Compilation notwendig machen, was die Flexibilität zur Laufzeit einschränkt.
 
 Limitation L2 liegt darin, dass die entwickelten M3-Modellelemente noch nicht in der offiziellen AAS-Spezifikation standardisiert sind, wodurch Interoperabilität mit anderen AAS-Implementierungen zunächst begrenzt ist.
 
@@ -814,11 +824,13 @@ Limitation L3 betrifft die Cross-Architektur-Performance, die zwischen verschied
 
 Limitation L4 besteht darin, dass die Laborumgebung mit drei Nodes Extrapolation auf mehr als 50.000 Geräte erfordert, wobei Skalierungsverhalten in Produktionsumgebungen von simulierten Ergebnissen abweichen kann.
 
+Limitation L5 betrifft die Hypothesen H1-H4, die als zu testende Annahmen formuliert sind. Deren empirische Validierung hängt von der Qualität des IPC-Optimizers und der Repräsentativität der Benchmark-Szenarien ab. Ein Fehlschlagen einzelner Hypothesen (z.B. H1 bei bestimmten Latenz-Szenarien) beeinträchtigt nicht die Kernbeiträge dieser Arbeit (Metamodell-Extension, Process-Group-Protocol-Spezifikation, Pareto-Optimierungsalgorithmus), da diese unabhängig vom empirischen Validierungsergebnis wissenschaftlichen Wert haben.
+
 ---
 
 ## 8. Zeitplan (Fokus Prozesskommunikation)
 
-Der Zeitplan gliedert sich in sechs Phasen mit einer Gesamtdauer von 24 Wochen (circa 6 Monate). Phase 1 umfasste Research und Analyse zu AAS, OPC UA und IPC über vier Wochen und ist abgeschlossen. Phase 2 fokussiert auf Playbook und M3-Metamodell-Design über zwei Wochen und befindet sich derzeit in Bearbeitung.
+Der Zeitplan gliedert sich in sechs Phasen mit einer Gesamtdauer von 22 Wochen (circa 5 Monate). Phase 1 umfasste Research und Analyse zu AAS, OPC UA und IPC über vier Wochen und ist abgeschlossen. Phase 2 fokussierte auf Playbook und M3-Metamodell-Design über zwei Wochen und ist ebenfalls abgeschlossen.
 
 Phase 3 erstreckt sich über sechs Wochen zur Entwicklung des M2-SDK-Compiler Prototyps mit IPC-Optimizer. Woche 1-2 implementieren den graph-basierten Optimierungsalgorithmus, Woche 3-4 realisieren die IPC-Mechanismus-Implementierung für Pipe, Socket, TCP, File-Queue und Thread, und Woche 5-6 spezifizieren das Process-Group-Protocol unter OPC UA.
 
@@ -1158,6 +1170,8 @@ Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woc
 ---
 
 ### 9.15 Additional Research Papers (Application-Specific)
+
+**Hinweis**: Die folgenden Papers 122-133 sind optionale Anwendungsfälle aus der arXiv-Recherche mit niedrigem Prioritätsgrad. Vollständige Zitationen werden nach Bedarf im weiteren Projektverlauf ergänzt oder die Papers entfernt, falls nicht direkt relevant für die Forschungsarbeit.
 
 #### Multi-Objective Optimization Applications
 122. Wu, X., et al. (2023). Multi-Objective Genetic Algorithm for Healthcare Workforce Scheduling. arXiv. DOI: TBD (arXiv ID incomplete)
