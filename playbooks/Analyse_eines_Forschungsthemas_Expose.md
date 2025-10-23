@@ -9,6 +9,61 @@
 
 ---
 
+## Inhaltsverzeichnis
+
+1. **[Einleitung und Motivation](#1-einleitung-und-motivation)**
+   - 1.1 [Ausgangssituation](#11-ausgangssituation)
+   - 1.2 [Vision: Industrie 5.0 (Oder besser: Industrie 3.3)](#12-vision-industrie-50-oder-besser-industrie-33)
+   - 1.3 [Forschungslücke](#13-forschungslücke)
+
+2. **[Problemstellung und Forschungsfrage](#2-problemstellung-und-forschungsfrage)**
+   - 2.1 [Kontext: VIA-Gesamtsystem](#21-kontext-via-gesamtsystem)
+   - 2.2 [Fokus dieser Forschungsarbeit: Process-Group-Protocol](#22-fokus-dieser-forschungsarbeit-process-group-protocol)
+   - 2.3 [Teilprobleme des Gesamtsystems (Kontext)](#23-teilprobleme-des-gesamtsystems-kontext)
+
+3. **[Stand der Forschung](#3-stand-der-forschung)**
+   - 3.0 [Robot Operating System (ROS) - Verwandte Architektur und potenzielle VIA-Integration](#30-robot-operating-system-ros---verwandte-architektur-und-potenzielle-via-integration)
+   - 3.1 [Asset Administration Shell (AAS) - aas-core-works](#31-asset-administration-shell-aas---aas-core-works)
+   - 3.2 [OPC UA (IEC 62541) & open62541 C99 Stack](#32-opc-ua-iec-62541--open62541-c99-stack)
+   - 3.3 [Multi-Message Broker (Santiago Soler Perez Olaya et al., IEEE ETFA 2024)](#33-multi-message-broker-santiago-soler-perez-olaya-et-al-ieee-etfa-2024)
+   - 3.4 [CMFM & Management Paradigmen](#34-cmfm--management-paradigmen)
+   - 3.5 [SOA & Microservice Architecture (Santiago Soler Perez Olaya et al., IECON 2024)](#35-soa--microservice-architecture-santiago-soler-perez-olaya-et-al-iecon-2024)
+   - 3.6 [IPC, Monitoring & Service Mesh (Related Work)](#36-ipc-monitoring--service-mesh-related-work)
+   - 3.7 [Forschungslücken](#37-forschungslücken)
+   - 3.8 [Wissenschaftlicher Mehrwert dieser Arbeit](#38-wissenschaftlicher-mehrwert-dieser-arbeit)
+
+4. **[Zielsetzung und Forschungsmethodik](#4-zielsetzung-und-forschungsmethodik)**
+   - 4.1 [Hauptziel](#41-hauptziel)
+   - 4.2 [Teilziele](#42-teilziele)
+   - 4.3 [Forschungsmethodik](#43-forschungsmethodik)
+
+5. **[Theoretischer Hintergrund](#5-theoretischer-hintergrund)**
+   - 5.1 [Compiler-Theorie](#51-compiler-theorie)
+   - 5.2 [Metamodell-Architekturen (M3/M2/M1)](#52-metamodell-architekturen-m3m2m1)
+   - 5.3 [Asset Administration Shell](#53-asset-administration-shell)
+   - 5.4 [OPC UA Information Model & ISA-95 Integration](#54-opc-ua-information-model--isa-95-integration)
+   - 5.5 [Prozesskommunikation](#55-prozesskommunikation)
+   - 5.6 [CMFM (Comprehensive Management Function Model)](#56-cmfm-comprehensive-management-function-model)
+
+6. **[Konzeptioneller Ansatz: VIA-Architektur](#6-konzeptioneller-ansatz-via-architektur)**
+   - 6.0 [VIA-Hauptprogramm (Orchestrierung M3→M2→M1)](#60-via-hauptprogramm-orchestrierung-m3m2m1)
+   - 6.1 [VIA-M3-Compiler (Metamodell → SDK)](#61-via-m3-compiler-metamodell--sdk)
+   - 6.2 [VIA-M2-SDK-Compiler (SDK → Kundensystem)](#62-via-m2-sdk-compiler-sdk--kundensystem)
+   - 6.3 [VIA-M1-System-Deployer (System → Produktion)](#63-via-m1-system-deployer-system--produktion)
+   - 6.4 [Sub-Protokolle unter OPC UA](#64-sub-protokolle-unter-opc-ua)
+
+7. **[Erwartete Ergebnisse](#7-erwartete-ergebnisse)**
+   - 7.1 [Wissenschaftliche Beiträge (Fokus Prozesskommunikation)](#71-wissenschaftliche-beiträge-fokus-prozesskommunikation)
+   - 7.2 [Praktische Ergebnisse](#72-praktische-ergebnisse)
+   - 7.3 [Konkrete Evaluation-Kriterien](#73-konkrete-evaluation-kriterien)
+   - 7.4 [Limitationen](#74-limitationen)
+
+8. **[Zeitplan (Fokus Prozesskommunikation)](#8-zeitplan-fokus-prozesskommunikation)**
+
+9. **[Literaturverzeichnis](#9-literaturverzeichnis)**
+
+---
+
 ## 1. Einleitung und Motivation
 
 ### 1.1 Ausgangssituation
