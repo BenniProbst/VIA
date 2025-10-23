@@ -11,6 +11,29 @@
 
 ---
 
+## Inhaltsverzeichnis
+
+- **[Kontext: VIA-Gesamtsystem](#kontext-via-gesamtsystem)**
+- **[1. Forschungsfrage](#1-forschungsfrage)**
+- **[2. Hypothesen](#2-hypothesen)**
+- **[3. Forschungsbeiträge](#3-forschungsbeiträge)**
+  - 3.1 [IPC-Optimizer Algorithm (Hauptbeitrag)](#31-ipc-optimizer-algorithm-hauptbeitrag)
+  - 3.2 [Process-Group-Protocol Specification](#32-process-group-protocol-specification)
+  - 3.3 [Compiler-Driven vs Proxy-Driven Comparison](#33-compiler-driven-vs-proxy-driven-comparison)
+- **[4. Methodik](#4-methodik)**
+  - 4.1 [Implementierung (6 Monate)](#41-implementierung-6-monate)
+  - 4.2 [Evaluation (4 Monate)](#42-evaluation-4-monate)
+  - 4.3 [Validierung (2 Monate)](#43-validierung-2-monate)
+- **[5. Zeitplan (22 Wochen / ~5 Monate)](#5-zeitplan-22-wochen--5-monate)**
+- **[6. Erwartete Ergebnisse](#6-erwartete-ergebnisse)**
+  - 6.1 [Wissenschaftliche Outputs](#61-wissenschaftliche-outputs)
+  - 6.2 [Praktische Ergebnisse](#62-praktische-ergebnisse)
+  - 6.3 [Zielmetriken](#63-zielmetriken)
+- **[7. Limitationen](#7-limitationen)**
+- **[8. Literaturverzeichnis](#8-literaturverzeichnis)**
+
+---
+
 ## Kontext: VIA-Gesamtsystem
 
 Diese Forschungsarbeit ist Teil des **VIA (Virtual Industry Automation)** Projekts – eines mehrjährigen Forschungsvorhabens zur Entwicklung eines vollautomatischen Compiler-Systems für Industrie 4.0-Anwendungen. Das VIA-Gesamtsystem umfasst:
