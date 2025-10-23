@@ -110,7 +110,19 @@ Die zentrale Forschungsfrage dieser Arbeit lautet:
 
 > **Können über Metamodelle (M3/M2) automatisch Prozessketten von Mikroservices erstellt werden, deren Positionierung im System und Kommunikationsmechanismus (IPC: Pipe, Socket, TCP, File-Queue, Thread) bei der Kompilation optimiert wird?**
 
-Diese Frage adressiert eine fundamentale Herausforderung moderner Mikroservice-Architekturen: Die Wahl des Inter-Process Communication (IPC) Mechanismus erfolgt üblicherweise zur Laufzeit durch Service-Mesh-Lösungen wie Istio oder Linkerd. Diese Runtime-Entscheidungen verursachen jedoch Overhead durch dynamisches Routing, Service Discovery und Load Balancing. Die vorliegende Arbeit untersucht, ob durch Compile-Time-Analyse des Metamodells eine statische Optimierung möglich ist, die Latenz reduziert ohne Flexibilität signifikant einzuschränken.
+This question addresses a fundamental challenge of modern microservice architectures: The choice of Inter-Process Communication (IPC) mechanism typically occurs at runtime through Service Mesh solutions like Istio or Linkerd. However, these runtime decisions cause overhead through dynamic routing, service discovery, and load balancing.
+
+**VIA's Architectural Particularity: Self-Compiling Runtime System**: Unlike traditional compilers that work offline and produce static binaries, the VIA compiler is **part of the runtime environment (M0 level)**. The compilation process is executed at runtime of the own deployed service mesh – the compiler compiles itself and the system continuously. This architecture combines the advantages of both worlds:
+
+1. **Compiler Quality with Runtime Flexibility**: IPC decisions are made **at runtime WITH THE OWN COMPILER**, not by external proxies (Istio/Linkerd). The VIA-M2-Compiler runs as a service in the M0 system and reacts to telemetry, network topology changes, and new process registrations.
+
+2. **Incremental Recompilation**: Like real compilers, **only changed modules and their dependency chains** are recompiled. When a process changes its requirements (e.g., new latency constraints), VIA recompiles only the affected IPC paths – not the entire system.
+
+3. **Kubernetes Sidecar as IPC Executor**: The IPC decisions calculated by the compiler are implemented as **Kubernetes Sidecars** according to **M3 scheduling rules**. The sidecar executes the generated communication patterns (Unix Socket, TCP, gRPC), monitors telemetry (latency, throughput, error rate), and reports deviations back to the compiler service.
+
+4. **Statically Defined, Dynamically Adapted**: VIA maintains the **strict separation of model (M3 definitions) and implementation (M1 binaries)**, but allows **telemetry-based adaptations of static rules**. Example: M3 defines "max_latency: 5ms", but telemetry shows 8ms → Compiler recalculates, proposes process migration (from TCP → Unix Socket via container relocation).
+
+This architecture is **neither pure compile-time nor pure runtime**, but a **continuous compile-runtime cycle**: The compiler is always active, but its decisions are based on compiler-theoretical optimizations (constraint solving, graph algorithms), not heuristic proxy rules. The research contribution lies in the question of whether this **compiler-driven runtime optimization** offers advantages over **proxy-driven runtime orchestration** (Service Mesh).
 
 Zur systematischen Bearbeitung dieser Forschungsfrage werden vier Teilfragen formuliert:
 

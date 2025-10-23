@@ -25,6 +25,13 @@
    - 3.0 [Robot Operating System (ROS) - Verwandte Architektur und potenzielle VIA-Integration](#30-robot-operating-system-ros---verwandte-architektur-und-potenzielle-via-integration)
    - 3.1 [Asset Administration Shell (AAS) - aas-core-works](#31-asset-administration-shell-aas---aas-core-works)
    - 3.2 [OPC UA (IEC 62541) & open62541 C99 Stack](#32-opc-ua-iec-62541--open62541-c99-stack)
+     - 3.2.1 [OPC UA als standardisiertes Kommunikationsprotokoll](#321-opc-ua-als-standardisiertes-kommunikationsprotokoll)
+     - 3.2.2 [OPC UA Architekturschichten und Protokoll-Stack](#322-opc-ua-architekturschichten-und-protokoll-stack)
+     - 3.2.3 [Client-Server-Modell und Many-to-Many-Kommunikation](#323-client-server-modell-und-many-to-many-kommunikation)
+     - 3.2.4 [Informationsmodellierung: Address Space und Metamodell-Kompatibilität](#324-informationsmodellierung-address-space-und-metamodell-kompatibilität)
+     - 3.2.5 [open62541 C99 Stack – Embedded-geeignete Implementierung](#325-open62541-c99-stack--embedded-geeignete-implementierung)
+     - 3.2.6 [VIA-Projektintegration und Code-Generation-Pipeline](#326-via-projektintegration-und-code-generation-pipeline)
+     - 3.2.7 [Companion Specifications und VIA Custom Companion Spec](#327-companion-specifications-und-via-custom-companion-spec)
    - 3.3 [Multi-Message Broker (Santiago Soler Perez Olaya et al., IEEE ETFA 2024)](#33-multi-message-broker-santiago-soler-perez-olaya-et-al-ieee-etfa-2024)
    - 3.4 [CMFM & Management Paradigmen](#34-cmfm--management-paradigmen)
    - 3.5 [SOA & Microservice Architecture (Santiago Soler Perez Olaya et al., IECON 2024)](#35-soa--microservice-architecture-santiago-soler-perez-olaya-et-al-iecon-2024)
@@ -58,7 +65,13 @@
    - 7.3 [Konkrete Evaluation-Kriterien](#73-konkrete-evaluation-kriterien)
    - 7.4 [Limitationen](#74-limitationen)
 
-8. **[Zeitplan (Fokus Prozesskommunikation)](#8-zeitplan-fokus-prozesskommunikation)**
+8. **[Zeitplan (VIA-Gesamtsystem)](#8-zeitplan-via-gesamtsystem)**
+   - 8.1 [Phase 1: Grundlagenforschung und Konzeptvalidierung (Jahr 1-2, abgeschlossen)](#81-phase-1-grundlagenforschung-und-konzeptvalidierung-jahr-1-2-abgeschlossen)
+   - 8.2 [Phase 2: VIA-M3-Compiler Development (Jahr 2-3)](#82-phase-2-via-m3-compiler-development-jahr-2-3)
+   - 8.3 [Phase 3: VIA-M2-SDK-Compiler & Process-Group-Protocol (Jahr 3-4)](#83-phase-3-via-m2-sdk-compiler--process-group-protocol-jahr-3-4)
+   - 8.4 [Phase 4: VIA-M1-System-Deployer & Edge-Group-Protocol (Jahr 4-5)](#84-phase-4-via-m1-system-deployer--edge-group-protocol-jahr-4-5)
+   - 8.5 [Phase 5: Productization & Standardization (Jahr 5-6)](#85-phase-5-productization--standardization-jahr-5-6)
+   - 8.6 [Gesamtdauer und Ressourcen](#86-gesamtdauer-und-ressourcen)
 
 9. **[Literaturverzeichnis](#9-literaturverzeichnis)**
 
