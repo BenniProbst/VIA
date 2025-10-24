@@ -64,6 +64,12 @@
 
 ---
 
+
+
+9. **[Bibliography](#9-bibliography)**
+
+---
+
 ## 1. Introduction and Motivation
 
 ### 1.1 Initial Situation
@@ -87,6 +93,12 @@ This vision requires continuous automation from abstract metamodel to deployed s
 Despite existing metamodel frameworks and code generators, there is a fundamental research gap between metamodel definition and production-grade compiler implementation. Previous approaches such as aas-core-codegen (aas-core-works, 2024) do generate executable code, but the connection to automated deployment is missing: There is no maintainable, versioned SDK generation for long-term industrial use (typically 15-25 years in the manufacturing industry, cf. Adolphs et al., 2015), no automatic orchestration of generated systems, and no optimization of process communication at compile time.
 
 Manual orchestration of more than 50,000 edge devices in a typical automotive factory is practically unreasonable and error-prone. Additionally, heterogeneous target architectures (MIPS, RISC-V, POWER9, x86, ARM, Sparc) require multi-target compilation, which is not provided in previous AAS implementations. In particular, there is no scientific investigation of whether and how microservice communication (IPC: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) can be optimized at compile time to reduce latency and resource consumption compared to runtime orchestration.
+
+A detailed analysis of research gaps in the context of existing approaches is provided in Section 3.7.
+
+---
+
+
 
 A detailed analysis of research gaps in the context of existing approaches is provided in Section 3.7.
 
@@ -243,6 +255,12 @@ The critical challenges of this component lie in avoiding split-brain scenarios 
 **Project Location**: Part of `playbooks/VIA-M1-System-Deploy/cross_compilation.md`
 
 The Multi-Architecture Cross-Compilation System enables support for heterogeneous hardware platforms, including MIPS, RISC-V, POWER9+, x86, ARM1+, and Sparc, each on operating systems such as Linux, Windows, and macOS. The M2 SDK customer defines the desired target architectures declaratively in `.via` project files, whereupon the M1 deployer automatically configures CMake toolchains for all targets and performs parallel cross-compilation. This architectural diversity enables legacy support for old industrial systems that have been in production for decades in some cases, as well as simultaneous integration of modern architectures for new components.
+
+The essential challenges of this component lie in toolchain management for a multitude of compiler versions and target platforms, in driver availability for specific hardware components on legacy systems, as well as in the different memory models of various architectures (e.g., big-endian vs. little-endian, different pointer sizes), which require consistent data serialization and IPC communication across architecture boundaries.
+
+---
+
+
 
 The essential challenges of this component lie in toolchain management for a multitude of compiler versions and target platforms, in driver availability for specific hardware components on legacy systems, as well as in the different memory models of various architectures (e.g., big-endian vs. little-endian, different pointer sizes), which require consistent data serialization and IPC communication across architecture boundaries.
 
@@ -887,6 +905,12 @@ This research work makes several fundamental contributions that go beyond increm
 
 ---
 
+
+
+**Interdisciplinary Innovation**: The application of compiler optimization techniques (M3/M2/M1 metamodel chain, constraint solving, code generation) to industrial process communication (OPC UA, IPC, service orchestration) creates a **new research direction** at the interface of computer science and automation engineering. The work shows that Industry 4.0 problems are solvable from a compiler perspective – a perspective that is missing in previous AAS implementations (Python scripts, manual orchestration).
+
+---
+
 ## 4. Objectives and Research Methodology
 
 ### 4.1 Main Objective
@@ -996,6 +1020,12 @@ Quantitative evaluation against these baselines is performed in Section 7.3.2.
 
 ---
 
+
+
+**Total Duration**: 22 weeks (approximately 5 months)
+
+---
+
 ## 5. Theoretical Background
 
 The research combines concepts from compiler theory (Section 5.1), metamodel architectures (Section 5.2), AAS standards (Section 5.3), OPC UA and ISA-95 integration (Section 5.4, cf. Wollschlaeger et al., 2025 for bidirectional AAS ↔ OPC UA mapping), process communication (Section 5.5), and management frameworks (Section 5.6). This interdisciplinary foundation is necessary to address the challenges of metamodel-based IPC optimization.
@@ -1029,6 +1059,12 @@ CMFM implements a manager-centric paradigm focusing on goals rather than system 
 The Generality Hierarchy defines abstraction levels: Implementation (concrete implementation), User (user-specific), Domain (domain-specific), Parent Domain (superior domain). VIA as Domain represents the entire process communication domain as a unified concept. Catalog vs. Core distinguishes between the list of all CMFs and generally applicable CMFs after promotion.
 
 Promotion occurs tacitly (automatically through frequent use) or explicitly (through Standardization Bodies). CMF Interrelations include Equivalence (merging goals with identical meaning into one CMF) and Composition (Upwards: aggregation of multiple CMFs, Downwards: decomposition into Sub-CMFs). AAS Integration maps CMFs as Operations in the AAS Meta-Model, where Input and Output are represented as Attributes.
+
+VIA CMFs define process-register (process registration), process-discover (service discovery), route-message (message routing), and schedule-task (task scheduling). Vocabulary Management occurs through a public repository linked to e-Class, CDD (Common Data Dictionary), and I4.0 SemanticID.
+
+---
+
+
 
 VIA CMFs define process-register (process registration), process-discover (service discovery), route-message (message routing), and schedule-task (task scheduling). Vocabulary Management occurs through a public repository linked to e-Class, CDD (Common Data Dictionary), and I4.0 SemanticID.
 
@@ -1149,6 +1185,12 @@ A Windows limitation exists in that IPC capabilities are more limited on Windows
 
 ---
 
+
+
+**Status**: Specification of the 3 protocols will be defined during the project course as M3 models, based on MMB-M3 library
+
+---
+
 ## 7. Expected Results
 
 The research aims for both scientific contributions (Section 7.1) and practical results (Section 7.2). Evaluation is performed using a concrete use-case scenario from automotive production (Section 7.3) that demonstrates industrial relevance. The expected results directly address the formulated hypotheses H1-H4 and contribute to closing the identified research gaps.
@@ -1240,6 +1282,12 @@ Limitation L2 lies in that the developed M3 model elements are not yet standardi
 Limitation L3 concerns cross-architecture performance, which varies between different platforms (MIPS vs. x86), resulting in different optimization results for heterogeneous systems.
 
 Limitation L4 consists in that the laboratory environment with three nodes requires extrapolation to more than 50,000 devices, where scaling behavior in production environments may deviate from simulated results.
+
+Limitation L5 concerns hypotheses H1-H4, which are formulated as assumptions to be tested. Their empirical validation depends on the quality of the IPC-Optimizer and the representativeness of the benchmark scenarios. A failure of individual hypotheses (e.g., H1 in certain latency scenarios) does not impair the core contributions of this work (metamodel extension, Process-Group-Protocol specification, Pareto optimization algorithm), as these have scientific value independent of empirical validation results.
+
+---
+
+
 
 Limitation L5 concerns hypotheses H1-H4, which are formulated as assumptions to be tested. Their empirical validation depends on the quality of the IPC-Optimizer and the representativeness of the benchmark scenarios. A failure of individual hypotheses (e.g., H1 in certain latency scenarios) does not impair the core contributions of this work (metamodel extension, Process-Group-Protocol specification, Pareto optimization algorithm), as these have scientific value independent of empirical validation results.
 
@@ -1390,6 +1438,12 @@ The VIA project is a **multi-year research and development initiative** with sta
 - **Market Risk**: Industry does not adopt VIA → Open-source community as carrier
 
 ---
+
+**Purpose**: Ready-to-paste version for exposé
+
+---
+
+
 
 **Purpose**: Ready-to-paste version for exposé
 
