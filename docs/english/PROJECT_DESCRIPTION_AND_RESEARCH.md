@@ -149,9 +149,9 @@ Zur Validierung der Forschungshypothese werden vier zu testende Hypothesen aufge
 
 Das VIA-Gesamtsystem gliedert sich in acht Teilprobleme, die in der Projektstruktur unter `playbooks/` als separate Implementierungs-Playbooks dokumentiert sind. Während diese Arbeit sich auf das Process-Group-Protocol (2.3.5) konzentriert, ist das Verständnis aller Komponenten notwendig, da sie die Ausführungsumgebung für die Prozesskommunikation bilden.
 
-#### 2.3.0 Hauptprogramm (Orchestrierung M3→M2→M1)
+#### 2.3.0 Main Program (Orchestration M3→M2→M1)
 
-**Projektlokation**: `src/main.cpp` (versioniert, nicht in gitignore)
+**Project Location**: `src/main.cpp` (versioned, not in gitignore)
 
 Eine detaillierte Input/Output-Spezifikation des Hauptprogramms erfolgt in Abschnitt 6.0.
 
@@ -172,7 +172,7 @@ Das VIA-Hauptprogramm orchestriert den gesamten Bootstrap-Zyklus durch sequenzie
 
 **Problem**: Zustandsverwaltung über 3 Phasen, Fehlerbehandlung bei jeder Stufe, Transaktionalität bei Selbst-Neukompilation, Overhead des Multi-Level-Tracing in Produktivsystemen
 
-#### 2.3.1 M3-Ebene (Metamodell-Compiler)
+#### 2.3.1 M3 Level (Metamodel Compiler)
 
 Der M3-Compiler, lokalisiert in `playbooks/VIA-M3-Compiler/` als versionierter Bestandteil des Repositories, definiert die AAS-lang (Asset Administration Shell Language) als domänenspezifische Programmiersprache (DSL, vgl. Fowler, 2010; Völter et al., 2019 für Safety-Critical DSL Design) für industrielle Systeme. Diese Compiler-Komponente bildet die erste Stufe der VIA-Compiler-Kette und ist für die Transformation von abstrakten Metamodell-Definitionen (M3) in eine typ-sichere C++ SDK (M2) verantwortlich.
 
@@ -184,9 +184,9 @@ Als Output generiert der M3-Compiler das Verzeichnis `playbooks/VIA-M2-SDK/` mit
 
 Die zentrale Herausforderung dieser Komponente liegt in der Vermeidung von Spaghetti-Code bei der automatischen Code-Generierung. Dies wird durch ein mehrschichtiges Constraint-System adressiert, das Typensicherheit, Modularität und Wartbarkeit der generierten SDK garantiert.
 
-#### 2.3.2 M2-Ebene (SDK-Compiler)
+#### 2.3.2 M2 Level (SDK Compiler)
 
-**Projektlokation**: `playbooks/VIA-M2-SDK/` (generiert, gitignored)
+**Project Location**: `playbooks/VIA-M2-SDK/` (generated, gitignored)
 
 Die M2-SDK fungiert als Compiler für Kundenprojekte. Sie liest `.via` Projektdateien (in AAS-lang geschrieben), validiert Syntax, und kompiliert in ein C++ Gesamtprojekt (M1).
 
@@ -196,9 +196,9 @@ Als Input empfängt die M2-SDK Kundenprojekt-Dateien im `.via` Format unter `cus
 
 Die zentrale Herausforderung dieser Komponente liegt in der deterministischen Testabdeckung für industrielle Kombinatorik sowie der IPC-Optimierung bei mehr als 50.000 Services, wobei skalierbare Algorithmen und effiziente Heuristiken notwendig sind.
 
-#### 2.3.3 M1-Ebene (System-Deployment)
+#### 2.3.3 M1 Level (System Deployment)
 
-**Projektlokation**: `playbooks/VIA-M1-System-Deploy/` (Playbooks für Deployment-Logik)
+**Project Location**: `playbooks/VIA-M1-System-Deploy/` (Playbooks for deployment logic)
 
 Der M1-Deployer kompiliert das M1-Systemprojekt (C++ Code) in Binaries für alle Zielarchitekturen und verteilt diese über das Horse-Rider-Deployment-System.
 
@@ -208,17 +208,17 @@ Der M1-Deployer generiert drei Kategorien von Ausgaben. Die kompilierten Binarie
 
 Die zentralen Herausforderungen dieser Komponente liegen im Hot-Reload ohne Systemausfall, im Canary-Deployment mit automatischem Rollback bei Fehlern, in der Versionskonsistenz bei C++23 Modules über mehrere Compiler-Generationen hinweg sowie in der ABI-Stabilität für langfristige Industriekompatibilität (typischerweise 15-25 Jahre).
 
-#### 2.3.4 Deployment-System (Horse-Rider-Architektur)
+#### 2.3.4 Deployment System (Horse-Rider Architecture)
 
-**Projektlokation**: Teil von `playbooks/VIA-M1-System-Deploy/horse_rider_deployment.md`
+**Project Location**: Part of `playbooks/VIA-M1-System-Deploy/horse_rider_deployment.md`
 
 Die Horse-Rider-Architektur entkoppelt Deployment-Logik (Horse) von Fachlogik (Rider) durch eine modulare Trennung der Verantwortlichkeiten. Der Horse-Service fungiert als stabiler Container, der Rider-Services als C++23 Modules dynamisch zur Laufzeit lädt und entlädt, wodurch Hot-Reload ohne Systemausfall ermöglicht wird. Bei einem Rider-Update prüft der Horse zunächst die ABI-Kompatibilität des neuen Moduls gegen die definierten Schnittstellen. Anschließend lädt er das neue Modul parallel zum alten (Canary-Deployment) und routet zunächst nur einen kleinen Prozentsatz des Traffics zum neuen Service. Bei erfolgreichem Canary-Test erfolgt der vollständige Traffic-Switch zum neuen Rider, während bei Fehlern ein automatisches Rollback zum alten Modul durchgeführt wird. Die Architektur sieht mindestens zwei parallele Horses pro Edge-Gerät vor, die als Digital Twin fungieren und gegenseitige Redundanz gewährleisten.
 
 Die zentralen technischen Herausforderungen dieser Architektur liegen in der ABI-Stabilität bei C++23 Modules über mehrere Compiler-Versionen und Aktualisierungszyklen hinweg, in der Zustandssynchronisation bei Hot-Reload zwischen altem und neuem Rider-Service sowie in der Rollback-Transaktionalität, die sicherstellt, dass bei Fehlern ein konsistenter Systemzustand innerhalb von Sekundenbruchteilen wiederhergestellt werden kann.
 
-#### 2.3.5 Sub-Protokolle unter OPC UA → **FORSCHUNGSFOKUS**
+#### 2.3.5 Sub-Protocols under OPC UA → **RESEARCH FOCUS**
 
-**Projektlokation**: `playbooks/VIA-M3-Compiler/via_protocols/` (zukünftig, Spezifikation noch offen)
+**Project Location**: `playbooks/VIA-M3-Compiler/via_protocols/` (future, specification still open)
 
 VIA definiert drei custom OPC UA Sub-Protokolle als systematische Erweiterung des Standards, die verschiedene Aspekte der Systemorchestrierung adressieren. Das Edge-Group-Protocol ermöglicht virtuelle Netzwerkgruppen für hierarchische Edgegeräte-Gruppierung, wodurch die Skalierbarkeit auf mehr als 50.000 Geräte erreicht wird. Das Deploy-Protocol verwaltet Versionierung, Logging und Rejuvenation für das Horse-Rider-System, um ausfallsichere Updates zu gewährleisten. Das Process-Group-Protocol bildet den Kern dieser Forschungsarbeit und optimiert die IPC-Mechanismen zwischen Services durch automatische Auswahl zwischen Pipe, Unix Socket, TCP, File-Queue und Thread-Messaging basierend auf Prozessabhängigkeiten und Latenzanforderungen.
 
@@ -228,23 +228,23 @@ Der aktuelle Status dieser Komponente ist die Spezifikationsphase; die konkreten
 
 #### 2.3.6 Network Discovery System
 
-**Projektlokation**: Teil von `playbooks/VIA-M2-SDK/network_discovery.md`
+**Project Location**: Part of `playbooks/VIA-M2-SDK/network_discovery.md`
 
 Das Network Discovery System führt automatisches Scanning des Kundennetzwerks durch, indem es verschiedene industrielle Protokolle wie SNMP, OPC UA, Modbus, MQTT und RPC systematisch zur Topologie-Erkennung einsetzt. Das System liest Geräteeigenschaften von PLCs, SCADA-Systemen, MES-Servern und Sensoren aus, klassifiziert diese automatisch und erstellt eine strukturierte Netzwerktopologie. Basierend auf dieser Analyse generiert das System Asset-Mapping-Vorschläge für die M2-Projektkonfiguration, die dem Anwender als Startpunkt für die weitere Systemdefinition dienen.
 
 Die wesentlichen Herausforderungen dieser Komponente liegen in der Protokoll-Heterogenität verschiedener Industriestandards mit unterschiedlichen Datenmodellen und Kommunikationsmustern, in der Zugriffskontrolle auf sicherheitskritische Produktionssysteme ohne bestehende Credentials sowie im Umgang mit Offline-Geräten, die zum Scan-Zeitpunkt nicht erreichbar sind, aber dennoch in die Topologie integriert werden müssen.
 
-#### 2.3.7 Master Active Management (Deployment-Orchestrierung)
+#### 2.3.7 Master Active Management (Deployment Orchestration)
 
-**Projektlokation**: Teil von `playbooks/VIA-M1-System-Deploy/master_active_management.md`
+**Project Location**: Part of `playbooks/VIA-M1-System-Deploy/master_active_management.md`
 
 Das Master Active Management implementiert Active/Active Redundanz analog zu Microsoft Active Directory, wobei mehrere Deployment-Master gleichzeitig aktiv sind und sich gegenseitig replizieren (basierend auf Konsensus-Algorithmen wie Paxos, Lamport, 1998; oder Raft, Ongaro & Ousterhout, 2014). Der Deployment-Master koordiniert sowohl Kubernetes-Container-Orchestrierung (Burns & Oppenheimer, 2016) als auch Edge-Service-Orchestrierung für nicht-containerisierte Geräte und bildet damit die zentrale Steuerungsinstanz des VIA-Systems. Die Zugriffskontrolle wird über ein rollenbasiertes Berechtigungssystem verwaltet, das Benutzer und Rollen definiert und optional mit bestehenden Samba- oder Active-Directory-Infrastrukturen integriert werden kann. Die Konfiguration von Redundanz-Levels und Service-Verteilung erfolgt durch Policies, die festlegen, wie viele Replikate jedes Services auf welchen Hosts deployed werden.
 
 Die kritischen Herausforderungen dieser Komponente liegen in der Vermeidung von Split-Brain-Szenarien, bei denen getrennte Master-Instanzen inkonsistente Entscheidungen treffen, in der Gewährleistung von Konsistenz über geografisch verteilte Cluster hinweg sowie in der Minimierung von Failover-Zeiten beim Ausfall eines Masters, um kontinuierliche Orchestrierung zu garantieren.
 
-#### 2.3.8 Multi-Architektur Cross-Compilation
+#### 2.3.8 Multi-Architecture Cross-Compilation
 
-**Projektlokation**: Teil von `playbooks/VIA-M1-System-Deploy/cross_compilation.md`
+**Project Location**: Part of `playbooks/VIA-M1-System-Deploy/cross_compilation.md`
 
 Das Multi-Architektur Cross-Compilation System ermöglicht die Unterstützung heterogener Hardwareplattformen, darunter MIPS, RISC-V, POWER9+, x86, ARM1+ und Sparc, jeweils auf Betriebssystemen wie Linux, Windows und macOS. Der M2-SDK-Kunde definiert die gewünschten Zielarchitekturen deklarativ in `.via` Projektdateien, woraufhin der M1-Deployer automatisch CMake-Toolchains für alle Targets konfiguriert und parallele Cross-Compilation durchführt. Diese Architektur-Vielfalt ermöglicht Legacy-Support für alte Industriesysteme, die teilweise seit Jahrzehnten in Produktion sind, sowie gleichzeitige Integration moderner Architekturen für neue Komponenten.
 
@@ -256,11 +256,11 @@ Die wesentlichen Herausforderungen dieser Komponente liegen im Toolchain-Managem
 
 Die Forschungsarbeit baut auf mehreren etablierten Standards und Forschungsergebnissen auf, die im Folgenden systematisch dargestellt werden. Die Analyse umfasst Robot Operating System (ROS) als verwandter Ansatz (Abschnitt 3.0), AAS-Code-Generierung (Abschnitt 3.1), OPC UA als Kommunikationsprotokoll (Abschnitt 3.2), Multi-Message Broker für Brownfield-Integration (Abschnitt 3.3), Management-Frameworks (Abschnitt 3.4), Service-orientierte Architekturen (Abschnitt 3.5), Monitoring-Ansätze (Abschnitt 3.6) sowie theoretische Grundlagen wie ISA-95 und CMFM (Abschnitt 3.7).
 
-### 3.0 Robot Operating System (ROS) - Verwandte Architektur und potenzielle VIA-Integration
+### 3.0 Robot Operating System (ROS) - Related Architecture and Potential VIA Integration
 
 Das Robot Operating System (ROS) stellt eine bedeutende verwandte Architektur dar, die fundamentale Parallelen zur VIA-System-Konzeption aufweist. ROS wurde primär für die Robotik entwickelt, adressiert jedoch ähnliche Herausforderungen in der Orchestrierung verteilter, heterogener Systeme wie VIA für die industrielle Automatisierung.
 
-#### 3.0.1 ROS-Architektur: Mehrschichtige Abstraktion
+#### 3.0.1 ROS Architecture: Multi-Layer Abstraction
 
 ROS implementiert eine **dreischichtige Abstraktionsarchitektur** (Quigley et al., 2009), die konzeptionelle Ähnlichkeiten zur VIA M3/M2/M1-Struktur aufweist:
 
@@ -285,7 +285,7 @@ ROS implementiert eine **dreischichtige Abstraktionsarchitektur** (Quigley et al
 
 **Kernunterschied**: ROS trifft IPC-Entscheidungen zur **Laufzeit** durch DDS-QoS-Policies (Data Distribution Service Quality of Service), während VIA eine **Compile-Time-Optimierung** durchführt, die statische Analyse des Metamodells nutzt.
 
-#### 3.0.3 ROS2 und DDS-Middleware-Abstraktion
+#### 3.0.3 ROS2 and DDS Middleware Abstraction
 
 ROS2 (aktuelle Version, Macenski et al., 2022) basiert auf **DDS (Data Distribution Service)** (OMG, 2015) als Middleware und implementiert eine **ROS Middleware Interface (RMW)**-Abstraktionsschicht, die verschiedene DDS-Implementierungen abstrahiert (FastDDS, CycloneDDS, RTI Connext). Diese Architektur zeigt Parallelen zum VIA Multi-Message Broker (MMB, Soler Perez Olaya et al., 2024), der heterogene Brownfield-Protokolle (Modbus, PROFIBUS, EtherCAT) über AID/AIMC-Mapping abstrahiert.
 
@@ -352,7 +352,7 @@ ROS2 (Container-only):                  VIA (Hybrid):
 
 Diese **Deployment-Flexibilität** ist ein Alleinstellungsmerkmal von VIA gegenüber ROS2 und ermöglicht den Einsatz in **heterogenen Industrie-4.0-Umgebungen** mit Mix aus Legacy-Hardware und moderner Cloud-Infrastruktur.
 
-#### 3.0.5 ROS als VIA-Subsystem: Mögliche Integration
+#### 3.0.5 ROS as VIA Subsystem: Possible Integration
 
 Eine zentrale Erkenntnis dieser Analyse ist, dass **ROS-Systeme prinzipiell durch VIA M3-Definitionen beschreibbar sind** und **Roboter als Edge-Devices/Edge-Gruppen** in die VIA-Architektur integriert werden können. Dies würde ROS zu einem **Subsystem des VIA-Gesamtsystems** machen:
 
@@ -379,7 +379,7 @@ Eine zentrale Erkenntnis dieser Analyse ist, dass **ROS-Systeme prinzipiell durc
 
 **Abgrenzung**: Die konkrete Implementierung einer ROS-VIA-Integration ist nicht Teil dieser Forschungsarbeit, wird jedoch als **zukünftige Erweiterung** (Post-Dissertation) skizziert.
 
-#### 3.0.6 Anwendungsdomänen-Abgrenzung: VIA vs. ROS
+#### 3.0.6 Application Domain Demarcation: VIA vs. ROS
 
 Trotz architektonischer Ähnlichkeiten adressieren ROS und VIA **fundamental unterschiedliche Anwendungsdomänen**, die verschiedene Optimierungsstrategien erfordern:
 
@@ -414,7 +414,7 @@ Trotz architektonischer Ähnlichkeiten adressieren ROS und VIA **fundamental unt
 
 **Kernunterschied-Zusammenfassung**: ROS optimiert für **Flexibilität zur Laufzeit** in dynamischen, unstrukturierten Robotik-Szenarien, während VIA für **Effizienz zur Compile-Zeit** in statischen, strukturierten Fabrik-Umgebungen optimiert. Beide Ansätze sind für ihre jeweilige Domäne optimal, jedoch nicht direkt gegeneinander austauschbar.
 
-#### 3.0.7 Relevanz für diese Arbeit
+#### 3.0.7 Relevance for this Work
 
 Die ROS-Architektur demonstriert die **Machbarkeit metamodell-basierter Abstraktion** für komplexe verteilte Systeme und validiert zentrale VIA-Design-Entscheidungen:
 - **Mehrschichtige Abstraktion** ist in der Praxis bewährt (ROS: >10 Jahre Produktionseinsatz, Quigley et al. 2009)
@@ -601,31 +601,31 @@ Der Trade-off zwischen Service Mesh Overhead (5-10ms Sidecar-Latenz) und potenzi
 
 Die vorliegende Forschungsarbeit leistet mehrere fundamentale Beiträge, die über inkrementelle Verbesserungen bestehender Systeme hinausgehen:
 
-#### 3.8.1 Theoretische Fundierung durch M3-Bibliotheks-Architektur
+#### 3.8.1 Theoretical Foundation through M3 Library Architecture
 
 **MMB als M3-Bibliothek**: Die Einbettung des Multi-Message Broker (MMB) als wiederverwendbare M3-Bibliothek demonstriert, wie Forschungsergebnisse aus der Brownfield-Integration (Santiago Soler Perez Olaya et al.) als formale Metamodell-Komponenten operationalisiert werden können. Die drei VIA-Sub-Protokolle (Edge-Group, Deploy, Process-Group) sind **selbst als M3-Bibliotheken in AAS-lang definiert** – analog zu Protobuf als M3-Interpreter – und laden Modelle von MMB. Diese Modell-Komposition auf M3-Ebene schafft eine **wissenschaftliche Grundlage für erweiterbare Protokoll-Architekturen** in der industriellen Automatisierung.
 
 **Wiederverwendbarkeit und Erweiterbarkeit**: Durch die Trennung von Basis-Bibliothek (MMB) und spezialisierten Protokollen (Edge-Group/Deploy/Process-Group) entsteht eine modulare Architektur, die zukünftige Erweiterungen ermöglicht. Andere Forschungsprojekte können MMB-Modelle importieren und eigene Protokoll-Semantik definieren – ein Paradigma, das in bisherigen OPC UA Companion Specifications fehlt.
 
-#### 3.8.2 Mathematische Rigorosität durch Pareto-Optimierung
+#### 3.8.2 Mathematical Rigor through Pareto Optimization
 
 **Multi-Objective Optimization**: Die Anwendung von Pareto-Optimierung auf IPC-Mechanismus-Auswahl überführt eine bisher heuristische Entscheidung in ein **formal lösbares Optimierungsproblem**. Die konfligierenden Ziele (Latenz minimieren, Durchsatz maximieren, Ressourcenverbrauch minimieren) werden nicht durch Ad-hoc-Gewichtung gelöst, sondern durch Berechnung der **Pareto-Frontier** – der Menge aller nicht-dominierten Lösungen. Dies ermöglicht eine **wissenschaftlich nachvollziehbare Begründung** für jede IPC-Entscheidung und schafft Vergleichbarkeit zwischen Systemen.
 
 **Z3 Constraint-Solver**: Die Integration eines formalen Constraint-Solvers zur Compile-Zeit hebt die Arbeit über empirische Benchmarks hinaus. Die Lösungen sind nicht nur "gut gemessen", sondern **beweisbar optimal** innerhalb der definierten Constraints.
 
-#### 3.8.3 Autonome Systeme durch In-the-Loop Selbstoptimierung
+#### 3.8.3 Autonomous Systems through In-the-Loop Self-Optimization
 
 **Feedback-Loop-Architektur**: Die kontinuierliche Telemetrie-Auswertung (CPU%, RAM, Disk I/O, Netzwerk-Latenz, Message-Throughput) mit automatischer Kubernetes-Lastverteilung realisiert **autonome Cluster-Optimierung** – eine Kernvision von Industrie 5.0. Die Evaluationsschleife (Deploy-Protocol sammelt → M2-Compiler analysiert → Lastverteilung anpassen → Canary-Test → Übernahme/Rollback) demonstriert **selbstadaptierende Systeme** ohne menschliche Intervention.
 
 **Wissenschaftlicher Beitrag**: Diese Arbeit zeigt erstmals, wie Compile-Time-Optimierung (Pareto-Frontier) und Runtime-Adaptation (Telemetrie-Feedback) **komplementär kombiniert** werden können. Bestehende Ansätze sind entweder rein statisch (manuelle Konfiguration) oder rein dynamisch (Service Mesh) – VIA vereint beide Paradigmen.
 
-#### 3.8.4 Geschachtelte Sicherheitsarchitekturen
+#### 3.8.4 Nested Security Architectures
 
 **Rekursive Sicherheitsstufen**: Die Fähigkeit jeder Protokoll-Ebene, **getrennt voneinander** hierarchische Sicherheitsregeln zu bilden (z.B. Device-Groups → Edge-Groups → Cluster-Groups → Global), adressiert Enterprise-Anforderungen in heterogenen Netzwerken. Diese Architektur ist wissenschaftlich relevant, da sie **Separation of Concerns** auf Protokoll-Ebene realisiert – ein bisher ungelöstes Problem in OPC UA Companion Specifications.
 
 **Dynamisches MMB-Mapping**: Die Fähigkeit, Sub-Protokolle **virtuell zwischen Verarbeitungsgruppen umzumappen** (z.B. bei Bottleneck: neue Services instanziieren, Datenströme umleiten), demonstriert **Runtime-Adaptivität** trotz Compile-Time-Optimierung – ein fundamentaler Widerspruch, den VIA durch die Trennung von Protokoll-Definition (M3, statisch) und Protokoll-Instanziierung (MMB, dynamisch) auflöst.
 
-#### 3.8.5 Brückenschlag zwischen Compiler-Design und Industrieautomatisierung
+#### 3.8.5 Bridging Compiler Design and Industrial Automation
 
 **Interdisziplinäre Innovation**: Die Anwendung von Compiler-Optimierungstechniken (M3/M2/M1 Metamodell-Kette, Constraint-Solving, Code-Generierung) auf industrielle Prozesskommunikation (OPC UA, IPC, Service-Orchestrierung) schafft eine **neue Forschungsrichtung** an der Schnittstelle von Informatik und Automatisierungstechnik. Die Arbeit zeigt, dass Industrie 4.0-Probleme von Compiler-Perspektive aus lösbar sind – eine Perspektive, die in bisherigen AAS-Implementierungen (Python-Skripte, manuelle Orchestrierung) fehlt.
 
@@ -651,7 +651,7 @@ Die Forschungsarbeit gliedert sich in fünf Teilziele, wobei sich die vorliegend
 
 Die Forschungsmethodik folgt einem ingenieurwissenschaftlichen Ansatz mit vier Hauptphasen: Requirements Engineering, Design, prototypische Implementierung und experimentelle Evaluation.
 
-#### 4.3.1 Methodisches Vorgehen
+#### 4.3.1 Methodological Approach
 
 **Phase 1 – Requirements Engineering**: Definition der M3-Modellelemente zur Beschreibung von Prozesskommunikation als AAS-Extension. Dies umfasst die Spezifikation von Abhängigkeitstypen (datengetrieben, steuergetrieben, zeitgetrieben), Latenzanforderungen (Soft-Realtime, Best-Effort) und Ressourcenbeschränkungen (Memory, CPU, Bandbreite).
 
