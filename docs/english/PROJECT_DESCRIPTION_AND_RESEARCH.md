@@ -72,27 +72,27 @@
 
 ### 1.1 Initial Situation
 
-Die industrielle Automatisierung steht vor der Herausforderung, heterogene Systeme mit unterschiedlichen Protokollen, Architekturen und Kommunikationsmustern zu integrieren. Im Rahmen der Forschungsarbeiten am Lehrstuhl für Industrielle Kommunikationstechnik der TU Dresden unter Prof. Dr.-Ing. habil. Martin Wollschlaeger wurde das Asset Administration Shell (AAS) Framework nach IEC 63278 als standardisierter Ansatz für digitale Zwillinge in der Industrie 4.0, oder aus digitaler Sicht Industrie 3.2, entwickelt. Die von Santiago Soler Perez Olaya betreute aas-core-works Implementierung offenbart dabei eine vollständige Compiler-Architektur, die auf einer M3/M2/M1 Metamodell-Struktur basiert – analog zu den Ansätzen von Prof. Castrillon im Bereich Compiler-Design an der TU Dresden.
+Industrial automation faces the challenge of integrating heterogeneous systems with different protocols, architectures, and communication patterns. Within the research work at the Chair of Industrial Communication Technology at TU Dresden under Prof. Dr.-Ing. habil. Martin Wollschlaeger, the Asset Administration Shell (AAS) Framework according to IEC 63278 was developed as a standardized approach for digital twins in Industry 4.0, or from a digital perspective Industry 3.2. The aas-core-works implementation supervised by Santiago Soler Perez Olaya reveals a complete compiler architecture based on an M3/M2/M1 metamodel structure – analogous to the approaches of Prof. Castrillon in the field of compiler design at TU Dresden.
 
-Die derzeitige Implementierung des AAS-Frameworks nutzt Python-Skripte, die Compiler-Funktionalität simulieren: Das aas-core-meta Repository definiert das M3-Metamodell in vereinfachtem Python, während aas-core-codegen daraus Zielsprachen-SDKs generiert (C++, C#, Python, TypeScript, Java, Golang). Trotz dieser funktionalen Code-Generierung fehlt eine vollständige Compiler-Implementierung als externes Übersetzerprogramm, das als eigenständiges, wartbares Tool in industriellen Produktionsumgebungen eingesetzt werden kann.
+The current implementation of the AAS framework uses Python scripts that simulate compiler functionality: The aas-core-meta repository defines the M3 metamodel in simplified Python, while aas-core-codegen generates target language SDKs from it (C++, C#, Python, TypeScript, Java, Golang). Despite this functional code generation, a complete compiler implementation as an external translator program is missing that can be used as a standalone, maintainable tool in industrial production environments.
 
-VIA (Virtual Industry Automation) adressiert diese Lücke durch einen **selbst-kompilierenden Bootstrap-Mechanismus**: Das VIA-Hauptprogramm kompiliert zunächst den M3-Compiler aus AAS-Metamodell-Definitionen, testet diesen, und verwendet ihn zur Generierung der M2-SDK. Diese SDK wird wiederum kompiliert, getestet und zur Übersetzung von Kundenprojekten (M2→M1) eingesetzt. Ein Software-in-the-Loop (SITL) System automatisiert dabei Ki-gestützt die Transformation textueller Spezifikationen (AAS IEC 63278, OPC UA IEC 62541) in ausführbaren M3-Modellcode, sowie die voll autonome Anpassung, Implementierung und Tests des Programmcodes (System on call / SOC). Während aas-core-works statische SDKs generiert, ermöglicht VIA durch diesen Bootstrap-Ansatz eine durchgängige Automatisierung von der Textspezifikation bis zum deployed Industriesystem – inklusive der Fähigkeit zur Selbstmodifikation und Hot-Reload des Hauptprogramms im laufenden Betrieb.
+VIA (Virtual Industry Automation) addresses this gap through a **self-compiling bootstrap mechanism**: The VIA main program first compiles the M3 compiler from AAS metamodel definitions, tests it, and uses it to generate the M2 SDK. This SDK is in turn compiled, tested, and used to translate customer projects (M2→M1). A Software-in-the-Loop (SITL) system automates the AI-supported transformation of textual specifications (AAS IEC 63278, OPC UA IEC 62541) into executable M3 model code, as well as fully autonomous adaptation, implementation, and testing of program code (System on call / SOC). While aas-core-works generates static SDKs, VIA enables through this bootstrap approach continuous automation from text specification to deployed industrial system – including the capability for self-modification and hot-reload of the main program during operation.
 
 ### 1.2 Vision: Industry 5.0 (Or rather: Industry 3.3)
 
-Die nächste Generation industrieller Automatisierung – Industrie 5.0 (Kagermann et al., 2013) – erfordert eine fundamentale Paradigmenverschiebung: Statt manueller Systemkonfiguration und -programmierung soll eine KI-gesteuerte Systembeschreibung ermöglicht werden, bei der Anwender ihr System natürlichsprachlich beschreiben. Das Zielsystem führt automatische Compilation und Deployment durch, wobei Software-in-the-Loop Verfahren iterative Fehlerkorrektur gegen die Kundenspezifikation ermöglichen. Das langfristige Ziel dieser Forschungsvision lautet: "Der Kunde beschreibt sein System der KI, die KI definiert eine Compiler-Beschreibung, der Compiler generiert das funktionsfähige System."
+The next generation of industrial automation – Industry 5.0 (Kagermann et al., 2013) – requires a fundamental paradigm shift: Instead of manual system configuration and programming, an AI-driven system description should be enabled, where users describe their system in natural language. The target system performs automatic compilation and deployment, with Software-in-the-Loop procedures enabling iterative error correction against customer specifications. The long-term goal of this research vision is: "The customer describes their system to the AI, the AI defines a compiler description, the compiler generates the functional system."
 
-Denkt man diesen Schritt weiter, so kann der Kunde Systeme definieren, die sich selbst definieren oder Systeme konstruieren, die den Architektur- und Definitionsteil selbstständig übernehmen und durchführen, woraus sich eine M3 Selbstdefinition und Konstruktion ergibt.
+Taking this step further, the customer can define systems that define themselves or construct systems that independently take over and execute the architecture and definition part, resulting in M3 self-definition and construction.
 
-Diese Vision erfordert eine durchgängige Automatisierung vom abstrakten Metamodell bis zum deployed System auf heterogenen Edge-Geräten. VIA (Virtual Industry Automation) verfolgt diesen Ansatz durch eine mehrstufige Compiler-Kette (M3→M2→M1), die aus einem Metamodell zunächst ein SDK generiert (M3→M2), aus Kundenprojekten Systemprojekte erstellt (M2→M1) und diese schließlich auf über 50.000 Edge-Geräte verteilt deployed (M1-Deployment).
+This vision requires continuous automation from abstract metamodel to deployed system on heterogeneous edge devices. VIA (Virtual Industry Automation) pursues this approach through a multi-stage compiler chain (M3→M2→M1), which first generates an SDK from a metamodel (M3→M2), creates system projects from customer projects (M2→M1), and finally deploys these on more than 50,000 edge devices (M1 deployment).
 
 ### 1.3 Research Gap
 
-Trotz der vorhandenen Metamodell-Frameworks und Code-Generatoren existiert eine fundamentale Forschungslücke zwischen Metamodell-Definition und Production-Grade Compiler-Implementierung. Bisherige Ansätze wie aas-core-codegen (aas-core-works, 2024) erzeugen zwar lauffähigen Code, jedoch fehlt die Verbindung zum automatisierten Deployment: Es gibt keine wartbare, versionierte SDK-Generierung für industrielle Langzeitnutzung (typischerweise 15-25 Jahre in der Fertigungsindustrie, vgl. Adolphs et al., 2015), keine automatische Orchestrierung der generierten Systeme und keine Optimierung der Prozesskommunikation zur Compile-Zeit.
+Despite existing metamodel frameworks and code generators, there is a fundamental research gap between metamodel definition and production-grade compiler implementation. Previous approaches such as aas-core-codegen (aas-core-works, 2024) do generate executable code, but the connection to automated deployment is missing: There is no maintainable, versioned SDK generation for long-term industrial use (typically 15-25 years in the manufacturing industry, cf. Adolphs et al., 2015), no automatic orchestration of generated systems, and no optimization of process communication at compile time.
 
-Die manuelle Orchestrierung von mehr als 50.000 Edge-Geräten in einer typischen Automobilfabrik ist praktisch unzumutbar und fehleranfällig. Zudem erfordern heterogene Zielarchitekturen (MIPS, RISC-V, POWER9, x86, ARM, Sparc) eine Multi-Target-Compilation, die in bisherigen AAS-Implementierungen nicht vorgesehen ist. Insbesondere fehlt eine wissenschaftliche Untersuchung, ob und wie Mikroservice-Kommunikation (IPC: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) zur Compile-Zeit optimiert werden kann, um Latenz und Ressourcenverbrauch gegenüber Runtime-Orchestrierung zu reduzieren.
+Manual orchestration of more than 50,000 edge devices in a typical automotive factory is practically unreasonable and error-prone. Additionally, heterogeneous target architectures (MIPS, RISC-V, POWER9, x86, ARM, Sparc) require multi-target compilation, which is not provided in previous AAS implementations. In particular, there is no scientific investigation of whether and how microservice communication (IPC: Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) can be optimized at compile time to reduce latency and resource consumption compared to runtime orchestration.
 
-Eine detaillierte Analyse der Forschungslücken im Kontext bestehender Ansätze erfolgt in Abschnitt 3.7.
+A detailed analysis of research gaps in the context of existing approaches is provided in Section 3.7.
 
 ---
 
@@ -100,15 +100,15 @@ Eine detaillierte Analyse der Forschungslücken im Kontext bestehender Ansätze 
 
 ### 2.1 Context: VIA Overall System
 
-VIA (Virtual Industry Automation) bildet den übergeordneten Kontext dieser Forschungsarbeit. Es handelt sich um eine mehrstufige Compiler-Kette (M3→M2→M1) für heterogene Industriesysteme mit automatischer Orchestrierung von mehr als 50.000 Edge-Devices. Das Gesamtsystem gliedert sich in drei Hauptkomponenten: Der **M3-Compiler** transformiert das AAS-Metamodell in ein sprachspezifisches SDK (C++, Python, Java), der **M2-SDK-Compiler** konvertiert Kundenprojekte unter Einbeziehung von Network Discovery in vollständige Systemprojekte, und der **M1-System-Deployer** führt Cross-Compilation, Horse-Rider-Deployment und Kubernetes-Orchestrierung durch.
+VIA (Virtual Industry Automation) forms the overarching context of this research work. It is a multi-stage compiler chain (M3→M2→M1) for heterogeneous industrial systems with automatic orchestration of more than 50,000 edge devices. The overall system consists of three main components: The **M3 compiler** transforms the AAS metamodel into a language-specific SDK (C++, Python, Java), the **M2-SDK compiler** converts customer projects including network discovery into complete system projects, and the **M1 system deployer** performs cross-compilation, Horse-Rider deployment, and Kubernetes orchestration.
 
-Diese Architektur ermöglicht eine durchgängige Automatisierung von der abstrakten Systembeschreibung bis zum deployed System auf heterogenen Hardwareplattformen. Während das VIA-Gesamtsystem alle Aspekte von Metamodellierung bis Deployment abdeckt, fokussiert sich die vorliegende Forschungsarbeit auf einen spezifischen, kritischen Teilaspekt: die Optimierung der Prozesskommunikation zur Compile-Zeit.
+This architecture enables continuous automation from abstract system description to deployed system on heterogeneous hardware platforms. While the VIA overall system covers all aspects from metamodeling to deployment, the present research work focuses on a specific, critical sub-aspect: the optimization of process communication at compile time.
 
 ### 2.2 Focus of this Research Work: Process-Group-Protocol
 
-Die zentrale Forschungsfrage dieser Arbeit lautet:
+The central research question of this work is:
 
-> **Können über Metamodelle (M3/M2) automatisch Prozessketten von Mikroservices erstellt werden, deren Positionierung im System und Kommunikationsmechanismus (IPC: Pipe, Socket, TCP, File-Queue, Thread) bei der Kompilation optimiert wird?**
+> **Can process chains of microservices be automatically created via metamodels (M3/M2), whose positioning in the system and communication mechanism (IPC: Pipe, Socket, TCP, File-Queue, Thread) are optimized during compilation?**
 
 This question addresses a fundamental challenge of modern microservice architectures: The choice of Inter-Process Communication (IPC) mechanism typically occurs at runtime through Service Mesh solutions like Istio or Linkerd. However, these runtime decisions cause overhead through dynamic routing, service discovery, and load balancing.
 
@@ -124,30 +124,30 @@ This question addresses a fundamental challenge of modern microservice architect
 
 This architecture is **neither pure compile-time nor pure runtime**, but a **continuous compile-runtime cycle**: The compiler is always active, but its decisions are based on compiler-theoretical optimizations (constraint solving, graph algorithms), not heuristic proxy rules. The research contribution lies in the question of whether this **compiler-driven runtime optimization** offers advantages over **proxy-driven runtime orchestration** (Service Mesh).
 
-Zur systematischen Bearbeitung dieser Forschungsfrage werden vier Teilfragen formuliert:
+For systematic processing of this research question, four sub-questions are formulated:
 
-1. **Metamodell-Elemente**: Welche M3-Modellelemente sind notwendig, um Prozesskommunikation (Abhängigkeiten, Datenflüsse, Latenzanforderungen) zu beschreiben?
+1. **Metamodel Elements**: Which M3 model elements are necessary to describe process communication (dependencies, data flows, latency requirements)?
 
-2. **IPC-Ableitung**: Wie kann der M2-SDK-Compiler aus Prozessabhängigkeiten optimale IPC-Mechanismen ableiten? Welche Heuristiken bestimmen, ob Pipe (gleicher Host, geringer Overhead), Unix Socket (gleicher Host, höhere Flexibilität), TCP (Remote, höchste Flexibilität), File-Queue (asynchron, persistent) oder Thread-Messaging (gleicher Prozess, geringste Latenz) gewählt wird?
+2. **IPC Derivation**: How can the M2-SDK compiler derive optimal IPC mechanisms from process dependencies? Which heuristics determine whether Pipe (same host, low overhead), Unix Socket (same host, higher flexibility), TCP (remote, highest flexibility), File-Queue (asynchronous, persistent), or Thread-Messaging (same process, lowest latency) is chosen?
 
-3. **Positionierungsmetriken**: Welche Metriken bestimmen die Positionierung von Mikroservices (gleicher Container, gleicher Host, gleicher Cluster-Node, Remote)? Wie werden Latenzanforderungen (vgl. Vogel-Heuser et al., 2024 für model-driven latency analysis of distributed skills), Ressourcenverfügbarkeit und Ausfallsicherheit gewichtet?
+3. **Positioning Metrics**: Which metrics determine the positioning of microservices (same container, same host, same cluster node, remote)? How are latency requirements (cf. Vogel-Heuser et al., 2024 for model-driven latency analysis of distributed skills), resource availability, and fault tolerance weighted?
 
-4. **Skalierbarkeit**: Wie verhält sich das Process-Group-Protocol unter OPC UA bei mehr als 50.000 Geräten? Kann hierarchische Gruppierung (Edge-Groups → Cluster-Groups → Global) lineares Skalierungsverhalten erreichen?
+4. **Scalability**: How does the Process-Group-Protocol under OPC UA behave with more than 50,000 devices? Can hierarchical grouping (Edge-Groups → Cluster-Groups → Global) achieve linear scaling behavior?
 
-Zur Validierung der Forschungshypothese werden vier zu testende Hypothesen aufgestellt:
+For validation of the research hypothesis, four testable hypotheses are established:
 
-- **H1 (Latenz)**: Compiler-basierte IPC-Optimierung hat das Potenzial, Latenz gegenüber Runtime-Service-Mesh-Lösungen signifikant zu reduzieren (zu messen in Phase 5). Li et al. (2019) zeigen, dass Istio Service Mesh 5-10ms Latenz-Overhead pro Request verursacht, verursacht durch Sidecar Proxies (~0.2 vCPU pro Sidecar, 50-80 MB Memory). VIA eliminiert diesen Overhead durch Compile-Time IPC-Entscheidungen ohne Sidecar Proxies und erreicht durch direkte Nutzung von Unix Domain Sockets (~20-50μs Latenz, Stevens & Rago, 2013) für lokale Kommunikation potenziell 100-500x niedrigere Latenz.
-- **H2 (Effizienz)**: Statische Positionierungsentscheidung zur Compile-Zeit kann dynamische Runtime-Orchestrierung unter definierten Constraints approximieren (Trade-off Analyse erforderlich)
-- **H3 (Skalierbarkeit)**: Das Process-Group-Protocol mit hierarchischer Gruppierung soll auf mindestens 100.000 Services skalieren (Simulationsbasierte Validierung)
-- **H4 (Entwicklungszeit)**: Metamodell-basierte Abstraktion soll manuelle Entwicklungszeit messbar reduzieren (Vergleichsstudie erforderlich)
+- **H1 (Latency)**: Compiler-based IPC optimization has the potential to significantly reduce latency compared to runtime service mesh solutions (to be measured in Phase 5). Li et al. (2019) show that Istio Service Mesh causes 5-10ms latency overhead per request, caused by sidecar proxies (~0.2 vCPU per sidecar, 50-80 MB memory). VIA eliminates this overhead through compile-time IPC decisions without sidecar proxies and achieves potentially 100-500x lower latency through direct use of Unix Domain Sockets (~20-50μs latency, Stevens & Rago, 2013) for local communication.
+- **H2 (Efficiency)**: Static positioning decisions at compile time can approximate dynamic runtime orchestration under defined constraints (trade-off analysis required)
+- **H3 (Scalability)**: The Process-Group-Protocol with hierarchical grouping should scale to at least 100,000 services (simulation-based validation)
+- **H4 (Development Time)**: Metamodel-based abstraction should measurably reduce manual development time (comparative study required)
 
-**Hinweis**: Performance-Metriken werden in Phase 5 (Evaluation) empirisch ermittelt. Die in Abschnitt 7.3.2 genannten Zielwerte sind Projektziele, keine validiert gemessenen Ergebnisse.
+**Note**: Performance metrics will be determined empirically in Phase 5 (Evaluation). The target values mentioned in Section 7.3.2 are project goals, not validated measured results.
 
-**Abgrenzung**: Diese Arbeit konzentriert sich auf das **Process-Group-Protocol-Subsystem** als Teil des VIA-Gesamtsystems. Die M3/M2/M1-Architektur dient als Kontext und theoretischer Rahmen, wird jedoch nicht in allen Details implementiert. Insbesondere werden M3-Compiler-Optimierungen, Multi-Architektur-Cross-Compilation und das vollständige Horse-Rider-Deployment als gegeben vorausgesetzt und nicht eigenständig erforscht.
+**Scope**: This work focuses on the **Process-Group-Protocol subsystem** as part of the VIA overall system. The M3/M2/M1 architecture serves as context and theoretical framework but is not implemented in all details. In particular, M3 compiler optimizations, multi-architecture cross-compilation, and complete Horse-Rider deployment are assumed as given and not independently researched.
 
 ### 2.3 Sub-problems of the Overall System (Context)
 
-Das VIA-Gesamtsystem gliedert sich in acht Teilprobleme, die in der Projektstruktur unter `playbooks/` als separate Implementierungs-Playbooks dokumentiert sind. Während diese Arbeit sich auf das Process-Group-Protocol (2.3.5) konzentriert, ist das Verständnis aller Komponenten notwendig, da sie die Ausführungsumgebung für die Prozesskommunikation bilden.
+The VIA overall system is structured into eight sub-problems documented in the project structure under `playbooks/` as separate implementation playbooks. While this work focuses on the Process-Group-Protocol (2.3.5), understanding all components is necessary as they form the execution environment for process communication.
 
 #### 2.3.0 Main Program (Orchestration M3→M2→M1)
 
