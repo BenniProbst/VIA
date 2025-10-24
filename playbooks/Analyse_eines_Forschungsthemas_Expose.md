@@ -946,6 +946,48 @@ Die Forschungsmethodik folgt einem ingenieurwissenschaftlichen Ansatz mit vier H
 
 **Phase 4 – Evaluation**: Experimentelle Validierung mittels Benchmark-Suite und Real-World Use-Case. Vergleichsmessungen gegen etablierte Baselines (gRPC, Istio Service Mesh, UNIX Sockets) zur Validierung der Hypothesen H1-H4.
 
+**Tech-Tree Methodology (Benjamin-Elias Probst)**: Die Forschungsarbeit nutzt eine **iterative Oszillationsmethode** zwischen Bottom-Up und Top-Down Ansätzen zur beschleunigten Lösungsfindung:
+
+1. **Bottom-Up Phase (Detail-Exploration)**:
+   - Ausgangspunkt: Eine konkrete technische Erkenntnis (z.B. "Unix Sockets haben 20μs Latenz")
+   - Detaillierte Analyse dieser Einzelerkenntnis in allen Aspekten
+   - Extraktion der fundamentalen Prinzipien
+
+2. **Top-Down Phase (Kategorisierung)**:
+   - Einordnung der Erkenntnis in **alle relevanten Hauptkategorien**
+   - Beispiel: Unix Socket Latenz → Kategorien: IPC-Mechanismen, Kernel-Primitives, Network Stack, Betriebssystem-Abstraktion, Performance-Metriken
+   - Systematische Zuordnung zu bestehenden Forschungsfeldern
+
+3. **Bottom-Up Phase (Analogie-Suche)**:
+   - Durchsuchung der identifizierten Kategorien nach **ähnlichen Implementierungen/Informationen**
+   - Beispiel: In Kategorie "IPC-Mechanismen" → Finde: Pipes (5μs), Shared Memory (1μs), TCP (100μs)
+   - Vergleichende Analyse aller gefundenen Alternativen
+
+4. **Solution-First Thinking (Retroperspektive)**:
+   - **"Als-Ob" Methode**: Tun als sei das Problem **bereits gelöst**
+   - Ableitung der Konsequenzen der Erfindung (z.B. "Wenn VIA optimal IPC wählt → 100x niedrigere Latenz")
+   - **Reverse Engineering**: Von den Konsequenzen rückwärts zu den Quelldokumenten
+   - Identifikation: Welche Papers/Standards müssen existieren, damit die Lösung funktioniert?
+
+5. **Iterative Verfeinerung**:
+   - Zyklus Bottom-Up → Top-Down → Bottom-Up wird wiederholt
+   - Jede Iteration verfeinert das Verständnis und erweitert den Lösungsraum
+   - Konvergenz zur optimalen Lösung durch systematische Exploration
+
+**Wissenschaftliche Begründung**: Diese Methodik adressiert das **Exploration-Exploitation Dilemma** der Forschung:
+- **Bottom-Up** = Exploitation (Tiefe in bekannten Bereichen)
+- **Top-Down** = Exploration (Breite über neue Kategorien)
+- **Solution-First** = Constraint-Propagation (Eingrenzung des Suchraums durch Zielkriterien)
+
+Das Verfahren ähnelt **Beam Search** in KI-Systemen: Statt erschöpfender Suche (zu langsam) oder Greedy-Search (lokal optimal), werden die **k vielversprechendsten Pfade** parallel verfolgt. Die Kategorisierung (Top-Down) identifiziert diese k Pfade, die Bottom-Up Phasen evaluieren sie.
+
+**Anwendung auf VIA**: Die Entwicklung des IPC-Optimizers folgte diesem Muster:
+1. **Initial**: Unix Socket Latenz 20μs (Bottom-Up Detail)
+2. **Kategorien**: IPC, Kernel, Service Mesh, Compiler-Optimierung (Top-Down)
+3. **Analogien**: Z3 Constraint-Solver in Compiler-Optimierung gefunden (Bottom-Up)
+4. **Solution-First**: "Wenn Compiler IPC wählt → Pareto-optimal → Z3 nötig"
+5. **Reverse**: Papers über Multi-Objective Optimization (Deb et al., 2002) identifiziert
+
 #### 4.3.2 Evaluationsumgebung
 - **Labor-Setup**: 3-Node Kubernetes Cluster (64 Core, 256 GB RAM, 10 Gbit/s Netzwerk)
 - **Simulationstools**: Mininet für virtuelle Netzwerktopologien (bis 1.000 Nodes)

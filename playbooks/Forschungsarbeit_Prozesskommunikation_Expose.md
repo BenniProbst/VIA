@@ -101,6 +101,49 @@ Diese Forschungsarbeit ist Teil des **VIA (Virtual Industry Automation)** Projek
 
 ## 4. Methodik
 
+### 4.0 Tech-Tree Forschungsmethodik (Benjamin-Elias Probst)
+
+Die Forschungsarbeit nutzt eine **iterative Oszillationsmethode** zwischen Bottom-Up und Top-Down Ansätzen zur beschleunigten Lösungsfindung:
+
+**1. Bottom-Up Phase (Detail-Exploration)**:
+- Ausgangspunkt: Konkrete technische Erkenntnis (z.B. "Unix Sockets haben 20μs Latenz")
+- Detaillierte Analyse dieser Einzelerkenntnis
+- Extraktion fundamentaler Prinzipien
+
+**2. Top-Down Phase (Kategorisierung)**:
+- Einordnung in **alle relevanten Hauptkategorien**
+- Beispiel: Unix Socket Latenz → IPC-Mechanismen, Kernel-Primitives, Network Stack, Performance-Metriken
+- Systematische Zuordnung zu bestehenden Forschungsfeldern
+
+**3. Bottom-Up Phase (Analogie-Suche)**:
+- Durchsuchung identifizierter Kategorien nach **ähnlichen Implementierungen**
+- Beispiel: IPC-Mechanismen → Pipes (5μs), Shared Memory (1μs), TCP (100μs)
+- Vergleichende Analyse aller Alternativen
+
+**4. Solution-First Thinking (Retroperspektive)**:
+- **"Als-Ob" Methode**: Tun als sei das Problem **bereits gelöst**
+- Ableitung der Konsequenzen der Erfindung
+- **Reverse Engineering**: Von Konsequenzen rückwärts zu Quelldokumenten
+- Identifikation: Welche Papers/Standards müssen existieren, damit die Lösung funktioniert?
+
+**5. Iterative Verfeinerung**:
+- Zyklus Bottom-Up → Top-Down → Bottom-Up wird wiederholt
+- Jede Iteration verfeinert das Verständnis und erweitert den Lösungsraum
+
+**Wissenschaftliche Begründung**: Diese Methodik adressiert das **Exploration-Exploitation Dilemma**:
+- **Bottom-Up** = Exploitation (Tiefe in bekannten Bereichen)
+- **Top-Down** = Exploration (Breite über neue Kategorien)
+- **Solution-First** = Constraint-Propagation (Eingrenzung des Suchraums)
+
+Das Verfahren ähnelt **Beam Search** in KI-Systemen: Die **k vielversprechendsten Pfade** werden parallel verfolgt. Die Kategorisierung (Top-Down) identifiziert diese k Pfade, die Bottom-Up Phasen evaluieren sie.
+
+**Anwendung auf IPC-Optimizer**:
+1. **Initial**: Unix Socket Latenz 20μs (Bottom-Up Detail)
+2. **Kategorien**: IPC, Kernel, Service Mesh, Compiler-Optimierung (Top-Down)
+3. **Analogien**: Z3 Constraint-Solver in Compiler-Optimierung gefunden (Bottom-Up)
+4. **Solution-First**: "Wenn Compiler IPC wählt → Pareto-optimal → Z3 nötig"
+5. **Reverse**: Papers über Multi-Objective Optimization (Deb et al., 2002) identifiziert
+
 ### 4.1 Implementierung (6 Monate)
 
 1. **IPC-Optimizer** (`playbooks/VIA-M2-SDK/ipc_optimizer.md`)
