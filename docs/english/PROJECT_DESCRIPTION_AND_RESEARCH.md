@@ -1247,7 +1247,7 @@ Phase 6 extends over four weeks for documentation and publication. Weeks 1-2 com
 
 ### 9.6 A6: Service Mesh & Cloud-Native (Additional)
 
-*Siehe auch Abschnitt 9.4 für Service Mesh Papers (Li et al., Istio)*
+*See also Section 9.4 for Service Mesh Papers (Li et al., Istio)*
 
 ---
 
@@ -1275,19 +1275,19 @@ Phase 6 extends over four weeks for documentation and publication. Weeks 1-2 com
 
 ### 9.8 B2: Cross-Compilation & Heterogeneous Systems
 
-*Siehe Abschnitt 9.3 für Compiler-Papers (LLVM, TVM, Halide)*
+*See Section 9.3 for Compiler Papers (LLVM, TVM, Halide)*
 
 ---
 
 ### 9.9 B3: Hot-Reload & Dynamic Software Updates
 
-*Thema wird in zukünftigen Arbeiten vertieft*
+*Topic will be explored in depth in future work*
 
 ---
 
 ### 9.10 B4: Industrial Lifecycle Management
 
-*Siehe Abschnitt 9.1 für Digital Twin Lifecycle Papers (Vogel-Heuser, Urbas)*
+*See Section 9.1 for Digital Twin Lifecycle Papers (Vogel-Heuser, Urbas)*
 
 ---
 
@@ -1340,7 +1340,7 @@ Phase 6 extends over four weeks for documentation and publication. Weeks 1-2 com
 
 ### 9.15 Additional Research Papers (Application-Specific)
 
-**Hinweis**: Die folgenden Papers 122-133 sind optionale Anwendungsfälle aus der arXiv-Recherche mit niedrigem Prioritätsgrad für die Kern-Forschungsarbeit, dokumentieren jedoch verwandte Bereiche (Multi-Objective Optimization, AAS Code Generation, Embedded/Edge Computing) und bieten Kontext für potenzielle Erweiterungen.
+**Note**: The following papers 122-133 are optional application cases from arXiv research with low priority for the core research work, but document related areas (Multi-Objective Optimization, AAS Code Generation, Embedded/Edge Computing) and provide context for potential extensions.
 
 #### Multi-Objective Optimization Applications
 122. Patel, V., Deodhar, A., & Birru, D. (2025). A Multi-Objective Genetic Algorithm for Healthcare Workforce Scheduling. *arXiv preprint* arXiv:2508.20953.
@@ -1371,15 +1371,15 @@ Phase 6 extends over four weeks for documentation and publication. Weeks 1-2 com
 
 ---
 
-**Zusammenfassung**:
-- **137 Quellen** vollständig dokumentiert mit vollständigen Zitationen
-- **Kategorisierung**: A1-A6 (Hauptfachbereiche), B1-B4 (Deep-Dive-Themen), C (ROS)
-- **KRITISCH Papers (⭐⭐⭐⭐⭐)**: ~20 Papers (IEC Standards, NSGA-II, Z3, LLVM, ROS, Service Mesh Overhead, Unix IPC, Wollschlaeger Co-Advisor Papers, Völter mbeddr)
-- **HOCH-relevante Papers (⭐⭐⭐⭐)**: ~45 Papers (inkl. Service Mesh: Istio, Linkerd, Consul, Envoy, SMI)
-- **DOI/arXiv Coverage**: 135/137 Papers (98.5%) ✅ - Alle Papers 122-133 komplett, Service Mesh Papers hinzugefügt
+**Summary**:
+- **137 Sources** fully documented with complete citations
+- **Categorization**: A1-A6 (Main subject areas), B1-B4 (Deep-dive topics), C (ROS)
+- **CRITICAL Papers (⭐⭐⭐⭐⭐)**: ~20 Papers (IEC Standards, NSGA-II, Z3, LLVM, ROS, Service Mesh Overhead, Unix IPC, Wollschlaeger Co-Advisor Papers, Völter mbeddr)
+- **HIGHLY relevant Papers (⭐⭐⭐⭐)**: ~45 Papers (incl. Service Mesh: Istio, Linkerd, Consul, Envoy, SMI)
+- **DOI/arXiv Coverage**: 135/137 Papers (98.5%) ✅ - All Papers 122-133 complete, Service Mesh Papers added
 
 **Status**:
-1. ✅ Vollständiges Literaturverzeichnis erstellt (133→137 Papers durch Service Mesh Research)
-2. ✅ Papers 122-133 vollständig vervollständigt (arXiv IDs ergänzt)
-3. ✅ Service Mesh Vergleichstabelle in Section 3.6 hinzugefügt (Istio, Linkerd, Consul)
-4. ✅ DOI/arXiv Coverage 98.5% erreicht (nur 2 Papers ausstehend: Co-Advisor conferences 2024/2025)
+1. ✅ Complete bibliography created (133→137 Papers through Service Mesh Research)
+2. ✅ Papers 122-133 fully completed (arXiv IDs added)
+3. ✅ Service Mesh comparison table added in Section 3.6 (Istio, Linkerd, Consul)
+4. ✅ DOI/arXiv Coverage 98.5% achieved (only 2 Papers pending: Co-Advisor conferences 2024/2025)
