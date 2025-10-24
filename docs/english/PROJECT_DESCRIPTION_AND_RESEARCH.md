@@ -899,15 +899,15 @@ The research aims for both scientific contributions (Section 7.1) and practical 
 
 ### 7.1 Scientific Contributions (Focus on Process Communication)
 
-Die wissenschaftlichen Beiträge dieser Arbeit umfassen fünf Kernelemente. Beitrag B1 liefert eine Metamodell-Extension für Prozesskommunikation in AAS M3, implementiert als VIA-Extensions in `playbooks/VIA-M3-Compiler/`, die IPC-Typen (Pipe, Socket, TCP, FileQueue, Thread) als AAS-lang Enumerations definiert und ein Constraint-System für Latenzanforderungen und Ressourcenbeschränkungen bereitstellt.
+The scientific contributions of this work comprise five core elements. Contribution B1 delivers a metamodel extension for process communication in AAS M3, implemented as VIA-Extensions in `playbooks/VIA-M3-Compiler/`, defining IPC types (Pipe, Socket, TCP, FileQueue, Thread) as AAS-lang Enumerations and providing a constraint system for latency requirements and resource constraints.
 
-Beitrag B2 entwickelt einen Compiler-Optimierungsalgorithmus für IPC-Mechanismus-Auswahl, implementiert in `playbooks/VIA-M2-SDK/ipc_optimizer.md`, der einen graph-basierten Ansatz mit Constraint-Solver (Z3) nutzt, Pareto-Optimierung für Latenz, Durchsatz und Ressourcenverbrauch durchführt, und Compile-Time-Entscheidungen mit optionaler Runtime-Anpassung ermöglicht.
+Contribution B2 develops a compiler optimization algorithm for IPC mechanism selection, implemented in `playbooks/VIA-M2-SDK/ipc_optimizer.md`, using a graph-based approach with constraint solver (Z3), performing Pareto optimization for latency, throughput, and resource consumption, and enabling compile-time decisions with optional runtime adaptation.
 
-Beitrag B3 spezifiziert das Process-Group-Protocol als OPC UA Sub-Protokoll in `playbooks/VIA-M3-Compiler/via_protocols/process_group_protocol.md` mit Integration der open62541 Dynamic Address Space API und einem Hybrid-Modell aus statischen Typen und dynamischen Instanzen.
+Contribution B3 specifies the Process-Group-Protocol as OPC UA sub-protocol in `playbooks/VIA-M3-Compiler/via_protocols/process_group_protocol.md` with integration of the open62541 Dynamic Address Space API and a hybrid model of static types and dynamic instances.
 
-Beitrag B4 führt einen Benchmark-Vergleich zwischen Compiler-Optimierung, Service Mesh und manueller Konfiguration durch, wobei die Evaluationsumgebung einen 3-Node Kubernetes Cluster (64 Core, 256 GB RAM) und Mininet für Skalierungstests bis 1.000 Nodes umfasst, mit vier Szenarien S1-S4 gemäß Abschnitt 4.3.2.
+Contribution B4 performs a benchmark comparison between compiler optimization, service mesh, and manual configuration, where the evaluation environment comprises a 3-node Kubernetes cluster (64 core, 256 GB RAM) and Mininet for scaling tests up to 1,000 nodes, with four scenarios S1-S4 according to Section 4.3.2.
 
-Beitrag B5 liefert einen Skalierbarkeitsnachweis für mehr als 100.000 Services mit hierarchischer Gruppierung, wobei das Edge-Group-Protocol hierarchische Gruppierung (Edge-Groups → Cluster-Groups → Global) ermöglicht mit dem Ziel linearen Skalierungsverhaltens (Hypothese H3).
+Contribution B5 provides a scalability proof for more than 100,000 services with hierarchical grouping, where the Edge-Group-Protocol enables hierarchical grouping (Edge-Groups → Cluster-Groups → Global) with the goal of linear scaling behavior (Hypothesis H3).
 
 ### 7.2 Practical Results
 
