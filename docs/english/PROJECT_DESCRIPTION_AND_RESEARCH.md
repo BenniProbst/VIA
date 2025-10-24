@@ -661,78 +661,120 @@ Die Forschungsmethodik folgt einem ingenieurwissenschaftlichen Ansatz mit vier H
 
 **Phase 4 – Evaluation**: Experimentelle Validierung mittels Benchmark-Suite und Real-World Use-Case. Vergleichsmessungen gegen etablierte Baselines (gRPC, Istio Service Mesh, UNIX Sockets) zur Validierung der Hypothesen H1-H4.
 
-#### 4.3.2 Evaluationsumgebung
-- **Labor-Setup**: 3-Node Kubernetes Cluster (64 Core, 256 GB RAM, 10 Gbit/s Netzwerk)
-- **Simulationstools**: Mininet für virtuelle Netzwerktopologien (bis 1.000 Nodes)
-- **Benchmark-Szenarien**:
-  - **S1**: Lokale Prozesskette (5 Services, gleicher Host)
-  - **S2**: Verteilte Prozesskette (20 Services, 3 Hosts)
-  - **S3**: Skalierungstest (100.000 Services, hierarchische Gruppierung)
-  - **S4**: Real-World Use-Case (Industrieller SCADA + MES + PLC-Edge-Integration)
+**Tech-Tree Methodology (Benjamin-Elias Probst)**: The research employs an **iterative oscillation method** between Bottom-Up and Top-Down approaches for accelerated problem-solving:
 
-#### 4.3.3 Metriken & Erfolgskriterien
-- **Latenz**: End-to-End Prozesskette (P50, P95, P99 Perzentile)
-- **Throughput**: Nachrichten/Sekunde (Messages/s)
-- **CPU-Last**: Prozessor-Auslastung bei Last (%)
-- **Memory Footprint**: RAM-Verbrauch pro Service (MB)
-- **Entwicklungszeit**: Manual vs. Metamodell-generiert (Stunden)
-- **Erfolgskriterium**: H1-H4 bestätigt (siehe Hypothesen Kapitel 2.2)
+1. **Bottom-Up Phase (Detail Exploration)**:
+   - Starting point: A concrete technical insight (e.g., "Unix Sockets have 20μs latency")
+   - Detailed analysis of this single insight across all aspects
+   - Extraction of fundamental principles
 
-#### 4.3.4 Vergleichsbaseline
-- **Baseline 1**: Manuell konfiguriertes gRPC (statisch)
-- **Baseline 2**: Istio Service Mesh (dynamisch)
-- **Baseline 3**: UNIX Sockets (optimal, nur lokal)
-- **VIA Process-Group-Protocol**: Compiler-optimiert
+2. **Top-Down Phase (Categorization)**:
+   - Classification of the insight into **all relevant main categories**
+   - Example: Unix Socket latency → Categories: IPC Mechanisms, Kernel Primitives, Network Stack, Operating System Abstraction, Performance Metrics
+   - Systematic assignment to existing research fields
 
-Die quantitative Evaluation gegen diese Baselines erfolgt in Abschnitt 7.3.2.
+3. **Bottom-Up Phase (Analogy Search)**:
+   - Searching identified categories for **similar implementations/information**
+   - Example: In category "IPC Mechanisms" → Find: Pipes (5μs), Shared Memory (1μs), TCP (100μs)
+   - Comparative analysis of all found alternatives
 
-#### 4.3.5 Phasenplan
-- **Phase 1**: Research & Analyse (4 Wochen) ✅ ABGESCHLOSSEN
-- **Phase 2**: Playbook-Erstellung & Metamodell-Design (2 Wochen) ✅ ABGESCHLOSSEN
-- **Phase 3**: M2-SDK-Compiler Prototyp mit IPC-Optimizer (6 Wochen)
-- **Phase 4**: Benchmark-Suite & Use-Case-Implementierung (4 Wochen)
-- **Phase 5**: Evaluation & Vergleichsmessungen (4 Wochen)
-- **Phase 6**: Dokumentation & Publikation (4 Wochen)
+4. **Solution-First Thinking (Retroperspective)**:
+   - **"As-If" Method**: Acting as if the problem is **already solved**
+   - Deriving the consequences of the invention (e.g., "If VIA optimally chooses IPC → 100x lower latency")
+   - **Reverse Engineering**: From consequences backwards to source documents
+   - Identification: Which papers/standards must exist for the solution to work?
 
-**Gesamtdauer**: 22 Wochen (circa 5 Monate)
+5. **Iterative Refinement**:
+   - Cycle Bottom-Up → Top-Down → Bottom-Up is repeated
+   - Each iteration refines understanding and expands the solution space
+   - Convergence to optimal solution through systematic exploration
+
+**Scientific Justification**: This methodology addresses the **Exploration-Exploitation Dilemma** of research:
+- **Bottom-Up** = Exploitation (depth in known areas)
+- **Top-Down** = Exploration (breadth across new categories)
+- **Solution-First** = Constraint Propagation (narrowing search space through target criteria)
+
+The approach resembles **Beam Search** in AI systems: Instead of exhaustive search (too slow) or greedy search (locally optimal), the **k most promising paths** are pursued in parallel. Categorization (Top-Down) identifies these k paths, Bottom-Up phases evaluate them.
+
+**Application to VIA**: The development of the IPC-Optimizer followed this pattern:
+1. **Initial**: Unix Socket latency 20μs (Bottom-Up detail)
+2. **Categories**: IPC, Kernel, Service Mesh, Compiler Optimization (Top-Down)
+3. **Analogies**: Z3 Constraint Solver found in Compiler Optimization (Bottom-Up)
+4. **Solution-First**: "If compiler chooses IPC → Pareto-optimal → Z3 needed"
+5. **Reverse**: Papers on Multi-Objective Optimization (Deb et al., 2002) identified
+
+#### 4.3.2 Evaluation Environment
+- **Lab Setup**: 3-Node Kubernetes Cluster (64 Core, 256 GB RAM, 10 Gbit/s Network)
+- **Simulation Tools**: Mininet for virtual network topologies (up to 1,000 nodes)
+- **Benchmark Scenarios**:
+  - **S1**: Local process chain (5 services, same host)
+  - **S2**: Distributed process chain (20 services, 3 hosts)
+  - **S3**: Scalability test (100,000 services, hierarchical grouping)
+  - **S4**: Real-World use case (Industrial SCADA + MES + PLC edge integration)
+
+#### 4.3.3 Metrics & Success Criteria
+- **Latency**: End-to-end process chain (P50, P95, P99 percentiles)
+- **Throughput**: Messages per second (Messages/s)
+- **CPU Load**: Processor utilization under load (%)
+- **Memory Footprint**: RAM consumption per service (MB)
+- **Development Time**: Manual vs. metamodel-generated (hours)
+- **Success Criterion**: H1-H4 confirmed (see hypotheses Chapter 2.2)
+
+#### 4.3.4 Comparison Baseline
+- **Baseline 1**: Manually configured gRPC (static)
+- **Baseline 2**: Istio Service Mesh (dynamic)
+- **Baseline 3**: UNIX Sockets (optimal, local only)
+- **VIA Process-Group-Protocol**: Compiler-optimized
+
+Quantitative evaluation against these baselines is performed in Section 7.3.2.
+
+#### 4.3.5 Phase Plan
+- **Phase 1**: Research & Analysis (4 weeks) ✅ COMPLETED
+- **Phase 2**: Playbook Creation & Metamodel Design (2 weeks) ✅ COMPLETED
+- **Phase 3**: M2-SDK Compiler Prototype with IPC-Optimizer (6 weeks)
+- **Phase 4**: Benchmark Suite & Use-Case Implementation (4 weeks)
+- **Phase 5**: Evaluation & Comparative Measurements (4 weeks)
+- **Phase 6**: Documentation & Publication (4 weeks)
+
+**Total Duration**: 22 weeks (approximately 5 months)
 
 ---
 
 ## 5. Theoretical Background
 
-Die Forschungsarbeit vereint Konzepte aus Compiler-Theorie (Abschnitt 5.1), Metamodell-Architekturen (Abschnitt 5.2), AAS-Standards (Abschnitt 5.3), OPC UA und ISA-95 Integration (Abschnitt 5.4, vgl. Wollschlaeger et al., 2025 für bidirektionales AAS ↔ OPC UA Mapping), Prozesskommunikation (Abschnitt 5.5) sowie Management-Frameworks (Abschnitt 5.6). Dieses interdisziplinäre Fundament ist notwendig, um die Herausforderungen metamodell-basierter IPC-Optimierung zu adressieren.
+The research combines concepts from compiler theory (Section 5.1), metamodel architectures (Section 5.2), AAS standards (Section 5.3), OPC UA and ISA-95 integration (Section 5.4, cf. Wollschlaeger et al., 2025 for bidirectional AAS ↔ OPC UA mapping), process communication (Section 5.5), and management frameworks (Section 5.6). This interdisciplinary foundation is necessary to address the challenges of metamodel-based IPC optimization.
 
 ### 5.1 Compiler Theory
 
-Die Compiler-Theorie bildet die technische Grundlage für VIA mit Multi-Stage Compilation über drei Ebenen (M3 → M2 → M1, vgl. Aho et al., 2006; Lattner & Adve, 2004 für LLVM-Architektur), wobei jede Stufe spezifische Transformationen durchführt. Die Code-Generation erfolgt Template-basiert und Type-Safe, um Typsicherheit bereits zur Compile-Zeit zu garantieren. Metaprogramming nutzt C++20 Concepts (ISO/IEC 14882:2020) für Constraint-basierte Template-Spezialisierung und Constexpr für Compile-Time-Berechnung komplexer Ausdrücke.
+Compiler theory forms the technical foundation for VIA with multi-stage compilation across three levels (M3 → M2 → M1, cf. Aho et al., 2006; Lattner & Adve, 2004 for LLVM architecture), where each stage performs specific transformations. Code generation is template-based and type-safe to guarantee type safety at compile time. Metaprogramming uses C++20 Concepts (ISO/IEC 14882:2020) for constraint-based template specialization and constexpr for compile-time evaluation of complex expressions.
 
 ### 5.2 Metamodel Architectures (M3/M2/M1)
 
-Die Metamodell-Architektur gliedert sich in drei Abstraktionsebenen (IEC 63278-1:2024; Hofer, 2009 für OPC UA Information Model): M3 definiert das Metamodell, in dem Objects, Variables und Methods als abstrakte Konzepte existieren; M2 repräsentiert das Modell mit VIA-spezifischen Typen wie VIAProcessType und VIARouterType; M1 bildet die Instanz-Ebene mit laufenden Systemen und konkreten Prozess-Instanzen.
+The metamodel architecture consists of three abstraction levels (IEC 63278-1:2024; Hofer, 2009 for OPC UA Information Model): M3 defines the metamodel where Objects, Variables, and Methods exist as abstract concepts; M2 represents the model with VIA-specific types like VIAProcessType and VIARouterType; M1 forms the instance level with running systems and concrete process instances.
 
 ### 5.3 Asset Administration Shell
 
-Die Asset Administration Shell nach IEC 63278 definiert ein standardisiertes Metamodell für digitale Zwillinge in der Industrie 4.0. Submodels ermöglichen modulare Datenbeschreibung durch unabhängige, wiederverwendbare Komponenten. Das AID/AIMC-Konzept trennt Asset Interface Description (Vendor-bereitgestellte Schnittstellendefinition) von Asset Interfaces Mapping Configuration (User-konfiguriertes Mapping zwischen Asset und AAS).
+The Asset Administration Shell according to IEC 63278 defines a standardized metamodel for digital twins in Industry 4.0. Submodels enable modular data description through independent, reusable components. The AID/AIMC concept separates Asset Interface Description (vendor-provided interface definition) from Asset Interfaces Mapping Configuration (user-configured mapping between asset and AAS).
 
 ### 5.4 OPC UA Information Model & ISA-95 Integration
 
-Das OPC UA Information Model basiert auf M3-basierten Typdefinitionen, die ein Metamodell für Objekte, Variablen und Methoden bereitstellen. Companion Specifications erweitern OPC UA um Domain-spezifische Funktionalität, darunter DI (Device Integration), I4AAS (Industrie 4.0 AAS), und PLCopen. Der Address Space organisiert Nodes hierarchisch und objektorientiert.
+The OPC UA Information Model is based on M3-based type definitions that provide a metamodel for objects, variables, and methods. Companion Specifications extend OPC UA with domain-specific functionality, including DI (Device Integration), I4AAS (Industry 4.0 AAS), and PLCopen. The Address Space organizes nodes hierarchically and object-oriented.
 
-Die ISA-95 Levels (ISA-95, 2010) definieren funktionale Ebenen, die in der Reference Architecture Model Industrie 4.0 (RAMI 4.0, Adolphs et al., 2015) erweitert werden: Level 2 (SCADA: Prozessebene mit Echtzeit-Anforderungen), Level 3 (MES: Produktionsleitebene), und Level 4 (ERP: Unternehmensebene). SCADA-Systeme erfassen Prozessdaten, senden Steuerbefehle, verwalten Alarmierung und Historisierung, und bieten Visualisierung über HMI. MES-Systeme verwalten Produktionsaufträge, führen Feinplanung durch, implementieren Qualitätssicherung, berechnen OEE und KPIs, ermöglichen Rückverfolgung, und kommunizieren bidirektional mit SCADA. OPC UA (IEC 62541-1:2020) fungiert als Vermittler und bietet standardisierten Zugriff für SCADA, MES, ERP und Cloud-Systeme (vgl. Grüner et al., 2019 für OPC UA I4.0 Communication Architectures).
+The ISA-95 Levels (ISA-95, 2010) define functional layers that are extended in the Reference Architecture Model Industry 4.0 (RAMI 4.0, Adolphs et al., 2015): Level 2 (SCADA: process level with real-time requirements), Level 3 (MES: manufacturing execution level), and Level 4 (ERP: enterprise level). SCADA systems capture process data, send control commands, manage alarming and historization, and provide visualization via HMI. MES systems manage production orders, perform detailed scheduling, implement quality assurance, calculate OEE and KPIs, enable traceability, and communicate bidirectionally with SCADA. OPC UA (IEC 62541-1:2020) acts as mediator and provides standardized access for SCADA, MES, ERP, and cloud systems (cf. Grüner et al., 2019 for OPC UA I4.0 Communication Architectures).
 
 ### 5.5 Process Communication
 
-Die Prozesskommunikation nutzt verschiedene IPC Mechanisms: Pipe für sequenzielle Prozessketten, Socket für lokale bidirektionale Kommunikation, TCP für Remote-Kommunikation, File-Queue für asynchrone persistente Nachrichten, und Thread-Messaging für intra-prozessuale Kommunikation. Die Architektur trennt Data Plane (eigentliche Datenübertragung), Control Plane (Routing und Orchestrierung) und Management Plane (Konfiguration und Monitoring). gRPC und Protobuf implementieren Contract-First Development mit Binary Serialization für kompakte und effiziente Datenübertragung.
+Process communication uses various IPC mechanisms: Pipe for sequential process chains, Socket for local bidirectional communication, TCP for remote communication, File-Queue for asynchronous persistent messages, and Thread-Messaging for intra-process communication. The architecture separates Data Plane (actual data transfer), Control Plane (routing and orchestration), and Management Plane (configuration and monitoring). gRPC and Protobuf implement contract-first development with binary serialization for compact and efficient data transfer.
 
 ### 5.6 CMFM (Comprehensive Management Function Model)
 
-Das CMFM implementiert ein Manager-Centric Paradigm, das auf Ziele statt System-Details fokussiert im Gegensatz zu System-Centric Ansätzen. CMF Komponenten umfassen Goal (mandatory, beschreibt Managementziel), Output (mandatory, erwartete Ausgabe), Input (optional, benötigte Eingaben), Constraints (optional, Einschränkungen) und Representations (optional, verschiedene Darstellungsformen).
+CMFM implements a manager-centric paradigm focusing on goals rather than system details, in contrast to system-centric approaches. CMF components include Goal (mandatory, describes management objective), Output (mandatory, expected output), Input (optional, required inputs), Constraints (optional, restrictions), and Representations (optional, various representation forms).
 
-Die Generality Hierarchy definiert Abstraktionsebenen: Implementation (konkrete Implementierung), User (benutzerspezifisch), Domain (domänenspezifisch), Parent Domain (übergeordnete Domäne). VIA as Domain repräsentiert die gesamte Prozesskommunikations-Domain als einheitliches Konzept. Catalog vs. Core unterscheidet zwischen der Liste aller CMFs und allgemein anwendbaren CMFs nach Promotion.
+The Generality Hierarchy defines abstraction levels: Implementation (concrete implementation), User (user-specific), Domain (domain-specific), Parent Domain (superior domain). VIA as Domain represents the entire process communication domain as a unified concept. Catalog vs. Core distinguishes between the list of all CMFs and generally applicable CMFs after promotion.
 
-Promotion erfolgt tacit (automatisch durch häufige Nutzung) oder explicit (durch Standardization Bodies). CMF Interrelations umfassen Equivalence (Merge gleicher Goals zu einem CMF) und Composition (Upwards: Zusammenfassung mehrerer CMFs, Downwards: Zerlegung in Sub-CMFs). Die AAS Integration bildet CMFs als Operations im AAS Meta-Model ab, wobei Input und Output als Attributes repräsentiert werden.
+Promotion occurs tacitly (automatically through frequent use) or explicitly (through Standardization Bodies). CMF Interrelations include Equivalence (merging goals with identical meaning into one CMF) and Composition (Upwards: aggregation of multiple CMFs, Downwards: decomposition into Sub-CMFs). AAS Integration maps CMFs as Operations in the AAS Meta-Model, where Input and Output are represented as Attributes.
 
-VIA CMFs definieren process-register (Prozess-Registrierung), process-discover (Service Discovery), route-message (Nachrichten-Routing) und schedule-task (Task-Scheduling). Vocabulary Management erfolgt über ein öffentliches Repository mit Verknüpfung zu e-Class, CDD (Common Data Dictionary) und I4.0 SemanticID.
+VIA CMFs define process-register (process registration), process-discover (service discovery), route-message (message routing), and schedule-task (task scheduling). Vocabulary Management occurs through a public repository linked to e-Class, CDD (Common Data Dictionary), and I4.0 SemanticID.
 
 ---
 
@@ -740,120 +782,120 @@ VIA CMFs definieren process-register (Prozess-Registrierung), process-discover (
 
 ### 6.0 VIA Main Program (Orchestration M3→M2→M1)
 
-**Projektlokation**: `src/main.cpp` (versioniert)
+**Project Location**: `src/main.cpp` (versioned)
 
-Die konzeptionelle Einordnung des Hauptprogramms im Gesamtsystem erfolgte in Abschnitt 2.3.0. Der vorliegende Abschnitt spezifiziert die detaillierte Input/Output-Architektur.
+The conceptual classification of the main program within the overall system was covered in Section 2.3.0. This section specifies the detailed input/output architecture.
 
 #### Input
-- Benutzerbeschreibung des gewünschten Systems (Code-Kommentare in `.via` Dateien oder natürlichsprachliche Textdatei für zukünftige KI-Integration)
-- Konfiguration: Target-Architekturen (MIPS, RISC-V, x86, ARM, etc.), Deployment-Ziele (Kubernetes Cluster, Edge-Devices), Netzwerk-Topologie (optional via Network Discovery)
+- User description of desired system (code comments in `.via` files or natural language text file for future AI integration)
+- Configuration: Target architectures (MIPS, RISC-V, x86, ARM, etc.), deployment targets (Kubernetes Cluster, Edge Devices), network topology (optional via Network Discovery)
 
-#### Verarbeitung
-- **Phase-Coordination**: Sequenzieller Aufruf des 8-stufigen Bootstrap-Zyklus (siehe Abschnitt 2.3.0): M3-Compiler-Build → M3-Test → M2-SDK-Generation → M2-SDK-Build → Kundenprojekt-Compilation → M1-System-Build → Deployment → Servermodus
-- **Pipeline-Management**: Output jeder Phase wird Input der nächsten, gespeichert in versionierten (`build/via-m3-compiler`, `src/main.cpp`) oder gitignored Ordnern (`playbooks/VIA-M2-SDK/`, `playbooks/VIA-M1-System/`, `build/binaries/`)
-- **Zustandsverwaltung**: Persistierung Zwischenergebnisse als CMake-Build-Artefakte und generierte Projektordner
-- **Fehlerbehandlung**: Rollback bei Fehler durch Versionskontrolle (git) für versionierte Teile, Transaktionale Neuausführung für gitignored Teile
-- **Anwenderinteraktion**: CLI mit strukturiertem Output (Fortschrittsbalken, Testresultate), OPC UA Server für Remote-Monitoring
+#### Processing
+- **Phase Coordination**: Sequential invocation of 8-stage bootstrap cycle (see Section 2.3.0): M3-Compiler-Build → M3-Test → M2-SDK-Generation → M2-SDK-Build → Customer-Project-Compilation → M1-System-Build → Deployment → Server Mode
+- **Pipeline Management**: Output of each phase becomes input of the next, stored in versioned (`build/via-m3-compiler`, `src/main.cpp`) or gitignored folders (`playbooks/VIA-M2-SDK/`, `playbooks/VIA-M1-System/`, `build/binaries/`)
+- **State Management**: Persistence of intermediate results as CMake build artifacts and generated project folders
+- **Error Handling**: Rollback on error through version control (git) for versioned parts, transactional re-execution for gitignored parts
+- **User Interaction**: CLI with structured output (progress bars, test results), OPC UA Server for remote monitoring
 
 #### Output
-- **Ende-zu-Ende**: Von `.via` Kundenprojektdateien bis deployed System auf >50.000 Edge-Geräten
-- **Traceability**: Kompletter Audit-Trail (Kommentare propagieren durch M3→M2→M1→M0, landen in Binary-Headers)
-- **Logs**: Jede Phase dokumentiert in `build/logs/` (für Debugging, Reproduzierbarkeit), Deploy-Protocol für Remote-Logs
-- **Deployed Binaries**: `build/binaries/{arch}/{device_id}/` mit Header-Dokumentation
+- **End-to-End**: From `.via` customer project files to deployed system on >50,000 edge devices
+- **Traceability**: Complete audit trail (comments propagate through M3→M2→M1→M0, end up in binary headers)
+- **Logs**: Each phase documented in `build/logs/` (for debugging, reproducibility), Deploy-Protocol for remote logs
+- **Deployed Binaries**: `build/binaries/{arch}/{device_id}/` with header documentation
 
-#### Besonderheit
-- **Selbstreferenz**: Hauptprogramm kann sich selbst neu kompilieren (M3→M2→M1→M0), startet neue Instanz über Prozesskommunikation und beendet sich nach erfolgreichem Handover
-- **Transaktionalität**: Atomare Phasen mit Rollback-Mechanismus (alte Binaries vorgehalten für sekundenschnelles Rollback)
-- **Parallelisierung**: Mehrere Kundenprojekte gleichzeitig orchestrieren (GitHub Runners für Distributed Compilation, siehe Abschnitt 2.3.3)
+#### Special Features
+- **Self-Reference**: Main program can recompile itself (M3→M2→M1→M0), starts new instance via process communication and terminates after successful handover
+- **Transactionality**: Atomic phases with rollback mechanism (old binaries retained for rollback within seconds)
+- **Parallelization**: Orchestrate multiple customer projects simultaneously (GitHub Runners for Distributed Compilation, see Section 2.3.3)
 
 ### 6.1 VIA-M3-Compiler (Metamodel → SDK)
 
-**Projektlokation**: `playbooks/VIA-M3-Compiler/` (versioniert)
+**Project Location**: `playbooks/VIA-M3-Compiler/` (versioned)
 
-Der VIA-M3-Compiler empfängt als Input die AAS IEC 63278 Textspezifikation (IEC 63278-1:2024), die über SITL (Software-in-the-Loop) automatisch in M3-Code transformiert wird, OPC UA IEC 62541 (IEC 62541-1:2020) als M3-Bibliothek (ebenfalls über SITL eingelesen, falls nicht vorhanden), sowie VIA-Extensions für Prozesskommunikation als custom M3-Definitionen in AAS-lang (vgl. Völter et al., 2019 für mbeddr als Blueprint für extensible DSL-based Compiler).
+The VIA-M3-Compiler receives as input the AAS IEC 63278 text specification (IEC 63278-1:2024), which is automatically transformed into M3 code via SITL (Software-in-the-Loop), OPC UA IEC 62541 (IEC 62541-1:2020) as M3 library (also loaded via SITL if not present), and VIA-Extensions for process communication as custom M3 definitions in AAS-lang (cf. Völter et al., 2019 for mbeddr as blueprint for extensible DSL-based compiler).
 
-Die Verarbeitung erfolgt durch C++20/23 Metaprogramming mit einem custom Template-Engine, der in AAS-lang selbst definiert ist (nicht in Python wie bei aas-core-works). Constraint-Validation wird über das M3-Testframework durchgeführt, wobei Protobuf als M3-Interpreter aus `third_party/protobuf` zum Einlesen von Modell und Kundendaten verwendet wird.
+Processing is performed through C++20/23 metaprogramming with a custom template engine defined in AAS-lang itself (not in Python as in aas-core-works). Constraint validation is executed via the M3 test framework, where Protobuf serves as M3 interpreter from `third_party/protobuf` for reading model and customer data.
 
-Als Output generiert der Compiler das Verzeichnis `playbooks/VIA-M2-SDK/` mit gitignored, generiertem C++ Code, OPC UA NodeSet XML in `output/via_companion_spec.xml`, Protobuf `.proto` Dateien für Microservice-Kommunikation in `proto/`, sowie umfassende Dokumentation mit durchgereichten M3-Kommentaren, die bis in die Binary-Headers propagieren.
+As output, the compiler generates the directory `playbooks/VIA-M2-SDK/` with gitignored, generated C++ code, OPC UA NodeSet XML in `output/via_companion_spec.xml`, Protobuf `.proto` files for microservice communication in `proto/`, and comprehensive documentation with propagated M3 comments that reach binary headers.
 
-Die Besonderheit liegt darin, dass der Compiler wartbar und versioniert ist im Gegensatz zu aas-core-works Python-Skripten, als produktionsreifer Compiler mit vollständigem Testframework konzipiert ist, und Spaghetti-Code durch ein mehrschichtiges Constraint-System vermeidet.
+The special feature is that the compiler is maintainable and versioned in contrast to aas-core-works Python scripts, designed as production-ready compiler with complete test framework, and avoids spaghetti code through a multi-layered constraint system.
 
 ### 6.2 VIA-M2-SDK-Compiler (SDK → Customer System)
 
-**Projektlokation**: `playbooks/VIA-M2-SDK/` (generiert, gitignored)
+**Project Location**: `playbooks/VIA-M2-SDK/` (generated, gitignored)
 
-Der VIA-M2-SDK-Compiler empfängt als Input Kundenprojekt-Dateien (`customer_project/*.via` in AAS-lang geschrieben), optional eine Netzwerk-Topologie via Network Discovery (`network_discovery.md`), sowie Deployment-Ziele mit Zielarchitekturen und Betriebssystemen.
+The VIA-M2-SDK-Compiler receives as input customer project files (`customer_project/*.via` written in AAS-lang), optionally a network topology via Network Discovery (`network_discovery.md`), and deployment targets with target architectures and operating systems.
 
-Die Verarbeitung umfasst mehrere Phasen: Zunächst erfolgt Syntax-Prüfung der `.via` Dateien, gefolgt vom Network Discovery Scanner für SNMP, OPC UA und Modbus. Auto-Vorschläge für Systemkonfiguration werden über `auto_suggestions.md` generiert. Die IPC-Optimierung in `ipc_optimizer.md` bildet den Forschungsfokus und implementiert einen graph-basierten Algorithmus mit Constraint-Solver für Compile-Time-Entscheidungen. Der Test-Generator in `test_generator.md` erstellt automatisch deterministische Tests aus M3-Constraints.
+Processing encompasses multiple phases: First, syntax validation of `.via` files occurs, followed by Network Discovery Scanner for SNMP, OPC UA, and Modbus. Auto-suggestions for system configuration are generated via `auto_suggestions.md`. IPC optimization in `ipc_optimizer.md` forms the research focus and implements a graph-based algorithm with constraint solver for compile-time decisions. The test generator in `test_generator.md` automatically creates deterministic tests from M3 constraints.
 
-Als Output generiert der Compiler das Verzeichnis `playbooks/VIA-M1-System/` (gitignored, vollständiges C++ Gesamtprojekt), Kubernetes Manifests als `deployment.yaml`, Edge-Modules als C++23 Modules für Horse-Rider-Deployment, sowie generierte Tests mit durchgereichten Kundenkommentaren für vollständige Traceability.
+As output, the compiler generates the directory `playbooks/VIA-M1-System/` (gitignored, complete C++ overall project), Kubernetes Manifests as `deployment.yaml`, Edge Modules as C++23 Modules for Horse-Rider deployment, and generated tests with propagated customer comments for complete traceability.
 
-Die Besonderheit liegt im Release-Modus, bei dem der C++-Output-Stream über Memory-Filesystem/RAM direkt mit Pipe in g++ kompiliert wird für maximale Performance, sowie im Debug-Modus, der Projektdateien mit umfassender Dokumentation für Entwickler-Einsicht bereitstellt.
+The special feature lies in Release Mode, where the C++ output stream is piped directly into g++ via memory filesystem/RAM for maximum performance, and Debug Mode, which provides project files with comprehensive documentation for developer inspection.
 
 ### 6.3 VIA-M1-System-Deployer (System → Production)
 
-**Projektlokation**: `playbooks/VIA-M1-System-Deploy/` (Playbooks für Deployment-Logik)
+**Project Location**: `playbooks/VIA-M1-System-Deploy/` (Playbooks for deployment logic)
 
-Der VIA-M1-System-Deployer empfängt als Input das M1-Systemprojekt aus `playbooks/VIA-M1-System/`, Deployment-Targets als Architecture Map für MIPS, RISC-V, ARM, x86 und weitere Architekturen, sowie kundendefinierte Systemtests als grobe Vordefinition.
+The VIA-M1-System-Deployer receives as input the M1 system project from `playbooks/VIA-M1-System/`, deployment targets as architecture map for MIPS, RISC-V, ARM, x86 and other architectures, and customer-defined system tests as rough predefinition.
 
-Die Verarbeitung erfolgt in mehreren spezialisierten Phasen: Distributed Compilation über GitHub Runners ermöglicht parallele Builds aller Module (siehe `distributed_build.md`). Cross-Compilation mit Multi-Architektur Toolchain Management wird in `cross_compilation.md` durchgeführt. Horse-Rider-Deployment mit C++23 Modules, stabilen ABIs, Hot-Reload und Canary Deployment erfolgt nach `horse_rider_deployment.md`. Master Active Management orchestriert das gesamte Deployment gemäß `master_active_management.md`.
+Processing occurs in several specialized phases: Distributed Compilation via GitHub Runners enables parallel builds of all modules (see `distributed_build.md`). Cross-Compilation with multi-architecture toolchain management is performed in `cross_compilation.md`. Horse-Rider-Deployment with C++23 Modules, stable ABIs, hot-reload and canary deployment follows `horse_rider_deployment.md`. Master Active Management orchestrates the entire deployment according to `master_active_management.md`.
 
-Als Output entsteht ein deployed System für mehr als 50.000 Edge-Geräte mit Binaries in `build/binaries/{arch}/{device_id}/`, Deployment-Manifests für Kubernetes und Edge-Geräte, versionierte Binaries mit Header-Dokumentation für externe Edge-Programmierung, sowie ein Digital Twin mit Monitoring und Logging.
+As output, a deployed system for more than 50,000 edge devices emerges with binaries in `build/binaries/{arch}/{device_id}/`, deployment manifests for Kubernetes and edge devices, versioned binaries with header documentation for external edge programming, and a digital twin with monitoring and logging.
 
-Die Besonderheit liegt im Hot-Reload-Mechanismus, bei dem der Horse-Service ein neues Rider-Service parallel zum alten lädt, einen Canary-Test durchführt, und bei Erfolg den Traffic switched. Rollback erfolgt in Sekundenbruchteilen bei Fehlern durch Vorhalten der alten Version. Redundanz wird durch mindestens zwei parallele Horses pro Edge-Gerät als Digital Twin gewährleistet.
+The special feature lies in the hot-reload mechanism, where the Horse service loads a new Rider service parallel to the old one, performs a canary test, and switches traffic on success. Rollback occurs within fractions of seconds on errors by retaining the old version. Redundancy is ensured through at least two parallel Horses per edge device as digital twin.
 
 ### 6.4 Sub-Protocols under OPC UA
 
-**Projektlokation**: `playbooks/VIA-M3-Compiler/via_protocols/` (zukünftig, **Spezifikation in Planung**)
+**Project Location**: `playbooks/VIA-M3-Compiler/via_protocols/` (future, **specification in planning**)
 
-**M3-Bibliotheks-Architektur**: Die drei VIA-Sub-Protokolle sind **selbst als M3-Bibliotheken in AAS-lang definiert** (analog zu Protobuf als M3-Interpreter). Sie werden in `playbooks/VIA-M3-Compiler/via_protocols/` als Modelle implementiert und **laden Modelle von der MMB-Bibliothek** (`playbooks/VIA-M3-Compiler/third_party/mmb/`) als Basis.
+**M3 Library Architecture**: The three VIA sub-protocols are **themselves defined as M3 libraries in AAS-lang** (analogous to Protobuf as M3 interpreter). They are implemented as models in `playbooks/VIA-M3-Compiler/via_protocols/` and **load models from the MMB library** (`playbooks/VIA-M3-Compiler/third_party/mmb/`) as foundation.
 
-Die MMB-Architektur (Consistency Layer, Mapping Layer, Many-to-Many Broadcast) wird auf M3-Ebene als wiederverwendbare Bibliothek implementiert. Die drei Sub-Protokolle importieren MMB-Modelle und erweitern diese um VIA-spezifische Semantik:
-- **Edge-Group-Protocol**: Importiert MMB-Broadcast-Modelle → erweitert um hierarchische Gruppierung
-- **Deploy-Protocol**: Importiert MMB-Mapping-Modelle → erweitert um Versionierung/Telemetrie
-- **Process-Group-Protocol**: Importiert MMB-Consistency-Modelle → erweitert um IPC-Optimierung
+The MMB architecture (Consistency Layer, Mapping Layer, Many-to-Many Broadcast) is implemented at M3 level as reusable library. The three sub-protocols import MMB models and extend them with VIA-specific semantics:
+- **Edge-Group-Protocol**: Imports MMB broadcast models → extends with hierarchical grouping
+- **Deploy-Protocol**: Imports MMB mapping models → extends with versioning/telemetry
+- **Process-Group-Protocol**: Imports MMB consistency models → extends with IPC optimization
 
-Diese Modell-Komposition auf M3-Ebene ermöglicht **Wiederverwendbarkeit** und **Erweiterbarkeit** – analog zu Protobuf, das ebenfalls Modelle lädt und transformiert.
+This model composition at M3 level enables **reusability** and **extensibility** – analogous to Protobuf, which also loads and transforms models.
 
-#### 6.4.1 Edge-Group-Protocol (Außenwelt-Ebene)
+#### 6.4.1 Edge-Group-Protocol (External World Layer)
 
-Das Edge-Group-Protocol implementiert virtuelle Netzwerkgruppen für hierarchische Edgegeräte-Gruppierung und vermeidet einzelne Koordination durch intelligente Gruppierung von Zielen.
+The Edge-Group-Protocol implements virtual network groups for hierarchical edge device grouping and avoids individual coordination through intelligent grouping of targets.
 
-Die Architektur basiert auf hardcoded Messages, wobei Gruppeneigenschaften zur Compile-Zeit in Binaries kompiliert werden, um Runtime-Code-Changes aus Sicherheitsgründen zu verhindern. Binary ABI-Stabilität wird durch C++23 Modules mit stabilen Schnittstellen gewährleistet, sodass jedes Edge-Gerät selbst weiß, wohin es gehört. Geschachtelte Sicherheitsstufen ermöglichen hierarchische Gruppierung (Device-Groups → Edge-Groups → Cluster-Groups → Global) mit rekursiven Sicherheitsregeln pro Ebene. Virtuelle Netzwerkströme unterteilen die Außenwelt in getrennte Verarbeitungsgruppen mit unterschiedlichen QoS-Garantien für Latenz, Durchsatz und Paket-Ankunftssicherheit.
+The architecture is based on hardcoded messages, where group properties are compiled into binaries at compile time to prevent runtime code changes for security reasons. Binary ABI stability is ensured through C++23 Modules with stable interfaces, so each edge device knows itself where it belongs. Nested security levels enable hierarchical grouping (Device-Groups → Edge-Groups → Cluster-Groups → Global) with recursive security rules per level. Virtual network streams divide the external world into separate processing groups with different QoS guarantees for latency, throughput, and packet arrival reliability.
 
-Die Performance profitiert davon, dass kein virtueller Router notwendig ist, wodurch Zeitkritikalität gewahrt bleibt, da Routing-Entscheidungen bereits zur Compile-Zeit getroffen werden. Dynamisches MMB-Mapping ermöglicht, dass Edge-Groups zur Laufzeit virtuell über MMB zwischen Verarbeitungsgruppen umgemappt werden können, beispielsweise bei Netzwerk-Rekonfiguration, Ausfall oder Lastverschiebung.
+Performance benefits from no virtual router being necessary, maintaining time criticality since routing decisions are already made at compile time. Dynamic MMB mapping enables Edge-Groups to be virtually remapped via MMB between processing groups at runtime, for example during network reconfiguration, failure, or load shifting.
 
-#### 6.4.2 Deploy-Protocol (Verwaltungs-Ebene)
+#### 6.4.2 Deploy-Protocol (Management Layer)
 
-Das Deploy-Protocol verwaltet Versionierung, Systemupdates und Rejuvenation für das Horse-Rider-System und bildet damit die Verwaltungs-Ebene der VIA-Architektur.
+The Deploy-Protocol manages versioning, system updates, and rejuvenation for the Horse-Rider system, forming the management layer of the VIA architecture.
 
-Die Architektur implementiert strikte Separation, wobei Metadaten und Messdaten der Computer getrennt von Anlagendaten verwaltet werden zur Kapselung verschiedener Verantwortlichkeiten. Logging umfasst Netzwerk-Logs für Fehleranalyse sowie Telemetrie-Sammlung von CPU-Last in Prozent, RAM-Auslastung in Megabyte und Disk I/O. Die Horse-Rider-Integration ermöglicht Protokollverwaltung durch den Deployment-Service mit Canary-Deployment, Hot-Reload und Rollback-Mechanismen. Geschachtelte Sicherheitsstufen definieren Versionierungs-Policies pro Cluster oder Gruppe, beispielsweise "Production: nur Stable" oder "Staging: Canary erlaubt".
+The architecture implements strict separation, where metadata and measurement data of computers are managed separately from facility data to encapsulate different responsibilities. Logging encompasses network logs for error analysis and telemetry collection of CPU load in percent, RAM utilization in megabytes, and disk I/O. Horse-Rider integration enables protocol management through the deployment service with canary deployment, hot-reload, and rollback mechanisms. Nested security levels define versioning policies per cluster or group, for example "Production: stable only" or "Staging: canary allowed".
 
-In-the-Loop Selbstoptimierung wird durch eine kontinuierliche Feedback-Schleife realisiert: Das Deploy-Protocol sammelt Telemetrie von allen Services, der M2-Compiler analysiert Bottlenecks, Kubernetes-Lastverteilung wird dynamisch angepasst, neue Positionierung wird als Canary getestet, und bei Verbesserung der Pareto-Metriken (Latenz, Durchsatz, Ressourcenverbrauch) wird die neue Konfiguration permanent übernommen.
+In-the-loop self-optimization is realized through a continuous feedback loop: The Deploy-Protocol collects telemetry from all services, the M2 compiler analyzes bottlenecks, Kubernetes load distribution is dynamically adjusted, new positioning is tested as canary, and upon improvement of Pareto metrics (latency, throughput, resource consumption), the new configuration is permanently adopted.
 
-Dynamisches MMB-Mapping ermöglicht, dass Deployment-Gruppen zur Laufzeit neu organisiert werden können, beispielsweise indem alle Analytics-Services auf dedizierte High-RAM-Nodes verschoben werden.
+Dynamic MMB mapping enables deployment groups to be reorganized at runtime, for example by moving all Analytics services to dedicated high-RAM nodes.
 
-#### 6.4.3 Process-Group-Protocol (Datenebene) → **Kern dieser Forschungsarbeit**
+#### 6.4.3 Process-Group-Protocol (Data Layer) → **Core of this Research**
 
-Das Process-Group-Protocol bildet den Kern dieser Forschungsarbeit und implementiert transparente IPC-Optimierung zwischen Services, wobei Programm-Steuerung von Daten getrennt wird.
+The Process-Group-Protocol forms the core of this research and implements transparent IPC optimization between services, separating program control from data.
 
-Die Architektur definiert fünf IPC-Mechanismen (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) als AAS-lang Enumerations im M3-Metamodell. Die Automatisierung erfolgt durch den M2-SDK-Compiler, der automatisch Prozessketten von Mikroservices basierend auf Prozessabhängigkeiten erstellt. Compile-Time-Optimierung nutzt einen Constraint-Solver (Z3), der die Pareto-Frontier für konfligierende Ziele (Latenz minimieren, Durchsatz maximieren, Ressourcenverbrauch minimieren) berechnet. Cluster-Verteilung ermöglicht virtuelle Weiterverarbeitung oder Gliederung in Unteraufgaben auf anderen Containern oder Maschinen. Geschachtelte Sicherheitsstufen erlauben, dass IPC-Kommunikation pro Prozess-Gruppe unterschiedliche Verschlüsselungs- und Authentifizierungs-Level haben kann.
+The architecture defines five IPC mechanisms (Pipe, Unix Socket, TCP, File-Queue, Thread-Messaging) as AAS-lang Enumerations in the M3 metamodel. Automation is performed by the M2-SDK compiler, which automatically creates process chains of microservices based on process dependencies. Compile-time optimization uses a constraint solver (Z3) that calculates the Pareto frontier for conflicting goals (minimize latency, maximize throughput, minimize resource consumption). Cluster distribution enables virtual further processing or subdivision into subtasks on other containers or machines. Nested security levels allow IPC communication per process group to have different encryption and authentication levels.
 
-Dynamisches MMB-Mapping ermöglicht, dass die Prozesskommunikations-Topologie zur Laufzeit über MMB umgemappt werden kann. Eine typische Pipeline verläuft von Edge-Devices über Aggregation-Services zu Analytics-Services. Bei Bottlenecks können neue Aggregation-Services instanziiert und Datenströme über virtuelles Mapping umgeleitet werden. Das Sub-Protokoll organisiert sich getrennt von Edge-Group-Protocol und Deploy-Protocol im Gesamtnetz, wodurch unabhängige Optimierung jeder Ebene möglich wird.
+Dynamic MMB mapping enables the process communication topology to be remapped at runtime via MMB. A typical pipeline runs from edge devices via aggregation services to analytics services. At bottlenecks, new aggregation services can be instantiated and data streams redirected via virtual mapping. The sub-protocol organizes itself separately from Edge-Group-Protocol and Deploy-Protocol in the overall network, enabling independent optimization of each layer.
 
-Eine Windows-Limitation besteht darin, dass auf Windows-Systemen die IPC-Möglichkeiten begrenzter sind, insbesondere fehlen Unix Sockets als hochperformante lokale Kommunikationsoption.
+A Windows limitation exists in that IPC capabilities are more limited on Windows systems, particularly Unix Sockets are missing as high-performance local communication option.
 
 ---
 
-**Protokoll-Interaktion**: Die drei Sub-Protokolle können sich **getrennt voneinander** im Gesamtnetz organisieren und gruppieren, jedes mit eigenen **geschachtelten und rekursiven Sicherheitsstufen**. Die dynamische Orchestrierung über MMB ermöglicht virtuelle Netzwerkströme mit unterschiedlichen Eigenschaften (Latenz-kritisch, Durchsatz-optimiert, Sicherheits-gehärtet).
+**Protocol Interaction**: The three sub-protocols can organize and group themselves **separately from each other** in the overall network, each with its own **nested and recursive security levels**. Dynamic orchestration via MMB enables virtual network streams with different characteristics (latency-critical, throughput-optimized, security-hardened).
 
-**Status**: Spezifikation der 3 Protokolle wird im Projektverlauf als M3-Modelle definiert, basierend auf MMB-M3-Bibliothek
+**Status**: Specification of the 3 protocols will be defined during the project course as M3 models, based on MMB-M3 library
 
 ---
 
 ## 7. Expected Results
 
-Die Forschungsarbeit strebt sowohl wissenschaftliche Beiträge (Abschnitt 7.1) als auch praktische Ergebnisse (Abschnitt 7.2) an. Die Evaluation erfolgt anhand eines konkreten Use-Case-Szenarios aus der Automobilproduktion (Abschnitt 7.3), das die industrielle Relevanz demonstriert. Die erwarteten Ergebnisse adressieren direkt die formulierten Hypothesen H1-H4 und tragen zur Schließung der identifizierten Forschungslücken bei.
+The research aims for both scientific contributions (Section 7.1) and practical results (Section 7.2). Evaluation is performed using a concrete use-case scenario from automotive production (Section 7.3) that demonstrates industrial relevance. The expected results directly address the formulated hypotheses H1-H4 and contribute to closing the identified research gaps.
 
 ### 7.1 Scientific Contributions (Focus on Process Communication)
 
@@ -869,99 +911,99 @@ Beitrag B5 liefert einen Skalierbarkeitsnachweis für mehr als 100.000 Services 
 
 ### 7.2 Practical Results
 
-Die praktischen Ergebnisse gliedern sich in vier Deliverables. Ergebnis E1 umfasst einen M2-SDK-Compiler Prototyp mit IPC-Optimizer als Open-Source-Implementierung, realisiert in C++20/23 unter `playbooks/VIA-M2-SDK/` mit vollständigem Testframework, der lauffähige M1-Systemprojekte in `playbooks/VIA-M1-System/` generiert.
+The practical results are structured into four deliverables. Result E1 comprises an M2-SDK compiler prototype with IPC-Optimizer as open-source implementation, realized in C++20/23 under `playbooks/VIA-M2-SDK/` with complete test framework, generating executable M1 system projects in `playbooks/VIA-M1-System/`.
 
-Ergebnis E2 liefert eine Benchmark-Suite für IPC-Performance mit Metriken für Latenz (P50/P95/P99 Perzentile), Throughput (Messages/s), CPU-Last (%), und Memory Footprint (MB), wobei automatische Testausführung über das generierte Deploy-Protocol erfolgt.
+Result E2 delivers a benchmark suite for IPC performance with metrics for latency (P50/P95/P99 percentiles), throughput (messages/s), CPU load (%), and memory footprint (MB), where automatic test execution occurs via the generated Deploy-Protocol.
 
-Ergebnis E3 implementiert einen Use-Case für SCADA, MES und PLC-Edge-Integration als exemplarisches Szenario mit 100 PLC-Edge-Devices (MIPS/ARM), 10 MES-Servern (x86), 3 SCADA-Servern (x86) und 5 Analytics-Services (Kubernetes Pods), wobei die Prozesskette 1Hz Produktionsdaten über 0.1Hz Aggregation zu Event-based Alarmen transformiert.
+Result E3 implements a use case for SCADA, MES, and PLC edge integration as exemplary scenario with 100 PLC edge devices (MIPS/ARM), 10 MES servers (x86), 3 SCADA servers (x86), and 5 analytics services (Kubernetes Pods), where the process chain transforms 1Hz production data via 0.1Hz aggregation to event-based alarms.
 
-Ergebnis E4 erstellt einen Standardisierungsvorschlag für das VIA Process-Group-Protocol zur Einreichung bei der OPC Foundation, umfassend die VIA Custom Companion Specification (VIAProcessType, VIARouterType, VIASchedulerType, VIARegistryType), dokumentiert als OPC UA NodeSet XML zur Prüfung als offizielle Companion Spec.
+Result E4 creates a standardization proposal for the VIA Process-Group-Protocol for submission to the OPC Foundation, encompassing the VIA Custom Companion Specification (VIAProcessType, VIARouterType, VIASchedulerType, VIARegistryType), documented as OPC UA NodeSet XML for review as official Companion Spec.
 
 ### 7.3 Concrete Evaluation Criteria
 
-#### 7.3.1 Use-Case-Szenario: Automobilproduktion (Exemplarisch)
+#### 7.3.1 Use-Case Scenario: Automotive Production (Exemplary)
 
-Das exemplarische Use-Case-Szenario aus der Automobilproduktion dient zur Validierung der VIA-Architektur in einem realistischen industriellen Kontext. Die System-Architektur umfasst 100 PLC-Edge-Devices für Roboterarme, Förderbänder und Prüfstationen auf MIPS oder ARM mit Linux, 10 MES-Server als Manufacturing Execution System auf x86 mit Windows Server, 3 SCADA-Server für Supervisory Control und Visualisierung auf x86 mit Linux, sowie 5 Analytics-Services für Predictive Maintenance und Quality Control als Kubernetes Pods.
+The exemplary use-case scenario from automotive production serves to validate the VIA architecture in a realistic industrial context. The system architecture comprises 100 PLC edge devices for robotic arms, conveyor belts, and test stations on MIPS or ARM with Linux, 10 MES servers as Manufacturing Execution System on x86 with Windows Server, 3 SCADA servers for Supervisory Control and visualization on x86 with Linux, and 5 analytics services for Predictive Maintenance and Quality Control as Kubernetes Pods.
 
-Die exemplarische Prozesskette verläuft wie folgt: PLC-Edge sendet Produktionsdaten an MES mit 1 Hz Frequenz und 1 KB Nachrichtengröße, MES aggregiert und sendet Daten an Analytics mit 0.1 Hz und 10 KB, Analytics generiert Alarme und Prognosen für SCADA Event-based mit 100 Bytes, und SCADA sendet Steuerkommandos zurück an PLC-Edge mit 0.5 Hz und 50 Bytes.
+The exemplary process chain proceeds as follows: PLC edge sends production data to MES with 1 Hz frequency and 1 KB message size, MES aggregates and sends data to Analytics with 0.1 Hz and 10 KB, Analytics generates alarms and forecasts for SCADA event-based with 100 bytes, and SCADA sends control commands back to PLC edge with 0.5 Hz and 50 bytes.
 
-Die quantitativen Erfolgsmetriken definieren messbare Zielwerte: Latenz P95 unter 5ms für die End-to-End Prozesskette, Throughput über 10.000 Messages pro Sekunde für das Gesamtsystem, CPU-Last unter 20% pro Service, Memory Footprint unter 50 MB pro Service, sowie Entwicklungszeit-Reduktion von 8 Stunden manuell auf 2 Stunden metamodell-generiert, was einer 75% Reduktion entspricht.
+The quantitative success metrics define measurable target values: Latency P95 under 5ms for the end-to-end process chain, throughput over 10,000 messages per second for the overall system, CPU load under 20% per service, memory footprint under 50 MB per service, and development time reduction from 8 hours manual to 2 hours metamodel-generated, representing a 75% reduction.
 
-#### 7.3.2 Vergleich mit Baselines
+#### 7.3.2 Comparison with Baselines
 
-**Hinweis**: Die folgenden Werte sind **Projektziele und Literaturschätzungen**, keine gemessenen Ergebnisse. VIA-Werte werden in Phase 5 (Evaluation) empirisch ermittelt.
+**Note**: The following values are **project goals and literature estimates**, not measured results. VIA values will be empirically determined in Phase 5 (Evaluation).
 
-| Metrik | gRPC (Literatur)[^1] | Istio Service Mesh (Literatur)[^2] | UNIX Sockets (Literatur)[^3] | ROS2 DDS (Literatur)[^4] | VIA (Projektziel) |
+| Metric | gRPC (Literature)[^1] | Istio Service Mesh (Literature)[^2] | UNIX Sockets (Literature)[^3] | ROS2 DDS (Literature)[^4] | VIA (Project Goal) |
 |--------|---------------|-------------------|--------------|------------------|------------|
-| Latenz P95 | ~0.5-2ms (lokal) | +3-7ms Overhead | ~20-50μs (lokal) | ~2ms (lokal FastRTPS) | Zu messen |
-| Throughput | Architekturabhängig | -20-40% vs. native | Sehr hoch (lokal) | Architekturabhängig | Zu messen |
-| CPU-Last | Baseline | +0.20 vCPU/Sidecar | Minimal (lokal) | DDS-Overhead | Zu messen |
-| Config-Zeit | 8h (manuell) | 4h (Runtime-Setup) | N/A (lokal only) | 4-6h (roslaunch) | Ziel: <3h (Compile-Auto) |
+| Latency P95 | ~0.5-2ms (local) | +3-7ms Overhead | ~20-50μs (local) | ~2ms (local FastRTPS) | To measure |
+| Throughput | Architecture-dependent | -20-40% vs. native | Very high (local) | Architecture-dependent | To measure |
+| CPU Load | Baseline | +0.20 vCPU/Sidecar | Minimal (local) | DDS overhead | To measure |
+| Config Time | 8h (manual) | 4h (runtime setup) | N/A (local only) | 4-6h (roslaunch) | Goal: <3h (compile-auto) |
 
-[^1]: gRPC Performance Best Practices (2024). Latenz abhängig von Message-Größe, Serialization-Overhead, und Netzwerk-Topologie.
-[^2]: Istio Performance Docs (2024). Sidecar Proxy: 0.20 vCPU, 60 MB Memory. Latenz-Overhead variiert mit Features.
-[^3]: Stevens & Rago (2013), Unix Domain Sockets. Kernel-level IPC, nur für lokale Kommunikation, keine verteilte Orchestrierung.
-[^4]: Maruyama et al. (2016), Exploring the performance of ROS2. Latenz ~2ms (lokal) mit FastRTPS DDS-Implementierung. ROS2 bietet bessere QoS-Garantien als ROS1, jedoch höhere Latenz durch DDS-Middleware-Overhead.
+[^1]: gRPC Performance Best Practices (2024). Latency dependent on message size, serialization overhead, and network topology.
+[^2]: Istio Performance Docs (2024). Sidecar Proxy: 0.20 vCPU, 60 MB Memory. Latency overhead varies with features.
+[^3]: Stevens & Rago (2013), Unix Domain Sockets. Kernel-level IPC, only for local communication, no distributed orchestration.
+[^4]: Maruyama et al. (2016), Exploring the performance of ROS2. Latency ~2ms (local) with FastRTPS DDS implementation. ROS2 offers better QoS guarantees than ROS1, but higher latency due to DDS middleware overhead.
 
-#### 7.3.3 Multi-Level Debugging & Revisionsverwaltung
+#### 7.3.3 Multi-Level Debugging & Revision Management
 
-Ein zentraler Vorteil der VIA-Architektur liegt in der **bidirektionalen Metamodell-Traceability** über alle Abstraktionsebenen (M3 ↔ M2 ↔ M1 ↔ M0). Diese Fähigkeit adressiert eine fundamentale Schwäche von ROS, wo Module in beliebigen Sprachen auf jeder Ebene eingefügt werden können, was schnell zur Unübersichtlichkeit führt, insbesondere wenn Modelle nicht in gängigen Modellsprachen in M3 definiert, sondern direkt in M2 implementiert oder in M1 hart ergänzt werden.
+A central advantage of the VIA architecture lies in **bidirectional metamodel traceability** across all abstraction levels (M3 ↔ M2 ↔ M1 ↔ M0). This capability addresses a fundamental weakness of ROS, where modules in arbitrary languages can be inserted at any level, quickly leading to confusion, especially when models are not defined in common modeling languages at M3, but directly implemented at M2 or hard-coded at M1.
 
-**Reverse-Engineering-Capability**: VIA ermöglicht die Rückübersetzung von Softwarearchitektur aus M2 (kundenspezifische Modell-Sprachkonzepte) und aus M1 (implementierter Code) nach M3. Durch erneute Kompilierung wird getestet, ob die in M3 rückerstellten Modelle wieder in M2 und M1 kompiliert werden können und dieselbe Bedeutungsebene für die M0-Module liefern. Dies gewährleistet **Semantic Consistency** über den gesamten Metamodell-Stack.
+**Reverse-Engineering Capability**: VIA enables reverse translation of software architecture from M2 (customer-specific model language concepts) and from M1 (implemented code) back to M3. Through recompilation, it is tested whether the M3-reconstructed models can be compiled again to M2 and M1 and deliver the same semantic level for M0 modules. This ensures **Semantic Consistency** across the entire metamodel stack.
 
-**Revisionsverwaltung über alle Metaschichten**: Die Revisionsverwaltung (Teil von Abschnitt 2.3 Hauptprogramm) bildet ein Teil-Framework des Hauptprogramms und verwaltet:
+**Revision Management across all Meta Layers**: Revision management (part of Section 2.3 Main Program) forms a sub-framework of the main program and manages:
 
-- **Alle Codeabschnitte & Komponenten**: Vollständiger Überblick über alle existierenden Module, Services und externe Frameworks
-- **Meta-Lokation**: Zuordnung jedes Elements zu seiner Position im Metamodell (M3/M2/M1/M0)
-- **Implementierung & Kompilationsabhängigkeiten**: Dependency-Graph über alle Ebenen mit bidirektionaler Traceability
-- **Semantische Bedeutung**: Formale Semantik-Annotationen, die Reverse-Engineering ermöglichen
+- **All Code Sections & Components**: Complete overview of all existing modules, services, and external frameworks
+- **Meta Location**: Assignment of each element to its position in the metamodel (M3/M2/M1/M0)
+- **Implementation & Compilation Dependencies**: Dependency graph across all levels with bidirectional traceability
+- **Semantic Meaning**: Formal semantic annotations enabling reverse engineering
 
-**Debugging-Architektur**: Die Revisionsverwaltung ist eng verknüpft mit dem Multi-Level Debugging System:
+**Debugging Architecture**: Revision management is tightly coupled with the multi-level debugging system:
 
-1. **M0 → M1 Tracing**: Runtime-Fehler werden auf Code-Ebene lokalisiert
-2. **M1 → M2 Tracing**: Code-Fehler werden auf Modell-Ebene zurückverfolgt
-3. **M2 → M3 Tracing**: Modell-Fehler werden auf Metamodell-Konzepte gemappt
-4. **M3 → M2 → M1 Recompilation**: Korrigierte Metamodelle werden durchgängig neu kompiliert
+1. **M0 → M1 Tracing**: Runtime errors are localized at code level
+2. **M1 → M2 Tracing**: Code errors are traced back to model level
+3. **M2 → M3 Tracing**: Model errors are mapped to metamodel concepts
+4. **M3 → M2 → M1 Recompilation**: Corrected metamodels are consistently recompiled
 
-**Kommentarfunktion & Dokumentation**: Die Revisionsverwaltung organisiert die Weitergabe von Kommentaren über alle Ebenen:
-- **M3-Kommentare**: Semantische Beschreibung von Metamodell-Konzepten
-- **M2-Kommentare**: Architektur-Dokumentation für Modelle
-- **M1-Kommentare**: Inline-Code-Dokumentation
-- **Bidirektionale Propagierung**: Änderungen in M1-Kommentaren können zu M2/M3 propagiert werden
+**Comment Function & Documentation**: Revision management organizes the propagation of comments across all levels:
+- **M3 Comments**: Semantic description of metamodel concepts
+- **M2 Comments**: Architecture documentation for models
+- **M1 Comments**: Inline code documentation
+- **Bidirectional Propagation**: Changes in M1 comments can be propagated to M2/M3
 
-**Abgrenzung zu ROS**: Während ROS keine formale Metamodell-Hierarchie und keine Reverse-Engineering-Capability bietet, garantiert VIA durch die Revisionsverwaltung durchgängige Traceability und ermöglicht Model-Driven Round-Trip Engineering.
+**Distinction from ROS**: While ROS offers no formal metamodel hierarchy and no reverse-engineering capability, VIA guarantees end-to-end traceability through revision management and enables model-driven round-trip engineering.
 
-**Projektlokation**: `playbooks/VIA-M2-SDK/revision_management.md` (zukünftig, **Spezifikation in Planung**)
+**Project Location**: `playbooks/VIA-M2-SDK/revision_management.md` (future, **specification in planning**)
 
 ### 7.4 Limitations
 
-Die Forschungsarbeit unterliegt fünf wesentlichen Limitationen. Limitation L1 besteht darin, dass Compile-Time-Optimierung eine statische Topologie erfordert, wobei dynamische Änderungen eine Neu-Compilation notwendig machen, was die Flexibilität zur Laufzeit einschränkt.
+The research is subject to five essential limitations. Limitation L1 consists in that compile-time optimization requires a static topology, where dynamic changes necessitate recompilation, limiting runtime flexibility.
 
-Limitation L2 liegt darin, dass die entwickelten M3-Modellelemente noch nicht in der offiziellen AAS-Spezifikation standardisiert sind, wodurch Interoperabilität mit anderen AAS-Implementierungen zunächst begrenzt ist.
+Limitation L2 lies in that the developed M3 model elements are not yet standardized in the official AAS specification, whereby interoperability with other AAS implementations is initially limited.
 
-Limitation L3 betrifft die Cross-Architektur-Performance, die zwischen verschiedenen Plattformen variiert (MIPS vs. x86), was unterschiedliche Optimierungsergebnisse für heterogene Systeme zur Folge hat.
+Limitation L3 concerns cross-architecture performance, which varies between different platforms (MIPS vs. x86), resulting in different optimization results for heterogeneous systems.
 
-Limitation L4 besteht darin, dass die Laborumgebung mit drei Nodes Extrapolation auf mehr als 50.000 Geräte erfordert, wobei Skalierungsverhalten in Produktionsumgebungen von simulierten Ergebnissen abweichen kann.
+Limitation L4 consists in that the laboratory environment with three nodes requires extrapolation to more than 50,000 devices, where scaling behavior in production environments may deviate from simulated results.
 
-Limitation L5 betrifft die Hypothesen H1-H4, die als zu testende Annahmen formuliert sind. Deren empirische Validierung hängt von der Qualität des IPC-Optimizers und der Repräsentativität der Benchmark-Szenarien ab. Ein Fehlschlagen einzelner Hypothesen (z.B. H1 bei bestimmten Latenz-Szenarien) beeinträchtigt nicht die Kernbeiträge dieser Arbeit (Metamodell-Extension, Process-Group-Protocol-Spezifikation, Pareto-Optimierungsalgorithmus), da diese unabhängig vom empirischen Validierungsergebnis wissenschaftlichen Wert haben.
+Limitation L5 concerns hypotheses H1-H4, which are formulated as assumptions to be tested. Their empirical validation depends on the quality of the IPC-Optimizer and the representativeness of the benchmark scenarios. A failure of individual hypotheses (e.g., H1 in certain latency scenarios) does not impair the core contributions of this work (metamodel extension, Process-Group-Protocol specification, Pareto optimization algorithm), as these have scientific value independent of empirical validation results.
 
 ---
 
 ## 8. Timeline (Focus on Process Communication)
 
-Der Zeitplan gliedert sich in sechs Phasen mit einer Gesamtdauer von 22 Wochen (circa 5 Monate). Phase 1 umfasste Research und Analyse zu AAS, OPC UA und IPC über vier Wochen und ist abgeschlossen. Phase 2 fokussierte auf Playbook und M3-Metamodell-Design über zwei Wochen und ist ebenfalls abgeschlossen.
+The timeline is structured into six phases with a total duration of 22 weeks (approximately 5 months). Phase 1 comprised research and analysis on AAS, OPC UA, and IPC over four weeks and is completed. Phase 2 focused on playbook and M3 metamodel design over two weeks and is also completed.
 
-Phase 3 erstreckt sich über sechs Wochen zur Entwicklung des M2-SDK-Compiler Prototyps mit IPC-Optimizer. Woche 1-2 implementieren den graph-basierten Optimierungsalgorithmus, Woche 3-4 realisieren die IPC-Mechanismus-Implementierung für Pipe, Socket, TCP, File-Queue und Thread, und Woche 5-6 spezifizieren das Process-Group-Protocol unter OPC UA.
+Phase 3 extends over six weeks for development of the M2-SDK compiler prototype with IPC-Optimizer. Weeks 1-2 implement the graph-based optimization algorithm, weeks 3-4 realize the IPC mechanism implementation for Pipe, Socket, TCP, File-Queue, and Thread, and weeks 5-6 specify the Process-Group-Protocol under OPC UA.
 
-Phase 4 umfasst vier Wochen für Benchmark-Suite und Use-Case. Woche 1-2 implementieren die Benchmark-Suite für Latenz, Throughput, CPU und Memory, während Woche 3-4 den Automobilproduktion Use-Case mit SCADA, MES und PLC realisieren.
+Phase 4 comprises four weeks for benchmark suite and use case. Weeks 1-2 implement the benchmark suite for latency, throughput, CPU, and memory, while weeks 3-4 realize the automotive production use case with SCADA, MES, and PLC.
 
-Phase 5 widmet sich über vier Wochen der Evaluation und Vergleichsmessungen. Woche 1 führt Baseline-Messungen für gRPC, Istio und UNIX Sockets durch, Woche 2-3 erheben VIA-Messungen und Skalierungstests, und Woche 4 wertet die Ergebnisse aus und validiert die Hypothesen H1-H4.
+Phase 5 is dedicated over four weeks to evaluation and comparative measurements. Week 1 conducts baseline measurements for gRPC, Istio, and UNIX Sockets, weeks 2-3 collect VIA measurements and scaling tests, and week 4 evaluates results and validates hypotheses H1-H4.
 
-Phase 6 erstreckt sich über vier Wochen für Dokumentation und Publikation. Woche 1-2 verfassen den Forschungsbericht, Woche 3 bereitet ein Paper für INDIN oder ETFA-Konferenz vor, und Woche 4 erstellt den OPC Foundation Standardisierungsvorschlag.
+Phase 6 extends over four weeks for documentation and publication. Weeks 1-2 compose the research report, week 3 prepares a paper for INDIN or ETFA conference, and week 4 creates the OPC Foundation standardization proposal.
 
 ---
 
-**Zweck**: Ready-to-paste Version für Exposé
+**Purpose**: Ready-to-paste version for exposé
 
 ---
 
