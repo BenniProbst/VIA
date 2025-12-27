@@ -1,23 +1,13 @@
-#!/bin/bash
-# VIA Configuration Script for Linux/macOS
-# Copyright (c) 2025 BEP Venture UG
+#!/usr/bin/env bash
+set -euo pipefail
 
-BUILD_TYPE="Release"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILDSYSTEM_DIR="${BEP_BUILDSYSTEM_PATH:-$SCRIPT_DIR/third_party/BuildSystem}"
+INTERFACE="$BUILDSYSTEM_DIR/scripts/interface.sh"
 
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --build-type=*)
-            BUILD_TYPE="${1#*=}"
-            shift
-            ;;
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
-done
+if [[ ! -f "$INTERFACE" ]]; then
+  echo "[BEP][ERROR] BuildSystem interface not found: $INTERFACE" >&2
+  exit 1
+fi
 
-echo "Configuring VIA with build type: $BUILD_TYPE"
-mkdir -p "cmake-build-${BUILD_TYPE,,}"
-cd "cmake-build-${BUILD_TYPE,,}"
-cmake -DCMAKE_BUILD_TYPE="$BUILD_TYPE" ..
+exec "$INTERFACE" "$SCRIPT_DIR/buildsystem.xml" "$SCRIPT_DIR"
