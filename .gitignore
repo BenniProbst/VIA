@@ -66,3 +66,7 @@ Testing/
 *.lic
 *.key
 license_*.txt
+
+# Non-disclosure audio recordings (local only)
+/Sprachaufnahmen/*
+!/Sprachaufnahmen/.gitkeep
